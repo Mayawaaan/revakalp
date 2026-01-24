@@ -6,8 +6,8 @@ const SubCategoryPage = () => {
   const { category } = useParams();
   const { sareeTypes, suitTypes, kurtaTypes } = useStore();
 
-  let types = [];
-  let heading = "";
+  let types;
+  let heading;
 
   switch (category) {
     case "saree":
@@ -23,7 +23,15 @@ const SubCategoryPage = () => {
       heading = "Kurta Styles";
       break;
     default:
-      return <Navigate to={`/shop/${category}/all`} />;
+      return <Navigate to="/shop/saree/all" replace />;
+  }
+
+  if (!types || types.length === 0) {
+    return (
+      <section className="py-32 text-center text-pink-700">
+        Loading collections…
+      </section>
+    );
   }
 
   return (
@@ -53,32 +61,24 @@ const SubCategoryPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
           {types.map((type) => (
             <Link
-              to={`/shop/${category}/${type.id}`}
-              key={type.id}
+              key={type.slug}
+              to={`/shop/${category}/${type.slug}`}
               className="group relative"
             >
               <div className="relative overflow-hidden rounded-3xl shadow-xl bg-white">
 
-                {/* Image */}
                 <img
                   src={type.image}
                   alt={type.name}
                   className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
-                {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
 
-                {/* Text */}
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <h3 className="font-serif text-2xl text-white mb-1">
                     {type.name}
                   </h3>
-                  {type.psychology && (
-                    <p className="text-pink-200 text-sm leading-relaxed">
-                      {type.psychology}
-                    </p>
-                  )}
                 </div>
 
               </div>

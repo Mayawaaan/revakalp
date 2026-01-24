@@ -14,6 +14,7 @@ export const uploadImageToCloudinary = async (file) => {
   try {
     const result = await cloudinary.uploader.upload(file.path, {
       folder: "e-commerce",
+      
     });
     return result.secure_url;
   } catch (error) {
@@ -21,6 +22,27 @@ export const uploadImageToCloudinary = async (file) => {
     throw new Error("Error uploading image to Cloudinary");
   }
 };
+
+export const deleteImageFromCloudinary = async (publicId) => {
+    try {
+        await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        console.error("Error deleting image from Cloudinary:", error);
+        throw new Error("Error deleting image from Cloudinary");
+    }
+};
+
+export const getPublicIdFromUrl = (url) => {
+    try {
+        const regex = /e-commerce\/(.*?)\./;
+        const match = url.match(regex);
+        return match ? `e-commerce/${match[1]}` : null;
+    } catch (error) {
+        console.error("Error extracting public ID from URL:", error);
+        return null;
+    }
+};
+
 
 export const generateToken = (userId, res) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {

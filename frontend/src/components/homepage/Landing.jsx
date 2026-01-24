@@ -1,7 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import useWindowSize from "../../hooks/useWindowSize";
 
 const Landing = () => {
+  const { width } = useWindowSize();
+
+  if (width < 768) {
+    return null;
+  }
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
 

@@ -1,30 +1,86 @@
 import Product from "../models/product.model.js";
 import { uploadImageToCloudinary } from "../lib/utils.js";
 import fs from "fs";
+import mongoose from "mongoose";
+
+// export const getAllProducts = async (req, res) => {
+//   try {
+//     const { category, subCategory, type, bestseller, gender, state, print, exclusivity, id } = req.query;
+//     const filter = {};
+// //  console.log('=========================================33333========================================',req.query)
+//     if (id) filter._id = id;
+
+//     if (category) filter.category = category;
+//     if (subCategory) filter.subCategory = subCategory;
+//     if (type) filter.type = type;
+//     if (bestseller) filter.bestseller = bestseller === 'true';
+//     if (gender) filter.gender = gender;
+//     if (state) filter.state = state;
+//     if (print) filter.print = print;
+//     if (exclusivity) filter.exclusivity = exclusivity;
+    
+
+//     const products = await Product.find(filter);
+//     console.log('=================================================================================',products)
+//     res.status(200).json(products);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error fetching products', error: error.message });
+//   }
+// };
 
 
 export const getAllProducts = async (req, res) => {
   try {
-    const { category, subCategory, type, bestseller, gender, state, print, exclusivity, _id } = req.query;
+    const {
+      category,
+      subCategory,
+      type,
+      bestseller,
+      gender,
+      state,
+      print,
+      exclusivity,
+      id
+    } = req.query;
+
     const filter = {};
 
-    if (_id) filter._id = _id;
+    // 🔹 ID filter
+    if (id) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid product id" });
+      }
+      filter._id = new mongoose.Types.ObjectId(id);
+    }
+
+    // 🔹 Dynamic filters
     if (category) filter.category = category;
     if (subCategory) filter.subCategory = subCategory;
     if (type) filter.type = type;
-    if (bestseller) filter.bestseller = bestseller === 'true';
+    if (bestseller !== undefined) filter.bestseller = bestseller === "true";
     if (gender) filter.gender = gender;
     if (state) filter.state = state;
     if (print) filter.print = print;
     if (exclusivity) filter.exclusivity = exclusivity;
-    
 
-    const products = await Product.find(filter);
-    res.status(200).json(products);
+    // 🔹 Fetch products
+    const products = await Product.find(filter).lean(); // lean = plain JSON + _id visible
+// console.log('=================================================================================',products)
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching products', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching products",
+      error: error.message
+    });
   }
 };
+
 
 export const getProductById = async (req, res) => {
   try {
@@ -32,6 +88,7 @@ export const getProductById = async (req, res) => {
     const product = await Product.findById(id);
 
     if (!product) {
+
       return res.status(404).json({ message: 'Product not found' });
     }
     res.status(200).json(product);
@@ -43,7 +100,6 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const {
-      
       name,
       description,
       price,

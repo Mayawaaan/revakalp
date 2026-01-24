@@ -34,6 +34,30 @@ const SareeTypesPage = () => {
 
         {/* Saree Types */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+          <Link
+            to={`/shop/${category}/all`}
+            className="group relative"
+          >
+            <div className="relative overflow-hidden rounded-3xl shadow-xl bg-white">
+
+              {/* Image */}
+              <img
+                src="/hero.jpg"
+                alt="All Sarees"
+                className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+
+              {/* Text */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="font-serif text-2xl text-white mb-1">
+                  All Sarees
+                </h3>
+              </div>
+            </div>
+          </Link>
           {sareeTypes.map((type) => (
             <Link
               to={`/shop/${category}/${type.id}`}

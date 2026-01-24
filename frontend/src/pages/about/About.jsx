@@ -27,7 +27,7 @@ const About = () => {
       <div className="relative max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center pb-28">
         <div className="relative">
           <img
-            src="https://res.cloudinary.com/demo/image/upload/w_800/woman_pensive.jpg"
+            src="./about.png"
             alt="Revakalp Heritage"
             className="rounded-3xl shadow-2xl"
           />

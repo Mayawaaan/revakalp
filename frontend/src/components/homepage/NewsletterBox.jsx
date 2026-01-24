@@ -2,48 +2,57 @@ import React from "react";
 
 const NewsletterBox = () => {
   return (
-    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28 overflow-hidden">
+    <section
+      className="relative isolate overflow-hidden py-36"
+      style={{
+        WebkitMaskImage:
+          "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 12%, black 30%, black 70%, rgba(0,0,0,0.6) 88%, transparent 100%)",
+        maskImage:
+          "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 12%, black 30%, black 70%, rgba(0,0,0,0.6) 88%, transparent 100%)",
+      }}
+    >
+      {/* Soft ambient wash */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff4f8] to-transparent" />
 
-      {/* Soft background glow */}
-      <div className="absolute -top-32 left-24 w-[420px] h-[420px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
-      <div className="absolute -bottom-40 right-24 w-[520px] h-[520px] bg-rose-300 rounded-full blur-3xl opacity-30"></div>
+      {/* Diffused glows (pushed downward) */}
+      <div className="absolute top-1/3 left-1/4 w-[560px] h-[560px] bg-rose-200/35 rounded-full blur-[160px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-[620px] h-[620px] bg-pink-300/30 rounded-full blur-[180px]" />
 
-      <div className="relative max-w-3xl mx-auto px-8 text-center">
+      {/* Content */}
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
 
-        {/* Micro heading */}
-        <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
+        <p className="mb-6 text-xs tracking-[0.3em] uppercase text-pink-500">
           Stay Connected
         </p>
 
-        {/* Main heading */}
-        <h2 className="font-serif text-4xl md:text-5xl text-pink-900">
+        <h2 className="font-serif text-4xl md:text-5xl text-pink-900 leading-tight">
           Join the Revakalp Circle
         </h2>
 
-        {/* Subtext */}
-        <p className="mt-6 text-pink-700 text-lg leading-relaxed">
-          Be the first to discover new collections, exclusive previews,
-          and stories from India’s weaving traditions.
+        <p className="mt-6 text-lg text-pink-700/90 leading-relaxed">
+          Discover new collections, quiet launches, and stories woven from
+          India’s timeless textile traditions.
         </p>
 
-        {/* Form */}
-        <form className="mt-10 flex flex-col sm:flex-row items-center gap-4 bg-white/80 backdrop-blur-xl p-4 rounded-full shadow-xl">
-          <input
-            type="email"
-            required
-            placeholder="Enter your email address"
-            className="flex-1 px-6 py-4 rounded-full outline-none text-gray-700 placeholder-gray-400"
-          />
-          <button
-            type="submit"
-            className="bg-[#c9487c] hover:bg-[#9c2756] text-white px-10 py-4 rounded-full font-medium shadow-lg transition"
-          >
-            Subscribe
-          </button>
-        </form>
+        {/* Floating form */}
+        <div className="mt-16">
+          <form className="mx-auto flex max-w-xl flex-col sm:flex-row items-center gap-3 rounded-2xl bg-white/65 backdrop-blur-2xl px-4 py-4 shadow-[0_40px_90px_-35px_rgba(200,72,124,0.35)] ring-1 ring-pink-200/40">
+            <input
+              type="email"
+              required
+              placeholder="Enter your email address"
+              className="flex-1 w-full bg-transparent px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-gradient-to-br from-[#c9487c] to-[#a83261] px-8 py-3 text-white font-medium shadow-lg hover:shadow-xl transition-all"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
 
-        {/* Trust note */}
-        <p className="mt-6 text-xs text-pink-600">
+        <p className="mt-10 text-xs text-pink-600/80">
           No spam. Only thoughtful updates and timeless inspiration.
         </p>
       </div>

@@ -11,8 +11,8 @@ import wishlistRoutes from "./src/routes/wishlist.routes.js";
 import productRoutes from "./src/routes/product.routes.js";
 import orderRoutes from "./src/routes/order.routes.js";
 import typeRoutes from "./src/routes/type.routes.js";
-import adminRoutes from "./src/routes/admin.routes.js";
 import settingsRoutes from "./src/routes/settings.routes.js";
+import adminRoutes from "./src/routes/admin.routes.js";
 import fs from "fs";
 import path from "path";
 
@@ -42,8 +42,8 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/types", typeRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/admin",adminRoutes);
 
 app.listen(PORT, () => {
     console.log("server is running on http://localhost:" + PORT);
@@ -52,5 +52,10 @@ app.listen(PORT, () => {
         console.log("MONGO_URI environment variable is loaded.");
     } else {
         console.error("MONGO_URI environment variable is NOT loaded. Please check your .env file.");
+    }
+    if (process.env.JWT_SECRET) {
+        console.log("JWT_SECRET environment variable is loaded.");
+    } else {
+        console.error("JWT_SECRET environment variable is NOT loaded. Please check your .env file.");
     }
 });

@@ -1,4 +1,3 @@
-
 export const createProductSlice = (set, get) => ({
   collections: [],
   sareeTypes: [],
@@ -7,18 +6,15 @@ export const createProductSlice = (set, get) => ({
   products: [],
   loading: false,
   error: null,
-
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
       const [productsRes, collectionsRes, sareeTypesRes, kurtaTypesRes, suitTypesRes] = await Promise.all([
         fetch('/api/products'),
-
         fetch('/api/collections'),
         fetch('/api/types/saree'),
         fetch('/api/types/kurta'),
         fetch('/api/types/suit')
-        
       ]);
 
       const products = await productsRes.json();
@@ -32,7 +28,7 @@ export const createProductSlice = (set, get) => ({
         sareeTypes,
         kurtaTypes,
         suitTypes,
-        products,
+        products : products?.data || [],
         loading: false
       });
     } catch (error) {
@@ -40,7 +36,7 @@ export const createProductSlice = (set, get) => ({
     }
   },
   getProductById: (id) => {
-    return get().products.find(product => product._id === id);    
+    return get().products.find(product => product._id === id);
   },
   getProductsByCategory: (category) => {
     return get().products.filter(product => product.category.toLowerCase() === category.toLowerCase());

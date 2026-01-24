@@ -28,19 +28,19 @@ export default function Contact() {
       {/* ================= HERO ================= */}
       <div className="relative h-[70vh] flex items-center justify-center overflow-hidden">
         <img
-          src="./goldLogo.png"
-          className="absolute inset-0 w-full h-full object-contain scale-100 bg-black/75"
+          src="./contact.png"
+          className="absolute inset-0 w-full h-full object-cover scale-105 bg-black/30"
           alt="Revakalp Boutique"
         />
         <div className="absolute inset-0 bg-black/40"></div>
 
         <div className="relative text-center text-white max-w-3xl px-6">
           <h1 className="text-5xl md:text-6xl font-serif mb-6">
-            Let Us Weave Your Experience
+            Let Us Weave Your <span className="text-pink-600">Experience</span>
           </h1>
-          <p className="text-lg text-white/90 leading-relaxed">
-            Every Revakalp creation carries the spirit of Indian artisans.
-            Our team is here to ensure your journey is just as beautiful as the fabric you wear.
+          <p className="text-lg text-white/90 leading-relaxed mb-4">
+            Every <span className="text-pink-600">Revakalp</span> creation reflects the essence of Indian craftsmanship and thoughtful design.
+Our team is here to ensure your journey is as <br /> beautiful as the story you choose to wear.
           </p>
         </div>
       </div>

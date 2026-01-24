@@ -1,6 +1,6 @@
-import User from "../models/user.model.js";
-import Order from "../models/order.model.js";
-import Product from "../models/product.model.js";
+import User from "../../models/user.model.js";
+import Order from "../../models/order.model.js";
+import Product from "../../models/product.model.js";
 
 const parseRangeToStartDate = (range) => {
   // Supported: 7d, 30d, 90d, 12m (defaults to 7d)

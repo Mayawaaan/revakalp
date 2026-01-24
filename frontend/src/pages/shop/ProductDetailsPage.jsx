@@ -8,7 +8,7 @@ const ProductDetailsPage = () => {
   const navigate = useNavigate();
   const { products, addToCart, currency } = useStore();
 
-  const product = products.find((p) => p._id === productId);
+  const product = products.find((p) => (p._id || p.id) === productId);
   const [selectedSize, setSelectedSize] = useState("");
 
   if (!product) {
@@ -23,7 +23,7 @@ const ProductDetailsPage = () => {
     name,
     description,
     price,
-    image,
+    image = [],
     category,
     subCategory,
     print,
@@ -32,7 +32,8 @@ const ProductDetailsPage = () => {
     bestseller,
   } = product;
 
-  /* ---------- Badge Logic ---------- */
+  const [activeImage, setActiveImage] = useState(image[0]);
+
   const badgeText = bestseller
     ? "Bestseller"
     : exclusivity === "Limited"
@@ -40,27 +41,77 @@ const ProductDetailsPage = () => {
     : null;
 
   return (
-    <section className="bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28">
-      <div className="max-w-7xl mx-auto px-8">
+    <section className="bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-20">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14">
 
-          {/* Image */}
-          <div className="relative">
-            {badgeText && (
-              <span className="absolute top-6 left-6 z-10 bg-[#c9487c] text-white text-xs px-4 py-1 rounded-full tracking-wider shadow">
-                {badgeText}
-              </span>
+          {/* ================= IMAGE GALLERY ================= */}
+          <div>
+            {/* Desktop main image */}
+            <div className="relative hidden lg:block">
+              {badgeText && (
+                <span className="absolute top-6 left-6 z-10 bg-[#c9487c] text-white text-xs px-4 py-1 rounded-full shadow">
+                  {badgeText}
+                </span>
+              )}
+
+              <img
+                src={activeImage}
+                alt={name}
+                className="w-full rounded-3xl shadow-2xl"
+              />
+            </div>
+
+            {/* Desktop thumbnails */}
+            {image.length > 1 && (
+              <div className="hidden lg:flex gap-4 mt-6">
+                {image.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(img)}
+                    className={`border rounded-xl overflow-hidden transition
+                      ${
+                        activeImage === img
+                          ? "border-[#c9487c]"
+                          : "border-pink-200 hover:border-[#c9487c]"
+                      }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${name} ${i + 1}`}
+                      className="w-24 h-24 object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             )}
 
-            <img
-              src={image[0]}
-              alt={name}
-              className="w-full rounded-3xl shadow-2xl"
-            />
+            {/* Mobile swipe gallery */}
+            <div className="lg:hidden">
+              <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4">
+                {image.map((img, i) => (
+                  <div
+                    key={i}
+                    className="min-w-full snap-center relative"
+                  >
+                    {i === 0 && badgeText && (
+                      <span className="absolute top-4 left-4 z-10 bg-[#c9487c] text-white text-xs px-3 py-1 rounded-full shadow">
+                        {badgeText}
+                      </span>
+                    )}
+                    <img
+                      src={img}
+                      alt={`${name} ${i + 1}`}
+                      className="w-full rounded-3xl shadow-xl"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Info */}
+          {/* ================= PRODUCT INFO ================= */}
           <div>
             <p className="uppercase tracking-[0.3em] text-xs text-pink-600 mb-4">
               {category} • {subCategory}
@@ -87,7 +138,7 @@ const ProductDetailsPage = () => {
               {description}
             </p>
 
-            {/* Size */}
+            {/* Sizes */}
             {sizes?.length > 0 && (
               <div className="mb-10">
                 <p className="text-sm font-medium text-pink-800 mb-4">
@@ -115,7 +166,7 @@ const ProductDetailsPage = () => {
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <button
-                onClick={() => addToCart(product._id, selectedSize)}
+                onClick={() => addToCart(product._id || product.id, selectedSize)}
                 className="flex-1 bg-[#c9487c] hover:bg-[#9c2756] text-white py-4 rounded-full font-medium shadow-xl transition"
               >
                 Add to Cart
@@ -123,8 +174,8 @@ const ProductDetailsPage = () => {
 
               <button
                 onClick={() => {
-                  addToCart(product._id, selectedSize);
-                  navigate("/place-order"); // adjust if needed
+                  addToCart(product._id || product.id, selectedSize);
+                  navigate("/place-order");
                 }}
                 className="flex-1 border border-[#c9487c] text-[#c9487c] hover:bg-[#c9487c] hover:text-white py-4 rounded-full font-medium transition"
               >

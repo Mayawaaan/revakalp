@@ -5,11 +5,29 @@ dotenv.config();
 
 export const protectRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    let token;
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized - No Token Provided" });
-    }
+// 1️⃣ Try cookie FIRST (most reliable)
+if (req.cookies?.jwt) {
+  token = req.cookies.jwt;
+}
+
+// 2️⃣ Only use header if it contains a REAL token
+if (
+  req.headers.authorization &&
+  req.headers.authorization.startsWith("Bearer ")
+) {
+  const headerToken = req.headers.authorization.split(" ")[1];
+  if (headerToken && headerToken !== "undefined") {
+    token = headerToken;
+  }
+}
+
+// console.log("Final token used:", token);
+
+if (!token) {
+  return res.status(401).json({ message: "Unauthorized - No Token Provided" });
+}
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 

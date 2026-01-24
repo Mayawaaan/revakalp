@@ -5,7 +5,7 @@ import ProductItem from "../../components/products/ProductItem";
 
 const ProductListPage = () => {
   const { category, type } = useParams();
-  const { products, loading } = useStore();
+  const { products } = useStore();
 
   const filteredProducts = products.filter((product) => {
     const productCategory = product.type.toLowerCase();
@@ -35,6 +35,8 @@ const ProductListPage = () => {
   const pageTitle =
     displayType.charAt(0).toUpperCase() + displayType.slice(1);
 
+    console.log("111111======",products)
+
   return (
     <section className="bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -55,13 +57,15 @@ const ProductListPage = () => {
 
         {/* Products */}
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
-            {filteredProducts.map(({ _id, ...rest }) => (
-                          <div
-                            className="bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition duration-300"
-                          >
-                            <ProductItem key={_id} id={_id} {...rest} />
-                          </div>            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id || product.id}
+                className="bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition duration-300"
+              >
+                <ProductItem id={product._id || product.id} {...product} />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="text-center py-24">

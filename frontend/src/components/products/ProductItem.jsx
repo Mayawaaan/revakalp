@@ -5,7 +5,7 @@ import { Heart, Eye } from "lucide-react";
 
 const ProductItem = ({ id, image, name, price, onQuickView }) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist } = useStore();
-  const isWishlisted = wishlist.some((item) => item._id === id);
+  const isWishlisted = wishlist.some((item) => (item._id || item.id) === id);
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
@@ -15,6 +15,8 @@ const ProductItem = ({ id, image, name, price, onQuickView }) => {
       addToWishlist(id);
     }
   };
+
+  // console.log("one==========",id,name)
 
   return (
     <Link to={`/product/${id}`} className="group block">
