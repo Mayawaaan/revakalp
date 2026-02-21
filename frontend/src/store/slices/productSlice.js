@@ -6,15 +6,31 @@ export const createProductSlice = (set, get) => ({
   products: [],
   loading: false,
   error: null,
-  fetchProducts: async () => {
+  fetchProducts: async (filters = {}) => {
     set({ loading: true, error: null });
+
+    const { category, subCategory } = filters;
+    const params = new URLSearchParams();
+    if (category) {
+      params.append("category", category);
+    }
+    if (subCategory) {
+      params.append("subCategory", subCategory);
+    }
+
     try {
-      const [productsRes, collectionsRes, sareeTypesRes, kurtaTypesRes, suitTypesRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/collections'),
-        fetch('/api/types/saree'),
-        fetch('/api/types/kurta'),
-        fetch('/api/types/suit')
+      const [
+        productsRes,
+        collectionsRes,
+        sareeTypesRes,
+        kurtaTypesRes,
+        suitTypesRes,
+      ] = await Promise.all([
+        fetch(`/api/products?${params.toString()}`),
+        fetch("/api/collections"),
+        fetch("/api/types/saree"),
+        fetch("/api/types/kurta"),
+        fetch("/api/types/suit"),
       ]);
 
       const products = await productsRes.json();
@@ -28,15 +44,16 @@ export const createProductSlice = (set, get) => ({
         sareeTypes,
         kurtaTypes,
         suitTypes,
-        products : products?.data || [],
-        loading: false
+        products: products || [],
+        loading: false,
       });
     } catch (error) {
       set({ error: error.message, loading: false });
     }
   },
   getProductById: (id) => {
-    return get().products.find(product => product._id === id);
+    // return get().products.find(product => product._id === id);
+    return get().products.find(product => product._id === id || product.id === id);
   },
   getProductsByCategory: (category) => {
     return get().products.filter(product => product.category.toLowerCase() === category.toLowerCase());

@@ -14,290 +14,243 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+const STATUS_FLOW = [
+  'Processing',
+  'Confirmed',
+  'Preparing',
+  'Shipped',
+  'Out for Delivery',
+  'Delivered'
+];
+
 const TrackOrder = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { currency, trackOrder } = useStore();
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchTracking = async () => {
-      setLoading(true);
-      setError(null);
+    if (!orderId) return;
+
+    const fetchOrder = async () => {
       try {
+        setLoading(true);
         const data = await trackOrder(orderId);
         setOrder(data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Order not found');
+        setError(err?.response?.data?.message || 'Order not found');
       } finally {
         setLoading(false);
       }
     };
 
-    if (orderId) {
-      fetchTracking();
-    }
-  }, [orderId, trackOrder]);
+    fetchOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
 
-  const getStatusIcon = (status) => {
+  const statusIndex = STATUS_FLOW.includes(order?.status)
+    ? STATUS_FLOW.indexOf(order.status)
+    : 0;
+
+  const statusIcon = (status, active) => {
+    const cls = active ? 'text-white' : 'text-gray-400';
     switch (status) {
       case 'Delivered':
-        return <CheckCircle2 className="text-green-600" size={24} />;
+        return <CheckCircle2 className={cls} />;
       case 'Out for Delivery':
-        return <Truck className="text-blue-600" size={24} />;
+        return <Truck className={cls} />;
       case 'Shipped':
-        return <PackageCheck className="text-blue-500" size={24} />;
-      case 'Preparing':
-      case 'Confirmed':
-        return <Package className="text-purple-600" size={24} />;
+        return <PackageCheck className={cls} />;
       case 'Processing':
-        return <Clock className="text-yellow-600" size={24} />;
-      case 'Cancelled':
-      case 'Returned':
-        return <XCircle className="text-red-600" size={24} />;
+      case 'Confirmed':
+      case 'Preparing':
+        return <Package className={cls} />;
       default:
-        return <AlertCircle className="text-gray-600" size={24} />;
+        return <AlertCircle className={cls} />;
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-green-500';
-      case 'Out for Delivery':
-        return 'bg-blue-600';
-      case 'Shipped':
-        return 'bg-blue-500';
-      case 'Preparing':
-      case 'Confirmed':
-        return 'bg-purple-500';
-      case 'Processing':
-        return 'bg-yellow-500';
-      case 'Cancelled':
-      case 'Returned':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-400';
-    }
-  };
-
+  /* ================== LOADING ================== */
   if (loading) {
     return (
-      <section className="min-h-screen pt-28 bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-pink-600 mx-auto mb-4" />
-          <p className="text-pink-600">Loading order details...</p>
-        </div>
-      </section>
+      <div className="min-h-screen flex items-center justify-center bg-pink-50">
+        <Loader2 className="animate-spin text-pink-600" size={48} />
+      </div>
     );
   }
 
+  /* ================== ERROR ================== */
   if (error || !order) {
     return (
-      <section className="min-h-screen pt-28 bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee]">
-        <div className="max-w-4xl mx-auto px-8">
+      <div className="min-h-screen bg-pink-50 pt-32 px-6">
+        <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-10 text-center">
+          <XCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
+          <p className="text-gray-600">{error}</p>
           <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-pink-700 mb-8"
+            onClick={() => navigate('/orders')}
+            className="mt-6 px-6 py-3 rounded-full bg-pink-600 text-white"
           >
-            <ArrowLeft /> Back
+            View My Orders
           </button>
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10 text-center">
-            <XCircle className="text-red-500 mx-auto mb-4" size={48} />
-            <h2 className="text-2xl text-pink-800 mb-2">Order Not Found</h2>
-            <p className="text-pink-600">{error || 'The order you are looking for does not exist.'}</p>
-            <button
-              onClick={() => navigate('/orders')}
-              className="mt-6 bg-pink-700 text-white px-8 py-3 rounded-full"
-            >
-              View My Orders
-            </button>
-          </div>
         </div>
-      </section>
+      </div>
     );
   }
 
-  const statusOrder = [
-    'Processing',
-    'Confirmed',
-    'Preparing',
-    'Shipped',
-    'Out for Delivery',
-    'Delivered'
-  ];
-  const currentStatusIndex = statusOrder.indexOf(order.status);
+  /* ================== CANCELLED ================== */
+  if (['Cancelled', 'Returned'].includes(order.status)) {
+    return (
+      <div className="min-h-screen bg-pink-50 pt-28 px-6">
+        <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-pink-700 mb-6"
+          >
+            <ArrowLeft size={18} /> Back
+          </button>
 
-  return (
-    <section className="min-h-screen pt-24 pb-24 bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee]">
-      <div className="max-w-6xl mx-auto px-8">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-pink-700 mb-8"
-        >
-          <ArrowLeft /> Back
-        </button>
-
-        {/* Header */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-start gap-4 bg-red-50 p-6 rounded-xl border border-red-200">
+            <XCircle className="text-red-600" />
             <div>
-              <h1 className="font-serif text-3xl text-pink-900 mb-2">
-                Track Order #{order.orderId}
+              <h3 className="font-semibold text-red-800">
+                Order {order.status}
+              </h3>
+              <p className="text-sm text-red-600">
+                {order.cancelReason || 'This order is no longer active.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ================== MAIN ================== */
+  return (
+    <section className="min-h-screen bg-pink-50 pt-24 pb-24 px-6">
+      <div className="max-w-6xl mx-auto space-y-10">
+
+        {/* HEADER */}
+        <div className="bg-white rounded-3xl shadow-xl p-8">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 text-pink-700 mb-3"
+              >
+                <ArrowLeft size={18} /> Back
+              </button>
+              <h1 className="text-2xl font-serif text-pink-900">
+                Order #{order.orderId}
               </h1>
-              <p className="text-pink-600">
-                Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+              <p className="text-sm text-gray-500">
+                Placed on{' '}
+                {new Date(order.createdAt).toLocaleDateString()}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-pink-600 text-sm mb-1">Total Amount</p>
-              <p className="text-2xl font-semibold text-pink-800">
+              <p className="text-sm text-gray-500">Total</p>
+              <p className="text-2xl font-semibold text-pink-700">
                 {currency}{order.total}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Tracking Timeline */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10 mb-8">
-          <h2 className="text-xl font-semibold text-pink-900 mb-8">Order Status</h2>
-          
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-pink-200"></div>
-            
-            {/* Status Steps */}
-            <div className="space-y-8">
-              {statusOrder.map((status, index) => {
-                const isCompleted = index <= currentStatusIndex;
-                const isCurrent = index === currentStatusIndex;
-                const historyEntry = order.statusHistory?.find(h => h.status === status);
-                
-                return (
-                  <div key={status} className="relative flex items-start gap-6">
-                    {/* Icon */}
-                    <div className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full ${
-                      isCompleted ? getStatusColor(status) : 'bg-gray-300'
-                    } text-white`}>
-                      {isCompleted ? getStatusIcon(status) : <Clock size={20} />}
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 pt-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className={`font-semibold ${
-                          isCurrent ? 'text-pink-900' : isCompleted ? 'text-gray-700' : 'text-gray-400'
-                        }`}>
-                          {status}
-                        </h3>
-                        {historyEntry && (
-                          <span className="text-sm text-pink-600">
-                            {new Date(historyEntry.timestamp).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                      {historyEntry?.note && (
-                        <p className="text-sm text-gray-600">{historyEntry.note}</p>
-                      )}
-                      {isCurrent && order.trackingNumber && (
-                        <div className="mt-2 p-3 bg-pink-50 rounded-lg">
-                          <p className="text-sm font-medium text-pink-900">Tracking Number</p>
-                          <p className="text-lg font-mono text-pink-700">{order.trackingNumber}</p>
-                          {order.carrier && (
-                            <p className="text-xs text-pink-600 mt-1">Carrier: {order.carrier}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
+        {/* STATUS TIMELINE */}
+        <div className="bg-white rounded-3xl shadow-xl p-8">
+          <h2 className="text-lg font-semibold text-pink-900 mb-6">
+            Order Progress
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            {STATUS_FLOW.map((status, index) => {
+              const active = index <= statusIndex;
+              return (
+                <div key={status} className="flex flex-col items-center text-center">
+                  <div
+                    className={`w-12 h-12 flex items-center justify-center rounded-full ${
+                      active ? 'bg-pink-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    {statusIcon(status, active)}
                   </div>
-                );
-              })}
-            </div>
+                  <p
+                    className={`mt-2 text-sm font-medium ${
+                      active ? 'text-pink-800' : 'text-gray-400'
+                    }`}
+                  >
+                    {status}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Estimated Delivery */}
-          {order.estimatedDelivery && order.status !== 'Delivered' && (
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-900">
-                <strong>Estimated Delivery:</strong>{' '}
-                {new Date(order.estimatedDelivery).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
+          {order.estimatedDelivery && (
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm">
+              <strong>Estimated Delivery:</strong>{' '}
+              {new Date(order.estimatedDelivery).toLocaleDateString()}
             </div>
           )}
         </div>
 
-        {/* Shipping Address */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10 mb-8">
-          <h2 className="text-xl font-semibold text-pink-900 mb-6 flex items-center gap-2">
+        {/* SHIPPING */}
+        <div className="bg-white rounded-3xl shadow-xl p-8">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <MapPin className="text-pink-600" /> Shipping Address
           </h2>
-          <div className="text-gray-700">
-            <p className="font-medium">{order.shippingAddress.street}</p>
-            <p>
-              {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
-            </p>
-            <p>{order.shippingAddress.country}</p>
-            {order.shippingAddress.phone && (
-              <p className="mt-2 text-pink-600">Phone: {order.shippingAddress.phone}</p>
-            )}
-          </div>
+          <p>{order.shippingAddress.street}</p>
+          <p>
+            {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
+            {order.shippingAddress.zip}
+          </p>
+          <p>{order.shippingAddress.country}</p>
         </div>
 
-        {/* Order Items */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10">
-          <h2 className="text-xl font-semibold text-pink-900 mb-6">Order Items</h2>
-          <div className="space-y-4">
-            {order.items.map((item, idx) => (
-              <div
-                key={item.productId?._id || idx}
-                className="flex gap-6 items-center py-4 border-b border-pink-100 last:border-0"
-              >
-                <img
+        {/* ITEMS */}
+        <div className="bg-white rounded-3xl shadow-xl p-8">
+          <h2 className="text-lg font-semibold mb-6">Items</h2>
+
+          {order.items.map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-6 py-4 border-b last:border-0"
+            >
+              <img
                   src={Array.isArray(item.image) ? item.image[0] : item.image}
                   className="w-20 h-24 rounded-xl object-cover"
                   alt={item.name}
                 />
-                <div className="flex-1">
-                  <h4 className="text-pink-900 font-medium">{item.name}</h4>
-                  <p className="text-sm text-pink-600">
-                    Size: {item.size} • Quantity: {item.quantity}
-                  </p>
-                </div>
-                <p className="text-pink-800 font-semibold">
-                  {currency}{item.price * item.quantity}
+              <div className="flex-1">
+                <p className="font-medium">{item.name}</p>
+                <p className="text-sm text-gray-500">
+                  Size {item.size} • Qty {item.quantity}
                 </p>
               </div>
-            ))}
-          </div>
-          
-          {/* Order Summary */}
-          <div className="mt-8 pt-6 border-t border-pink-200">
-            <div className="flex justify-between text-gray-700 mb-2">
+              <p className="font-semibold text-pink-700">
+                {currency}{item.price * item.quantity}
+              </p>
+            </div>
+          ))}
+
+          {/* SUMMARY */}
+          <div className="mt-6 pt-6 border-t space-y-2 text-sm">
+            <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>{currency}{order.subtotal || order.total}</span>
+              <span>{currency}{order.subtotal ?? order.total}</span>
             </div>
             {order.discount > 0 && (
-              <div className="flex justify-between text-green-600 mb-2">
+              <div className="flex justify-between text-green-600">
                 <span>Discount</span>
                 <span>-{currency}{order.discount}</span>
               </div>
             )}
-            <div className="flex justify-between text-gray-700 mb-2">
-              <span>Delivery Fee</span>
-              <span>{order.deliveryFee === 0 ? 'Free' : `${currency}${order.deliveryFee}`}</span>
-            </div>
-            <div className="flex justify-between text-lg font-semibold text-pink-900 mt-4 pt-4 border-t border-pink-200">
+            <div className="flex justify-between font-semibold text-lg pt-4">
               <span>Total</span>
               <span>{currency}{order.total}</span>
             </div>

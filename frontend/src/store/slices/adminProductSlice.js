@@ -21,6 +21,7 @@ export const createAdminProductSlice = (set, get) => ({
     //         set({ adminProductError: error.message, adminProductLoading: false });
     //     }
     // },
+
     fetchAdminProducts: async () => {
     set({ adminProductLoading: true, adminProductError: null });
     const token = getToken(); // ✅ pulled separately
@@ -41,6 +42,7 @@ export const createAdminProductSlice = (set, get) => ({
         throw new Error("Failed to fetch admin products");
       }
       const products = await response.json();
+      console.log("Fetched products:", products);
       set({
         adminProducts: products,
         adminProductLoading: false,
@@ -80,7 +82,7 @@ export const createAdminProductSlice = (set, get) => ({
     //     }
     // },
     // 1. Using FormData to handle file uploads
-  addAdminProduct: async (productData) => {
+addAdminProduct: async (productData) => {
     set({ adminProductLoading: true, adminProductError: null });
 
     try {
@@ -245,6 +247,29 @@ updateAdminProduct: async (product, productData) => {
                 adminProducts: state.adminProducts.filter((product) => product._id !== productId),
                 adminProductLoading: false
             }));
+        } catch (error) {
+            set({ adminProductError: error.message, adminProductLoading: false });
+            throw error;
+        }
+    },
+
+    deleteAllAdminProducts: async () => {
+        set({ adminProductLoading: true, adminProductError: null });
+        try {
+            const response = await fetch(`/api/admin/products`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${get().token}`
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete all products');
+            }
+            set({
+                adminProducts: [],
+                adminProductLoading: false
+            });
         } catch (error) {
             set({ adminProductError: error.message, adminProductLoading: false });
             throw error;

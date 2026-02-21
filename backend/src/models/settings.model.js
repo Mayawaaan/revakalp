@@ -42,6 +42,14 @@ const settingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    razorpayEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    razorpayKey: {
+      type: String,
+      default: "",
+    },
     stripeEnabled: {
       type: Boolean,
       default: false,

@@ -121,7 +121,7 @@ const Analytics = () => {
     }
   }, [showToast]);
 
-  const fetchUsersData = useCallback(async (range = "7d") => {
+  const fetchUsersData = useCallback(async (range = "30d") => {
     setLoadingUsers(true);
     try {
       const res = await axios.get(
@@ -221,7 +221,7 @@ const Analytics = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="flex flex-col gap-8">
 
         {/* Revenue Chart */}
         <div className="bg-white border rounded-xl p-6">
@@ -241,15 +241,15 @@ const Analytics = () => {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="10 10" />
                 <XAxis dataKey="day" />
                 <YAxis />
                 <Tooltip />
                 <Line
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#4f46e5"
-                  strokeWidth={3}
+                  stroke="#4f4"
+                  strokeWidth={8}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -280,8 +280,8 @@ const Analytics = () => {
                 <Tooltip />
                 <Bar
                   dataKey="count"
-                  fill="#10b981"
-                  radius={[6, 6, 0, 0]}
+                  fill="#1012d1"
+                  radius={[1, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -313,7 +313,7 @@ const Analytics = () => {
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#8b5cf6"
+                  stroke="#8cf6"
                   strokeWidth={3}
                 />
               </LineChart>
@@ -336,17 +336,17 @@ const Analytics = () => {
             </button>
           </div>
 
-          <div className="h-72">
+          <div className="h-100">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={productsData}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="4 4" />
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
                 <Bar
                   dataKey="count"
-                  fill="#f59e0b"
-                  radius={[6, 6, 0, 0]}
+                  fill="#f59b"
+                  radius={[1, 10, 10, 10]}
                 />
               </BarChart>
             </ResponsiveContainer>

@@ -5,9 +5,14 @@ import ProductItem from "../products/ProductItem";
 const LatestCollection = () => {
   const { products } = useStore();
 
+  // ✅ HARD FILTER: only products with stock > 0 (handles string/number/null)
   const latestProducts = [...products]
+    .filter((product) => {
+      const stock = Number(product.stock);
+      return Number.isFinite(stock) && stock > 0;
+    })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 4);
+    .slice(0, 25);
 
   if (!latestProducts.length) return null;
 
@@ -17,6 +22,7 @@ const LatestCollection = () => {
       <div className="absolute -bottom-40 left-24 w-[520px] h-[520px] bg-pink-300 rounded-full blur-3xl opacity-30"></div>
 
       <div className="relative max-w-7xl mx-auto px-8">
+        {/* Header */}
         <div className="text-center mb-20 max-w-3xl mx-auto">
           <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
             Just Arrived
@@ -30,19 +36,14 @@ const LatestCollection = () => {
           </p>
         </div>
 
+        {/* Products */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
           {latestProducts.map((product) => (
-            <div
-              key={product._id}  
-              className="bg-white/70 backdrop-blur-xl rounded-3xl p-4 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition duration-300"
-            >
-              <ProductItem
-                id={product._id}
-                name={product.name}
-                price={product.price}
-                image={product.image}
-              />
-            </div>
+            <ProductItem
+              key={product._id}
+              id={product._id}
+              {...product}
+            />
           ))}
         </div>
       </div>

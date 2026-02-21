@@ -16,6 +16,7 @@ const ManageProducts = () => {
     addAdminProduct,
     updateAdminProduct,
     deleteAdminProduct,
+    deleteAllAdminProducts,
     showToast,
   } = useStore();
 
@@ -28,6 +29,7 @@ const ManageProducts = () => {
     name: "",
     description: "",
     price: "",
+    discount: "",
     category: "",
     subCategory: "",
     type: "",
@@ -57,6 +59,7 @@ const ManageProducts = () => {
       name: "",
       description: "",
       price: "",
+      discount: "",
       category: "",
       subCategory: "",
       type: "",
@@ -81,6 +84,7 @@ const ManageProducts = () => {
       name: p.name || "",
       description: p.description || "",
       price: p.price || "",
+      discount: p.discount || "",
       category: p.category || "",
       subCategory: p.subCategory || "",
       type: p.type || "",
@@ -112,6 +116,7 @@ const ManageProducts = () => {
     const payload = {
       ...form,
       price: Number(form.price),
+      discount: Number(form.discount),
       stock: Number(form.stock),
       sizes: Array.isArray(form.sizes)
   ? form.sizes
@@ -142,111 +147,204 @@ const ManageProducts = () => {
     showToast("Product deleted", "success");
   };
 
+  const deleteAllProducts = async () => {
+    if (window.confirm("Are you sure you want to delete all products? This action cannot be undone.")) {
+      try {
+        await deleteAllAdminProducts();
+        showToast("All products deleted", "success");
+      } catch (err) {
+        showToast("Failed to delete all products", "error", err);
+      }
+    }
+  };
+
   /* ================= UI ================= */
 
   return (
     <div className="space-y-8">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
           <h1 className="text-2xl font-semibold">Products</h1>
           <p className="text-gray-500">Manage catalog and inventory</p>
         </div>
 
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded"
-        >
-          <Plus size={16} /> Add Product
-        </button>
+        <div className="flex gap-2 mt-4 md:mt-0">
+            <button
+            onClick={openCreate}
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded"
+            >
+            <Plus size={16} /> Add Product
+            </button>
+            <button
+            onClick={deleteAllProducts}
+            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded"
+            >
+            <Trash2 size={16} /> Delete All
+            </button>
+        </div>
       </div>
 
       {/* TABLE */}
-      <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-4 text-left">Product</th>
-              <th className="p-3">Price</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Sizes</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {adminProducts.map((p) => (
-              <tr key={p._id} className="border-t">
-                <td className="p-4 flex gap-3">
-                  {p.image?.[0] ? (
-                    <img
-                      src={p.image[0]}
-                      alt={p.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded">
-                      <ImageIcon size={16} />
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-medium">{p.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {p.type} · {p.gender}
-                    </p>
-                  </div>
-                </td>
-
-                <td className="p-4 font-semibold">₹{p.price}</td>
-
-                <td className="p-4">
-                  {p.category} / {p.subCategory}
-                </td>
-
-                <td className="p-4">
-                  {p.sizes?.map((s) => (
-                    <span
-                      key={s}
-                      className="mr-1 px-2 py-0.5 bg-gray-100 text-xs rounded"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </td>
-
-                <td className="p-4">
-                  {p.bestseller && (
-                    <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                      <Star size={12} /> Bestseller
-                    </span>
-                  )}
-                </td>
-
-                <td className="p-4 text-right space-x-3">
-                  <button 
-
-                  type="button"
-                  onClick={() => openEdit(p)}>
-                    <Edit2 size={14} />
-                  </button>
-                  <button
-                    onClick={() => removeProduct(p._id)}
-                    className="text-red-600"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </td>
+      <div className="bg-white border rounded-xl overflow-x-auto">
+        <div className="hidden md:block">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-4 text-left">Product</th>
+                <th className="p-3">Price</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Sizes</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {adminProducts.map((p) => (
+                <tr key={p._id} className="border-t">
+                  <td className="p-4 flex gap-3">
+                    {p.image?.[0] ? (
+                      <img
+                        src={p.image[0]}
+                        alt={p.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded">
+                        <ImageIcon size={16} />
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium">{p.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {p.type} · {p.gender}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="p-4 font-semibold">
+                    {
+                    Math.round(p.discountedPrice) ? (
+                      <div>
+                        <span className="text-red-500">₹{Math.round(p.discountedPrice)}</span>
+                        <span className="ml-2 text-gray-500 line-through">₹{p.price}</span>
+                      </div>
+                    ) : (
+                      `₹${p.price}`
+                    )}
+                  </td>
+
+                  <td className="p-4">
+                    {p.category} / {p.subCategory}
+                  </td>
+
+                  <td className="p-4">
+                    {p.sizes?.map((s) => (
+                      <span
+                        key={s}
+                        className="mr-1 px-2 py-0.5 bg-gray-100 text-xs rounded"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </td>
+
+                  <td className="p-4">
+                    {p.bestseller && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                        <Star size={12} /> Bestseller
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="p-4 text-right space-x-3">
+                    <button 
+
+                    type="button"
+                    onClick={() => openEdit(p)}>
+                      <Edit2 size={14} />
+                    </button>
+                    <button
+                      onClick={() => removeProduct(p._id)}
+                      className="text-red-600"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="md:hidden">
+          {adminProducts.map((p) => (
+            <div key={p._id} className="border-t p-4">
+              <div className="flex gap-4">
+                {p.image?.[0] ? (
+                  <img
+                    src={p.image[0]}
+                    alt={p.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded">
+                    <ImageIcon size={24} />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="font-medium">{p.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {p.type} · {p.gender}
+                  </p>
+                  <div className="mt-2">
+                    {
+                    Math.round(p.discountedPrice) ? (
+                      <div>
+                        <span className="text-red-500 font-semibold">₹{Math.round(p.discountedPrice)}</span>
+                        <span className="ml-2 text-gray-500 line-through">₹{p.price}</span>
+                      </div>
+                    ) : (
+                      <span className="font-semibold">₹{p.price}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <button onClick={() => openEdit(p)}>
+                    <Edit2 size={16} />
+                  </button>
+                  <button onClick={() => removeProduct(p._id)} className="text-red-600">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                <span className="font-semibold">Sizes:</span>
+                {p.sizes?.map((s) => (
+                  <span
+                    key={s}
+                    className="mr-1 px-2 py-0.5 bg-gray-100 text-xs rounded"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-2">
+                {p.bestseller && (
+                  <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                    <Star size={12} /> Bestseller
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* MODAL */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-full max-w-3xl p-6 relative">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-full overflow-y-auto p-6 relative">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4"
@@ -260,7 +358,7 @@ const ManageProducts = () => {
 
             <form
               onSubmit={submitForm}
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               <input
                 required
@@ -269,7 +367,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, name: e.target.value })
                 }
-                className="col-span-2 border px-3 py-2 rounded"
+                className="md:col-span-2 border px-3 py-2 rounded"
               />
 
               <textarea
@@ -279,7 +377,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="col-span-2 border px-3 py-2 rounded"
+                className="md:col-span-2 border px-3 py-2 rounded"
               />
 
               <input
@@ -288,6 +386,16 @@ const ManageProducts = () => {
                 value={form.price}
                 onChange={(e) =>
                   setForm({ ...form, price: e.target.value })
+                }
+                className="border px-3 py-2 rounded"
+              />
+
+              <input
+                type="number"
+                placeholder="Discount %"
+                value={form.discount}
+                onChange={(e) =>
+                  setForm({ ...form, discount: e.target.value })
                 }
                 className="border px-3 py-2 rounded"
               />
@@ -351,19 +459,19 @@ const ManageProducts = () => {
               />
 
               <input
-  placeholder="Sizes (comma separated)"
-  value={Array.isArray(form.sizes) ? form.sizes.join(", ") : ""}
-  onChange={(e) =>
-    setForm({
-      ...form,
-      sizes: e.target.value
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-    })
-  }
-  className="col-span-2 border px-3 py-2 rounded"
-/>
+                placeholder="Sizes (comma separated)"
+                value={Array.isArray(form.sizes) ? form.sizes.join(", ") : ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    sizes: e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean),
+                  })
+                }
+                className="md:col-span-2 border px-3 py-2 rounded"
+              />
 
 
 
@@ -411,10 +519,10 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setImages(Array.from(e.target.files))
                 }
-                className="col-span-2"
+                className="md:col-span-2"
               />
 
-              <div className="col-span-2 flex justify-end gap-3">
+              <div className="md:col-span-2 flex justify-end gap-3">
                 <button type="button" onClick={closeModal}>
                   Cancel
                 </button>

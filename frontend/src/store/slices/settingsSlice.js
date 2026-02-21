@@ -9,6 +9,8 @@ const defaultSettings = {
   deliveryFee: 50,
   codEnabled: true,
   stripeEnabled: false,
+  razorpayEnabled: false,
+  upiEnabled: false,
   emailNotifications: true,
   admin2FA: false,
   maintenanceMode: false,

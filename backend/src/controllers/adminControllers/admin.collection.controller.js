@@ -10,33 +10,70 @@ import fs from "fs/promises";
 /* =========================
    CREATE COLLECTION
 ========================= */
+// export const createCollection = async (req, res) => {
+//   try {
+//     const { name, description } = req.body;
+
+//     if (!name || !description) {
+//       return res.status(400).json({
+//         message: "name and description are required"
+//       });
+//     }
+
+//     if (!req.file) {
+//       return res.status(400).json({
+//         message: "Collection image is required"
+//       });
+//     }
+
+//     const alreadyExists = await Collection.findOne({ name });
+//     if (alreadyExists) {
+//       return res.status(409).json({
+//         message: "Collection already exists"
+//       });
+//     }
+
+//     const imageUrl = await uploadImageToCloudinary(req.file);
+//     await fs.unlink(req.file.path);
+
+//     const collection = await Collection.create({
+//       name,
+//       description,
+//       image: imageUrl
+//     });
+
+//     res.status(201).json(collection);
+//   } catch (error) {
+//     console.error("Error in createCollection:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
 export const createCollection = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { id, name, description } = req.body;
 
-    if (!name || !description) {
+    if (!id || !name || !description) {
       return res.status(400).json({
-        message: "name and description are required"
+        message: "id, name and description are required"
+      });
+    }
+
+    const exists = await Collection.findOne({ id });
+    if (exists) {
+      return res.status(409).json({
+        message: "Collection with this id already exists"
       });
     }
 
     if (!req.file) {
-      return res.status(400).json({
-        message: "Collection image is required"
-      });
-    }
-
-    const alreadyExists = await Collection.findOne({ name });
-    if (alreadyExists) {
-      return res.status(409).json({
-        message: "Collection already exists"
-      });
+      return res.status(400).json({ message: "Image required" });
     }
 
     const imageUrl = await uploadImageToCloudinary(req.file);
     await fs.unlink(req.file.path);
 
     const collection = await Collection.create({
+      id,
       name,
       description,
       image: imageUrl
@@ -44,11 +81,10 @@ export const createCollection = async (req, res) => {
 
     res.status(201).json(collection);
   } catch (error) {
-    console.error("Error in createCollection:", error);
+    console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 /* =========================
    UPDATE COLLECTION
 ========================= */

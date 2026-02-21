@@ -3,78 +3,110 @@ import useStore from "../../store/store";
 import { Link } from "react-router-dom";
 import { Heart, Eye } from "lucide-react";
 
-const ProductItem = ({ id, image, name, price, onQuickView }) => {
+const ProductItem = ({
+  id,
+  image,
+  name,
+  price,
+  discountedPrice,
+  discount,
+  stock,
+  onQuickView,
+}) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist } = useStore();
-  const isWishlisted = wishlist.some((item) => (item._id || item.id) === id);
+
+  const isWishlisted = wishlist?.items?.some(
+    (item) => item.product?._id === id
+  );
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
-    if (isWishlisted) {
-      removeFromWishlist(id);
-    } else {
-      addToWishlist(id);
-    }
+    isWishlisted ? removeFromWishlist(id) : addToWishlist(id);
   };
 
-  // console.log("one==========",id,name)
+  const isOutOfStock = stock === 0 || stock === null;
 
+  /* -------------------- OUT OF STOCK → RENDER NOTHING -------------------- */
+  if (isOutOfStock) return null;
+
+  /* -------------------- NORMAL PRODUCT CARD -------------------- */
   return (
     <Link to={`/product/${id}`} className="group block">
-      <div className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-xl shadow-lg hover:shadow-2xl transition duration-500">
+      <div className="relative overflow-hidden rounded-3xl shadow-xl bg-black">
+        {/* IMAGE */}
+        <img
+          src={image?.[0]}
+          alt={name}
+          className="w-full h-110 object-cover transition duration-700 group-hover:scale-115"
+        />
 
-        {/* Image */}
-        <div className="overflow-hidden rounded-3xl">
-          <img
-            src={image[0]}
-            alt={name}
-            className="w-full h-[340px] object-cover transition duration-700 group-hover:scale-110"
-          />
-        </div>
+        {/* GRADIENT */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
-        {/* Soft overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+        {/* DISCOUNT BADGE */}
+        {discount > 0 && (
+          <div className="absolute top-5 left-5 bg-[#8b5e5e] text-white text-xs tracking-wide px-3 py-1 rounded-full">
+            {discount}% OFF
+          </div>
+        )}
 
-        {/* Wishlist */}
+        {/* WISHLIST */}
         <button
           onClick={handleWishlistClick}
-          className="absolute top-4 right-4 bg-white/80 backdrop-blur-md p-3 rounded-full shadow-lg hover:scale-110 transition"
+          className="absolute top-5 right-5 bg-black/50 backdrop-blur-md p-3 rounded-full hover:scale-110 transition"
         >
           <Heart
             className={`w-5 h-5 transition ${
               isWishlisted
-                ? "fill-[#c9487c] text-[#c9487c]"
-                : "text-[#9c2756]"
+                ? "fill-[#e6c9a8] text-[#e6c9a8]"
+                : "text-white"
             }`}
           />
         </button>
 
-        {/* Quick View */}
+        {/* QUICK VIEW */}
         {onQuickView && (
           <button
             onClick={(e) => {
               e.preventDefault();
               onQuickView(id);
             }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full text-sm text-[#9c2756] shadow-xl opacity-0 group-hover:opacity-100 transition flex items-center gap-2"
+            className="absolute bottom-28 left-1/2 -translate-x-1/2 bg-white/90 px-6 py-2 rounded-full text-xs tracking-wide text-black shadow-xl opacity-0 group-hover:opacity-100 transition flex items-center gap-2"
           >
             <Eye className="w-4 h-4" />
             Quick View
           </button>
         )}
-      </div>
 
-      {/* Info */}
-      <div className="mt-5 text-center">
-        <p className="text-[#9c2756] font-medium leading-tight truncate">
-          {name}
-        </p>
-        <p className="mt-2 text-lg text-[#c9487c] font-semibold">
-          {currency}{price}
-        </p>
+        {/* CONTENT */}
+        <div className="absolute bottom-0 p-6 text-white w-full">
+          <p className="text-sm font-serif tracking-wide leading-tight line-clamp-1">
+            {name}
+          </p>
+
+          <div className="mt-2 flex items-center gap-3">
+            {Math.round(discountedPrice) ? (
+              <>
+                <span className="text-[#e6c9a8] text-lg font-semibold">
+                  {currency}
+                  {Math.round(discountedPrice)}
+                </span>
+                <span className="text-sm text-neutral-400 line-through">
+                  {currency}
+                  {price}
+                </span>
+              </>
+            ) : (
+              <span className="text-[#e6c9a8] text-lg font-semibold">
+                {currency}
+                {price}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </Link>
   );
 };
 
 export default ProductItem;
-

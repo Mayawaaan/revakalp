@@ -100,19 +100,22 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { id } = req.params; // Assuming id is passed as a parameter for admin to update any user
-    let profilePic = "";
+    const { fullName } = req.body;
+    const userId = req.user._id;
+    let profilePic = req.user.profilePic;
 
     if (req.file) {
-      profilePic = await uploadImageToCloudinary(req.file);
+      // If there's an old profile pic, you might want to delete it from Cloudinary
+      // For simplicity, we are not doing that here
+      profilePic = await uploadImageToCloudinary(req.file,"profiles");
       fs.unlinkSync(req.file.path); // Delete the local file after uploading to Cloudinary
     }
 
     const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { profilePic },
+      userId,
+      { fullName, profilePic },
       { new: true }
-    );
+    ).select("-password");
 
     res.status(200).json(updatedUser);
   } catch (error) {

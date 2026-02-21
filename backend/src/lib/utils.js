@@ -13,8 +13,7 @@ cloudinary.config({
 export const uploadImageToCloudinary = async (file) => {
   try {
     const result = await cloudinary.uploader.upload(file.path, {
-      folder: "e-commerce",
-      
+      folder: "Revakalp",
     });
     return result.secure_url;
   } catch (error) {
@@ -34,9 +33,9 @@ export const deleteImageFromCloudinary = async (publicId) => {
 
 export const getPublicIdFromUrl = (url) => {
     try {
-        const regex = /e-commerce\/(.*?)\./;
+        const regex = /profiles\/(.*?)\./;
         const match = url.match(regex);
-        return match ? `e-commerce/${match[1]}` : null;
+        return match ? `profiles/${match[1]}` : null;
     } catch (error) {
         console.error("Error extracting public ID from URL:", error);
         return null;
@@ -49,12 +48,14 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // MS
     httpOnly: true, // prevent XSS attacks cross-site scripting attacks
     sameSite: "strict", // CSRF attacks cross-site request forgery attacks
     secure: process.env.NODE_ENV !== "development",
   });
-
+  // console.log("Generated JWT Token:", token);
   return token;
+
 };

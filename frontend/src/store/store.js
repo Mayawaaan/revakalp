@@ -10,8 +10,11 @@ import { createAdminCollectionSlice } from './slices/adminCollectionSlice'; // I
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createAdminTypeSlice } from './slices/adminTypeSlice';
 import { createTypeSlice } from './slices/typeSlice';
+import { createReviewSlice } from './slices/reviewSlice';
+import { createPaymentSlice } from "./slices/paymentSlice";
 
 const useStore = create((...a) => ({
+    ...createPaymentSlice(...a),
   ...createProductSlice(...a),
   ...createCartSlice(...a),
   ...createAuthSlice(...a),
@@ -23,6 +26,7 @@ const useStore = create((...a) => ({
   ...createAdminCollectionSlice(...a), // Add the admin collection slice
   ...createAdminTypeSlice(...a),
   ...createSettingsSlice(...a),
+  ...createReviewSlice(...a),
 }));
 
 export default useStore;

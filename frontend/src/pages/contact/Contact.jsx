@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import NewsletterBox from "../../components/homepage/NewsletterBox";
 
 export default function Contact() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Contact form state
   const [formData, setFormData] = useState({
@@ -83,18 +83,21 @@ Our team is here to ensure your journey is as <br /> beautiful as the story you 
           <p className="text-white/90 leading-relaxed mb-6">
             Help us preserve India’s textile legacy while shaping a modern fashion brand.
           </p>
-          <button
+          <p>
+            Explore exciting career opportunities with us.
+          </p>
+          {/* <button
             onClick={() => navigate("/explore-jobs")}
             className="bg-white text-pink-700 px-8 py-3 rounded-full font-medium shadow hover:scale-105 transition"
           >
             Explore Careers
-          </button>
+          </button> */}
         </div>
 
       </div>
 
       {/* ================= CONCIERGE CONTACT FORM ================= */}
-      <div className="max-w-6xl mx-auto px-6 py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-6xl mx-auto px-6 py-18 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
         {/* Text */}
         <div>
@@ -162,7 +165,7 @@ Our team is here to ensure your journey is as <br /> beautiful as the story you 
       </div>
 
       {/* ================= STORY ================= */}
-      <div className="max-w-5xl mx-auto px-6 py-32 text-center">
+      <div className="max-w-5xl mx-auto px-6 py-18 text-center">
         <h2 className="text-4xl font-serif text-pink-900 mb-6">
           A Brand Built on Craft, Care & Culture
         </h2>

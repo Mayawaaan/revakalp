@@ -1,100 +1,126 @@
-import axios from 'axios';
-
 export const createOrderSlice = (set, get) => ({
-    orders: [],
-    orderLoading: false,
-    currentOrder: null,
+  orders: [],
+  orderLoading: false,
+  currentOrder: null,
 
-    fetchOrders: async () => {
-        set({
-            orderLoading: true
-        });
-        try {
-            const res = await axios.get('/api/orders');
-            set({
-                orders: res.data,
-                orderLoading: false
-            });
-            return res.data;
-        } catch (error) {
-            console.error('Failed to fetch orders:', error);
-            set({
-                orderLoading: false
-            });
-            return [];
-        }
-    },
+  /* ================= FETCH ORDERS ================= */
+  fetchOrders: async () => {
+    set({ orderLoading: true });
 
-    placeOrder: async (orderData) => {
-        try {
-            const res = await axios.post('/api/orders/place', orderData);
-            const newOrder = res.data;
-            set((state) => ({
-                orders: [newOrder, ...state.orders],
-                currentOrder: newOrder
-            }));
-            // Clear cart after successful order
-            get().clearCart();
-            return newOrder;
-        } catch (error) {
-            console.error('Failed to place order:', error);
-            if (error.response && error.response.data) {
-                throw error.response.data;
-            }
-            throw error;
-        }
-    },
+    try {
+      const res = await fetch("/api/orders", {
+        credentials: "include",
+      });
 
-    getOrderById: async (orderId) => {
-        try {
-            const res = await axios.get(`/api/orders/${orderId}`);
-            return res.data;
-        } catch (error) {
-            console.error('Failed to fetch order:', error);
-            throw error;
-        }
-    },
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch orders");
 
-    trackOrder: async (orderId) => {
-        try {
-            const res = await axios.get(`/api/orders/${orderId}/track`);
-            return res.data;
-        } catch (error) {
-            console.error('Failed to track order:', error);
-            throw error;
-        }
-    },
+      set({
+        orders: data,
+        orderLoading: false,
+      });
 
-    reorderItems: async (orderId) => {
-        try {
-            const res = await axios.post(`/api/orders/reorder/${orderId}`);
-            // Refresh cart if needed
-            return res.data;
-        } catch (error) {
-            console.error('Failed to reorder:', error);
-            throw error;
-        }
-    },
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+      set({ orderLoading: false });
+      return [];
+    }
+  },
 
-    downloadInvoice: async (orderId) => {
-        try {
-            const res = await axios.get(`/api/orders/${orderId}/invoice`, {
-                responseType: 'blob',
-            });
-            const blob = new Blob([res.data], { type: 'application/pdf' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `invoice-${orderId}.pdf`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        } catch (error) {
-            console.error('Failed to download invoice:', error);
-            throw error;
-        }
-    },
+  /* ================= PLACE ORDER ================= */
+  placeOrder: async (orderData) => {
+    try {
+      const res = await fetch("/api/orders/place", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(orderData),
+      });
 
-    // Legacy support
-    addOrder: (order) => set((state) => ({
-        orders: [...state.orders, order]
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to place order");
+
+      set((state) => ({
+        orders: [data, ...state.orders],
+        currentOrder: data,
+      }));
+
+      // ✅ Clear cart after successful order
+      if (get().clearCart) {
+        await get().clearCart();
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      throw error;
+    }
+  },
+
+  /* ================= GET ORDER BY ID ================= */
+  getOrderById: async (orderId) => {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch order");
+
+    return data;
+  },
+
+  /* ================= TRACK ORDER ================= */
+  trackOrder: async (orderId) => {
+    const res = await fetch(`/api/orders/${orderId}/track`, {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to track order");
+
+    return data;
+  },
+
+  /* ================= REORDER ITEMS ================= */
+  reorderItems: async (orderId) => {
+    const res = await fetch(`/api/orders/reorder/${orderId}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to reorder items");
+
+    return data;
+  },
+
+  /* ================= DOWNLOAD INVOICE ================= */
+  downloadInvoice: async (orderId) => {
+    const res = await fetch(`/api/orders/${orderId}/invoice`, {
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error("Failed to download invoice");
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `invoice-${orderId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
+
+  /* ================= LEGACY SUPPORT ================= */
+  addOrder: (order) =>
+    set((state) => ({
+      orders: [...state.orders, order],
     })),
 });

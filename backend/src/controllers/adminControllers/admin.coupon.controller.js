@@ -2,7 +2,7 @@ import Coupon from "../../models/coupon.model.js";
 
 export const createCoupon = async (req, res) => {
   try {
-    const { code, discountPercentage, description, expiryDate, usageLimit } = req.body;
+    const { code, discountPercentage, description, expiryDate, maxUses } = req.body;
 
     if (!code || !discountPercentage) {
       return res.status(400).json({ message: "Code and discount percentage are required" });
@@ -13,9 +13,9 @@ export const createCoupon = async (req, res) => {
       discountPercentage,
       description,
       expiryDate,
-      usageLimit,
+      maxUses,
     });
-
+    console.log("Creating coupon:", newCoupon);
     await newCoupon.save();
     res.status(201).json(newCoupon);
   } catch (error) {
@@ -27,11 +27,11 @@ export const createCoupon = async (req, res) => {
 export const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const { code, discountPercentage, description, isActive, expiryDate, usageLimit, usedCount } = req.body;
+    const { code, discountPercentage, description, isActive, expiryDate, maxUses } = req.body;
 
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       id,
-      { code, discountPercentage, description, isActive, expiryDate, usageLimit, usedCount },
+      { code, discountPercentage, description, isActive, expiryDate, maxUses },
       { new: true, runValidators: true }
     );
 

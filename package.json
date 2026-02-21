@@ -4,17 +4,14 @@
   "description": "",
   "main": "backend/server.js",
   "scripts": {
-    "dev": "concurrently \"nodemon backend/server.js\" \"npm run dev --prefix frontend\"",
-    "start": "node backend/server.js",
-    "seed": "node backend/seed.js",
-    "seed:types": "node backend/type.seed.js"
+    "dev": "concurrently \"nodemon backend/server.js\" \"npm run dev --prefix frontend\" \"cd ml && venv\\Scripts\\uvicorn.exe main:app\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "axios": "^1.13.2",
+    "axios": "^1.13.3",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "concurrently": "^8.2.2",
@@ -28,7 +25,13 @@
     "multer": "^2.0.2",
     "nodemon": "^3.1.11",
     "pdfkit": "^0.17.2",
+    "razorpay": "^2.9.6",
     "recharts": "^3.6.0",
     "stripe": "^20.1.0"
+  },
+  "devDependencies": {
+    "stylelint": "^17.1.1",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-config-tailwindcss": "^1.0.1"
   }
 }

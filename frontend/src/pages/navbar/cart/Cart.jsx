@@ -6,7 +6,6 @@ import { Trash2 } from "lucide-react";
 
 const Cart = () => {
   const {
-    products,
     currency,
     cart,
     incrementQuantity,
@@ -22,8 +21,13 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState("");
 
   const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      showToast("Please enter a coupon code", "error");
+      return;
+    }
+
     try {
-      await applyCoupon(couponCode);
+      await applyCoupon(couponCode.trim());
       showToast("Coupon applied successfully", "success");
     } catch (error) {
       showToast(error.message || "Invalid coupon code", "error");
@@ -32,81 +36,114 @@ const Cart = () => {
 
   return (
     <section className="relative min-h-screen pt-28 pb-24 bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute -top-40 left-20 w-[500px] h-[500px] bg-pink-200 rounded-full blur-3xl opacity-40" />
+      <div className="absolute -bottom-40 right-20 w-[600px] h-[600px] bg-rose-300 rounded-full blur-3xl opacity-30" />
 
-      {/* Background flow */}
-      <div className="absolute -top-40 left-20 w-[500px] h-[500px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
-      <div className="absolute -bottom-40 right-20 w-[600px] h-[600px] bg-rose-300 rounded-full blur-3xl opacity-30"></div>
-
-      <div className="relative max-w-6xl mx-auto px-8">
-
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
+        <div className="text-center mb-12">
+          <p className="uppercase tracking-[0.3em] text-xs text-pink-600 mb-3">
             Secure Checkout
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl text-pink-900">
+          <h1 className="font-serif text-3xl md:text-5xl text-pink-900">
             Your Shopping Bag
           </h1>
-          <p className="mt-5 text-pink-700">
+          <p className="mt-4 text-sm md:text-base text-pink-700 max-w-xl mx-auto">
             Review your selected pieces before placing your order.
           </p>
         </div>
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
 
         {/* Cart Items */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl divide-y">
+        <div className="w-full bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl divide-y divide-pink-100">
           {cart.length === 0 ? (
-            <div className="p-10 text-center">
+            <div className="p-8 text-center">
               <p className="text-pink-600 text-lg">Your cart is empty</p>
               <button
                 onClick={() => navigate("/shop")}
-                className="mt-4 bg-pink-700 text-white px-6 py-2 rounded-full"
-              >
+                className="mt-5 bg-pink-700 text-white px-6 py-2 rounded-full hover:bg-pink-800 transition-colors"
+                >
                 Continue Shopping
               </button>
             </div>
           ) : (
-            cart.map((item, index) => {
-              // Use item properties directly (they're stored when added to cart)
-              const image = Array.isArray(item.image) ? item.image[0] : item.image;
-              const itemPrice = item.price || 0;
-
+            cart.map((item) => {
+              const image = Array.isArray(item.image)
+                ? item.image[0]
+                : item.image;
+              const hasDiscount =
+              item.discountedPrice && item.discountedPrice < item.price;
+              
               return (
                 <div
-                  key={`${item._id}-${item.size}` || index}
-                  className="flex flex-col sm:flex-row gap-8 p-8 items-center"
+                key={`${item._id}-${item.size}`}
+                className="flex flex-col sm:flex-row gap-4 p-4 md:p-6 items-center"
                 >
                   {image && (
                     <img
                       src={image}
-                      className="w-28 h-32 object-cover rounded-xl shadow"
                       alt={item.name || "Product"}
-                    />
+                      className="w-24 h-28 sm:w-28 sm:h-32 object-cover rounded-lg shadow-md"
+                      />
                   )}
 
-                  <div className="flex-1">
-                    <h3 className="font-serif text-xl text-pink-900">
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="font-serif text-lg text-pink-900">
                       {item.name || "Product"}
                     </h3>
-                    <p className="text-pink-700 mt-1">
-                      {currency}{itemPrice}
-                    </p>
-                    <p className="text-pink-700 mt-1">
-                        Size: {item.size}
+                    <div className="flex items-center justify-center sm:justify-start gap-3 mt-1">
+                      <p
+                        className={`text-pink-700 text-sm ${
+                          hasDiscount ? "line-through text-gray-500" : ""
+                        }`}
+                      >
+                        {currency}
+                        {item.price}
+                      </p>
+                      {hasDiscount && (
+                        <p className="text-green-600 font-semibold text-sm">
+                          {currency}
+                          {item.discountedPrice}
+                        </p>
+                      )}
+                      {item.discount > 0 && (
+                        <p className="text-xs text-white bg-red-500 px-1.5 py-0.5 rounded-md">
+                          -{item.discount}%
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-pink-700 text-sm mt-1">
+                      Size: {item.size}
                     </p>
                   </div>
 
-                <div className="flex items-center gap-4">
-                  <button onClick={() => decrementQuantity(item._id, item.size)} className="px-3 py-1 border rounded-full">-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => incrementQuantity(item._id, item.size)} className="px-3 py-1 border rounded-full">+</button>
-                </div>
+                  {/* Quantity */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      disabled={item.quantity <= 1}
+                      onClick={() => decrementQuantity(item._id, item.size)}
+                      className="w-8 h-8 border rounded-full disabled:opacity-40 hover:bg-pink-50 transition"
+                    >
+                      -
+                    </button>
 
+                    <span className="w-8 text-center">{item.quantity}</span>
 
+                    <button
+                      onClick={() => incrementQuantity(item._id, item.size)}
+                      className="w-8 h-8 border rounded-full hover:bg-pink-50 transition"
+                      >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Remove */}
                   <button
                     onClick={() => removeFromCart(item._id, item.size)}
-                    className="text-pink-700 hover:text-red-500 transition"
+                    className="text-pink-600 hover:text-red-500 transition ml-2"
                   >
-                    <Trash2 />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               );
@@ -115,65 +152,64 @@ const Cart = () => {
         </div>
 
         {/* Summary */}
-        <div className="flex flex-col lg:flex-row justify-end gap-12 mt-20">
-
-          <div className="w-full lg:w-[420px] bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10">
+        <div className="w-full lg:w-[450px] lg:flex-shrink-0">
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-6 md:p-8">
             <CartTotal />
 
             {/* Coupon */}
-            <div className="mt-10">
-              <p className="text-pink-700 mb-4">Have a promo code?</p>
+            <div className="mt-8">
+              <p className="text-pink-700 mb-3 text-sm font-medium">Have a promo code?</p>
 
               {discountPercentage > 0 ? (
-                <div className="flex justify-between items-center bg-green-50 px-6 py-4 rounded-xl">
-                  <p className="text-green-700">Coupon Applied</p>
+                <div className="flex justify-between items-center bg-green-50 px-4 py-3 rounded-xl">
+                  <p className="text-green-700 text-sm">Coupon Applied!</p>
                   <button
                     onClick={removeCoupon}
-                    className="text-red-500 text-sm"
-                  >
+                    className="text-red-500 text-xs font-semibold"
+                    >
                     Remove
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 bg-[#fff1f4] px-6 py-4 rounded-full outline-none"
                     placeholder="Enter promo code"
+                    className="flex-1 bg-[#fff1f4] px-4 py-3 text-sm rounded-lg outline-none focus:ring-2 focus:ring-pink-300"
                   />
                   <button
                     onClick={handleApplyCoupon}
-                    className="bg-[#c9487c] hover:bg-[#9c2756] transition text-white px-8 py-4 rounded-full"
-                  >
+                    className="bg-[#c9487c] hover:bg-[#b53f6c] transition text-white px-6 py-3 text-sm font-semibold rounded-lg"
+                    >
                     Apply
                   </button>
                 </div>
               )}
             </div>
 
+            {/* Checkout */}
             <button
               disabled={cart.length === 0}
               onClick={() => navigate("/place-order")}
-              className={`w-full mt-12 py-5 rounded-full text-white text-lg shadow-xl transition ${
+              className={`w-full mt-8 py-4 rounded-full text-white font-semibold shadow-lg transition-all duration-300 ${
                 cart.length === 0
                   ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#c9487c] to-[#9c2756] hover:scale-[1.02]"
+                  : "bg-gradient-to-r from-[#c9487c] to-[#b53f6c] hover:scale-[1.03] hover:shadow-2xl"
               }`}
             >
               Proceed to Secure Checkout
             </button>
 
-            <p className="text-center text-sm text-pink-700 mt-6">
+            <p className="text-center text-xs text-pink-700 mt-5">
               100% secure payments • Easy returns • Trusted by thousands
             </p>
+                </div>
           </div>
         </div>
-
       </div>
     </section>
   );
 };
 
 export default Cart;
-

@@ -1,4 +1,5 @@
 import Product from "../../models/product.model.js";
+import Wishlist from "../../models/wishlist.model.js";
 import {
     uploadImageToCloudinary,
     deleteImageFromCloudinary,
@@ -54,6 +55,7 @@ export const createProduct = async (req, res) => {
             name,
             description,
             price,
+            discount,
             category,
             subCategory,
             type,
@@ -95,11 +97,17 @@ export const createProduct = async (req, res) => {
 
         const code = await generateUniqueProductCode(state);
 
+const discountedPrice = discount
+  ? Math.round(price - ((price * discount) / 100))
+  : undefined;
+
         const newProduct = new Product({
             code,
             name,
             description,
             price,
+            discount,
+            discountedPrice,
             image: imageUrls,
             category,
             subCategory,
@@ -112,7 +120,8 @@ export const createProduct = async (req, res) => {
             bestseller,
             print,
             exclusivity,
-        });
+        }); 
+        // console.log("Creating product with data:", newProduct);
 
         await newProduct.save();
         res.status(201).json(newProduct);
@@ -157,6 +166,7 @@ export const getAdminProductById = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
         res.status(200).json(product);
+        console.log("Fetched product:", product);
     } catch (error) {
         console.error("Error in getAdminProductById:", error);
         res.status(500).json({ message: "Internal Server Error" });
@@ -182,6 +192,7 @@ export const updateProduct = async (req, res) => {
             name,
             description,
             price,
+            discount,
             category,
             subCategory,
             type,
@@ -212,6 +223,12 @@ export const updateProduct = async (req, res) => {
             ...(print !== undefined && { print }),
             ...(exclusivity !== undefined && { exclusivity }),
         };
+
+        if (discount !== undefined) {
+            const currentPrice = price !== undefined ? price : productToUpdate.price;
+            updateFields.discount = discount;
+            updateFields.discountedPrice = discount > 0 ? currentPrice - (currentPrice * discount) / 100 : undefined;
+        }
         // console.log("Update Fields:", updateFields);
         
         let finalImageUrls = existingImages
@@ -219,7 +236,7 @@ export const updateProduct = async (req, res) => {
                 ? existingImages
                 : [existingImages]
                 : [];
-                console.log("Final Image URLs before upload:", finalImageUrls);
+                // console.log("Final Image URLs before upload:", finalImageUrls);
         const imagesToDelete = productToUpdate.image.filter(
             (url) => !finalImageUrls.includes(url)
         );
@@ -274,9 +291,40 @@ export const deleteProduct = async (req, res) => {
             if (publicId) await deleteImageFromCloudinary(publicId);
         }
 
+        // Remove the product from all wishlists
+        await Wishlist.updateMany(
+            { "items.product": id },
+            { $pull: { items: { product: id } } }
+        );
+
         res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
         console.error("Error in deleteProduct:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+/* ===================== DELETE ALL ===================== */
+
+export const deleteAllProducts = async (req, res) => {
+    try {
+        const products = await Product.find({});
+        
+        for (const product of products) {
+            for (const imageUrl of product.image) {
+                const publicId = getPublicIdFromUrl(imageUrl);
+                if (publicId) await deleteImageFromCloudinary(publicId);
+            }
+        }
+
+        await Product.deleteMany({});
+
+        // Clear all wishlists
+        await Wishlist.updateMany({}, { $set: { items: [] } });
+
+        res.status(200).json({ message: "All products deleted successfully" });
+    } catch (error) {
+        console.error("Error in deleteAllProducts:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };

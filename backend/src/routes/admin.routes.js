@@ -6,7 +6,7 @@ import { createCollection, updateCollection, deleteCollection, getAllCollections
 import { createType, updateType, deleteType, getAllTypes } from "../controllers/adminControllers/admin.type.controller.js";
 import { getAnalytics, getRevenueAnalytics, getOrdersByStatus, getUsersAnalytics, getProductsByCategory } from "../controllers/adminControllers/admin.analytics.controller.js";
 import { getSettings, updateSettings } from "../controllers/adminControllers/admin.settings.controller.js";
-import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin,getAdminProductById} from "../controllers/adminControllers/admin.product.controller.js";
+import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin,getAdminProductById, deleteAllProducts} from "../controllers/adminControllers/admin.product.controller.js";
 import { getAllOrders, updateOrderStatus } from "../controllers/adminControllers/admin.order.controller.js";
 import { createCoupon, updateCoupon, deleteCoupon, getAllCoupons } from "../controllers/adminControllers/admin.coupon.controller.js";
 import upload from "../middlewares/upload.middleware.js";
@@ -52,6 +52,8 @@ router.get("/products/:id", protectRoute, protectAdminRoute, getAdminProductById
 router.post("/products", protectRoute, protectAdminRoute, upload.array('images', 10), createProduct); // Allow up to 10 images
 router.put("/products/:id", protectRoute, protectAdminRoute, upload.array('images', 10), updateProduct);
 router.delete("/products/:id", protectRoute, protectAdminRoute, deleteProduct);
+router.delete("/products", protectRoute, protectAdminRoute, deleteAllProducts);
+
 
 // Admin order management routes
 router.get("/orders", protectRoute, protectAdminRoute, getAllOrders);

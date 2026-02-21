@@ -6,7 +6,7 @@ const Breadcrums = ({ product }) => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <div className='flex items-center gap-2 text-sm text-gray-500 my-4 uppercase'>
+    <div className='flex items-center gap-2 text-sm text-gray-500 my-3 uppercase'>
       <Link to='/' className='hover:text-black'>HOME</Link>
       {product ? (
          <>

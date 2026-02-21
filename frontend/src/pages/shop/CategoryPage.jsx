@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import useStore from "../../store/store";
+import Breadcrums from "../../components/globalComponents/Breadcrums";
 
 const CategoryPage = () => {
   const { collections } = useStore();
@@ -8,7 +9,7 @@ const CategoryPage = () => {
   if (!collections?.length) return null;
 
   return (
-    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-12 overflow-hidden">
 
       {/* Background glow */}
       <div className="absolute -top-40 left-24 w-[480px] h-[480px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
@@ -29,22 +30,26 @@ const CategoryPage = () => {
             traditions, occasions, and timeless elegance.
           </p>
         </div>
+        <Breadcrums />
+
 
         {/* Collection Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
           {collections.map((collection) => (
             <Link
               to={`/shop/${collection.id}`}
               key={collection.id}
               className="group relative"
             >
+            
+              {/* Card */}
               <div className="relative overflow-hidden rounded-3xl shadow-xl bg-white">
 
                 {/* Image */}
                 <img
                   src={collection.image}
                   alt={collection.name}
-                  className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-72 object-cover object-top group-hover:scale-130 transition-transform duration-700" 
                 />
 
                 {/* Overlay */}

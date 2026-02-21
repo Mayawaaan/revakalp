@@ -19,7 +19,7 @@ const ManageCoupons = () => {
     description: "",
     isActive: true,
     expiryDate: "",
-    usageLimit: "",
+    maxUses: "",
   });
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const ManageCoupons = () => {
       description: "",
       isActive: true,
       expiryDate: "",
-      usageLimit: "",
+      maxUses: "",
     });
     setModalOpen(true);
   };
@@ -62,7 +62,7 @@ const ManageCoupons = () => {
       expiryDate: coupon.expiryDate
         ? new Date(coupon.expiryDate).toISOString().split("T")[0]
         : "",
-      usageLimit: coupon.usageLimit || "",
+      maxUses: coupon.maxUses || "",
     });
     setModalOpen(true);
   };
@@ -129,77 +129,140 @@ const ManageCoupons = () => {
 
       {/* Table */}
       <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr className="text-left text-gray-500">
-              <th className="px-6 py-3">Code</th>
-              <th className="px-6 py-3">Discount</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">Expiry</th>
-              <th className="px-6 py-3">Usage Limit</th>
-              <th className="px-6 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!loading && coupons.length === 0 && (
-              <tr>
-                <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
-                  No coupons created yet
-                </td>
+        <div className="hidden md:block">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 border-b">
+              <tr className="text-left text-gray-500">
+                <th className="px-6 py-3">Code</th>
+                <th className="px-6 py-3">Discount</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Expiry</th>
+                <th className="px-6 py-3">Max Uses</th>
+                <th className="px-6 py-3 text-right">Actions</th>
               </tr>
-            )}
+            </thead>
+            <tbody>
+              {!loading && coupons.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
+                    No coupons created yet
+                  </td>
+                </tr>
+              )}
 
-            {coupons.map((c) => (
-              <tr key={c._id} className="border-b last:border-none">
-                <td className="px-6 py-4 font-mono font-medium text-gray-900">
-                  {c.code}
-                </td>
+              {coupons.map((c) => (
+                <tr key={c._id} className="border-b last:border-none">
+                  <td className="px-6 py-4 font-mono font-medium text-gray-900">
+                    {c.code}
+                  </td>
 
-                <td className="px-6 py-4 flex items-center gap-1 font-semibold">
-                  <Percent size={14} />
-                  {c.discountPercentage}%
-                </td>
+                  <td className="px-6 py-4 flex items-center gap-1 font-semibold">
+                    <Percent size={14} />
+                    {c.discountPercentage}%
+                  </td>
 
-                <td className="px-6 py-4">
-                  {c.isActive ? (
-                    <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                      Active
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-600">
-                      Inactive
-                    </span>
-                  )}
-                </td>
+                  <td className="px-6 py-4">
+                    {c.isActive ? (
+                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-600">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
 
-                <td className="px-6 py-4 text-gray-600">
-                  {c.expiryDate
-                    ? new Date(c.expiryDate).toLocaleDateString()
-                    : "—"}
-                </td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {c.expiryDate
+                      ? new Date(c.expiryDate).toLocaleDateString()
+                      : "—"}
+                  </td>
 
-                <td className="px-6 py-4 text-gray-600">
-                  {c.usageLimit || "Unlimited"}
-                </td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {c.maxUses || "Unlimited"}
+                  </td>
 
-                <td className="px-6 py-4 text-right space-x-3">
+                  <td className="px-6 py-4 text-right space-x-3">
+                    <button
+                      onClick={() => openEdit(c)}
+                      className="inline-flex items-center gap-1 text-gray-700 hover:text-gray-900"
+                    >
+                      <Edit2 size={14} /> Edit
+                    </button>
+                    <button
+                      onClick={() => deleteCoupon(c._id)}
+                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="md:hidden">
+          {!loading && coupons.length === 0 && (
+            <div className="px-6 py-10 text-center text-gray-500">
+              No coupons created yet
+            </div>
+          )}
+          {coupons.map((c) => (
+            <div key={c._id} className="border-b last:border-none p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-mono font-medium text-gray-900">
+                    {c.code}
+                  </p>
+                  <div className="mt-1 flex items-center gap-1 font-semibold text-sm">
+                    <Percent size={14} />
+                    {c.discountPercentage}%
+                  </div>
+                </div>
+                {c.isActive ? (
+                  <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                    Active
+                  </span>
+                ) : (
+                  <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-600">
+                    Inactive
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 flex justify-between text-sm">
+                <div className="text-gray-600">
+                  <p>
+                    Expiry:{" "}
+                    {c.expiryDate
+                      ? new Date(c.expiryDate).toLocaleDateString()
+                      : "—"}
+                  </p>
+                  <p>
+                    Max Uses: {c.maxUses || "Unlimited"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => openEdit(c)}
                     className="inline-flex items-center gap-1 text-gray-700 hover:text-gray-900"
                   >
-                    <Edit2 size={14} /> Edit
+                    <Edit2 size={14} />
                   </button>
                   <button
                     onClick={() => deleteCoupon(c._id)}
                     className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
                   >
-                    <Trash2 size={14} /> Delete
+                    <Trash2 size={14} />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Modal */}
@@ -265,9 +328,9 @@ const ManageCoupons = () => {
                   type="number"
                   placeholder="Usage limit"
                   className="border rounded-md px-3 py-2"
-                  value={form.usageLimit}
+                  value={form.maxUses}
                   onChange={(e) =>
-                    setForm({ ...form, usageLimit: e.target.value })
+                    setForm({ ...form, maxUses: e.target.value })
                   }
                 />
               </div>

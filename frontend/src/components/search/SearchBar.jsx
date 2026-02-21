@@ -6,11 +6,22 @@ import { Search, X } from "lucide-react";
 const SearchBar = () => {
   const { search, setSearch, showSearch, setShowSearch } = useStore();
   const [visible, setVisible] = useState(false);
+  const [placeholder, setPlaceholder] = useState("Search for products...");
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname.includes("collection") || location.pathname.includes("shop")) {
+    const path = location.pathname;
+    if (path.includes("shop") || path.includes("collection")) {
       setVisible(true);
+      if (path.includes("saree")) {
+        setPlaceholder("Search for sarees, silk, Banarasi, cotton...");
+      } else if (path.includes("suit")) {
+        setPlaceholder("Search for suits, anarkali, sharara...");
+      } else if (path.includes("kurta")) {
+        setPlaceholder("Search for kurtas, straight, A-line...");
+      } else {
+        setPlaceholder("Search for products...");
+      }
     } else {
       setVisible(false);
     }
@@ -25,7 +36,7 @@ const SearchBar = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           type="text"
-          placeholder="Search sarees, silk, Banarasi, cotton..."
+          placeholder={placeholder}
           className="flex-1 outline-none bg-transparent text-sm text-pink-800 placeholder-pink-400"
         />
 

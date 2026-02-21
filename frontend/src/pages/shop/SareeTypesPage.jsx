@@ -60,8 +60,8 @@ const SareeTypesPage = () => {
           </Link>
           {sareeTypes.map((type) => (
             <Link
-              to={`/shop/${category}/${type.id}`}
-              key={type.id}
+              to={`/shop/${category}/${type.id || type.slug}`}
+              key={type.id || type.slug}
               className="group relative"
             >
               <div className="relative overflow-hidden rounded-3xl shadow-xl bg-white">

@@ -26,34 +26,33 @@ const NewsletterBox = () => {
         </p>
 
         <h2 className="font-serif text-4xl md:text-5xl text-pink-900 leading-tight">
-          Join the Revakalp Circle
+          Join Revakalp on WhatsApp
         </h2>
 
         <p className="mt-6 text-lg text-pink-700/90 leading-relaxed">
-          Discover new collections, quiet launches, and stories woven from
-          India’s timeless textile traditions.
+          Get instant updates on new collections, quiet launches, and exclusive stories directly on your WhatsApp.
         </p>
 
         {/* Floating form */}
         <div className="mt-16">
-          <form className="mx-auto flex max-w-xl flex-col sm:flex-row items-center gap-3 rounded-2xl bg-white/65 backdrop-blur-2xl px-4 py-4 shadow-[0_40px_90px_-35px_rgba(200,72,124,0.35)] ring-1 ring-pink-200/40">
-            <input
-              type="email"
-              required
-              placeholder="Enter your email address"
-              className="flex-1 w-full bg-transparent px-4 py-3 text-gray-700 placeholder-gray-400 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-gradient-to-br from-[#c9487c] to-[#a83261] px-8 py-3 text-white font-medium shadow-lg hover:shadow-xl transition-all"
+          <div className="mx-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl bg-white/65 backdrop-blur-2xl px-4 py-4 shadow-[0_40px_90px_-35px_rgba(200,72,124,0.35)] ring-1 ring-pink-200/40">
+            <a
+              href="https://chat.whatsapp.com/BofeilrtYMs3XaTWIG1PJN"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full text-center rounded-xl bg-gradient-to-br from-[#c9487c] to-[#a83261] px-8 py-3 text-white font-medium shadow-lg hover:shadow-xl transition-all"
             >
-              Subscribe
-            </button>
-          </form>
+              Join Now
+            </a>
+          </div>
         </div>
 
         <p className="mt-10 text-xs text-pink-600/80">
           No spam. Only thoughtful updates and timeless inspiration.
+        </p>
+
+        <p className="mt-5 text-[10px] text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          <span className="font-semibold text-gray-600">Important Return Policy:</span> A clear, continuous unboxing video is mandatory for all return or replacement requests. This video serves as definitive proof of the product&apos;s condition upon arrival. Please note that still images are insufficient for claim processing. By proceeding with your purchase, you acknowledge these terms; claims lacking video evidence will not be entertained.
         </p>
       </div>
     </section>

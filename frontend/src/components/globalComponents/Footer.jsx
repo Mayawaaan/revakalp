@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Facebook, Twitter, Linkedin } from 'lucide-react'
+import { Facebook, Instagram } from 'lucide-react'
 
 const Footer = () => {
   return (
@@ -9,14 +9,17 @@ const Footer = () => {
             
             {/* About */}
             <div className='md:col-span-1'>
-                <Link to='/' className='text-3xl font-serif text-pink-700'>Revakalp <span className='text-sm text-pink-800'>&trade;</span></Link>
+                <Link to='/' className='text-3xl font-serif text-pink-700'>Revakalp <span className='text-sm text-pink-800 align-top'>&trade;</span></Link>
                 <p className='mt-4 text-pink-600 text-sm leading-relaxed'>
                     Woven with grace, for the modern woman. Discover timeless sarees that tell a story.
                 </p>
                 <div className='flex gap-4 mt-6'>
-                    <a href="#" target="_blank" rel="noopener noreferrer" className='opacity-70 hover:opacity-100 transition'><Facebook className='w-6 h-6' /></a>
-                    <a href="#" target="_blank" rel="noopener noreferrer" className='opacity-70 hover:opacity-100 transition'><Twitter className='w-6 h-6' /></a>
-                    <a href="#" target="_blank" rel="noopener noreferrer" className='opacity-70 hover:opacity-100 transition'><Linkedin className='w-6 h-6' /></a>
+                    <a href="https://www.facebook.com/people/Revakalp/61587307439316/" target="_blank" rel="noopener noreferrer" className='text-pink-600 hover:text-pink-800 transition'>
+                        <Facebook size={20} />
+                    </a>
+                    <a href="https://www.instagram.com/revakalp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className='text-pink-600 hover:text-pink-800 transition'>
+                        <Instagram size={20} />
+                    </a>
                 </div>
             </div>
 
@@ -27,7 +30,6 @@ const Footer = () => {
                     <li><Link to="/about" className='hover:text-pink-800 transition'>About Us</Link></li>
                     <li><Link to="/contact" className='hover:text-pink-800 transition'>Contact Us</Link></li>
                     <li><Link to="/delivery-information" className='hover:text-pink-800 transition'>Delivery Information</Link></li>
-                    <li><Link to="/track-order" className='hover:text-pink-800 transition'>Track Order</Link></li>
                     <li><Link to="/faq" className='hover:text-pink-800 transition'>FAQ</Link></li>
                 </ul>
             </div>

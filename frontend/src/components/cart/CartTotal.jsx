@@ -1,167 +1,166 @@
-import React from 'react';
-import useStore from '../../store/store';
-import Title from '../globalComponents/Title';
-import {
-    AlertCircle
-} from 'lucide-react';
+import React from "react";
+import useStore from "../../store/store";
+import Title from "../globalComponents/Title";
+import { AlertCircle } from "lucide-react";
 
-const CartTotal = ({
-    productError
-}) => {
-    const {
-        cart,
-        currency,
-        getCartSubtotal,
-        getCartTotal,
-        getDeliveryFee,
-        discountPercentage,
-    } = useStore();
-    const subtotal = getCartSubtotal();
-    const total = getCartTotal();
-    const deliveryFee = getDeliveryFee();
-    const discountAmount =
-        subtotal === 0 ? 0 : Math.floor((subtotal * discountPercentage) / 100);
+const CartTotal = ({ productError }) => {
+  const {
+    cart,
+    getCartSubtotal,
+    getCartItemsDiscount,
+    getCartTotal,
+    discountPercentage,
+    settings, // Get settings from the store
+  } = useStore();
 
-    return ( <
-        div className = "w-full" >
-        <
-        div className = "text-2xl" >
-        <
-        Title text1 = {
-            'CART'
-        }
-        text2 = {
-            'ITEMS'
-        }
-        /> <
-        /div>
+  const {
+    currencySymbol,
+    freeShippingThreshold,
+    deliveryFee: DELIVERY_FEE,
+  } = settings;
 
-        <
-        div className = "flex flex-col gap-4 mt-4" > {
-            cart.map((item) => ( <
-                div key = {
-                    item._id
-                }
-                className = {
-                    `flex justify-between items-center p-2 rounded-lg ${
-            productError === item._id ? 'bg-red-100 border border-red-500' : ''
-          }`
-                } >
-                <
-                div className = "flex items-center gap-4" >
-                <
-                img src = {
-                    item.image
-                }
-                alt = {
-                    item.name
-                }
-                className = "w-16 h-16 object-cover rounded-md" /
-                >
-                <
-                div >
-                <
-                p className = "font-semibold" > {
-                    item.name
-                } < /p> <
-                p className = "text-sm text-gray-600" >
-                Qty: {
-                    item.quantity
-                } <
-                /p> <
-                /div> <
-                /div> <
-                p > {
-                    currency
-                } {
-                    item.price * item.quantity
-                }.00 < /p> {
-                    productError === item._id && ( <
-                        div className = "flex items-center gap-2 text-red-600" >
-                        <
-                        AlertCircle size = {
-                            16
-                        }
-                        /> <
-                        p className = "text-xs" > Item unavailable < /p> <
-                        /div>
-                    )
-                } <
-                /div>
-            ))
-        } <
-        /div>
+  const subtotal = getCartSubtotal();
+  const itemsDiscount = getCartItemsDiscount();
+  const total = getCartTotal();
 
-        <
-        div className = "text-2xl mt-8" >
-        <
-        Title text1 = {
-            'CART'
-        }
-        text2 = {
-            'TOTALS'
-        }
-        /> <
-        /div>
+  // Delivery fee logic
+  const deliveryFee = total >= freeShippingThreshold ? 0 : DELIVERY_FEE;
 
-        <
-        div className = "flex flex-col gap-2 mt-2 text-sm" >
-        <
-        div className = "flex justify-between" >
-        <
-        p > Subtotal < /p> <
-        p > {
-            currency
-        } {
-            subtotal
-        }.00 < /p> <
-        /div> <
-        hr / >
-        <
-        div className = "flex justify-between" >
-        <
-        p > Shipping Fee < /p> <
-        p > {
-            deliveryFee === 0 ? ( <
-                span className = "text-green-600" > Free < /span>
-            ) : (
-                `${currency} ${deliveryFee}.00`
-            )
-        } <
-        /p> <
-        /div> <
-        hr / > {
-            discountPercentage > 0 && ( <
-                >
-                <
-                div className = "flex justify-between text-green-600" >
-                <
-                p > Discount({
-                    discountPercentage
-                } %) < /p> <
-                p > - {
-                    currency
-                } {
-                    discountAmount
-                }.00 < /p> <
-                /div> <
-                hr / >
-                <
+  // Coupon discount amount
+  const subtotalAfterItemDiscounts = subtotal - itemsDiscount;
+  const couponDiscountAmount = Math.floor(
+    (subtotalAfterItemDiscounts * discountPercentage) / 100
+  );
+  const totalAfterCouponDiscount = subtotalAfterItemDiscounts - couponDiscountAmount;
+
+
+
+  return (
+    <div className="w-full">
+      {/* CART ITEMS */}
+      <div className="text-2xl">
+        <Title text1="CART" text2="ITEMS" />
+      </div>
+
+      <div className="flex flex-col gap-4 mt-4">
+        {cart.map((item) => {
+          const hasDiscount =
+            item.discountedPrice && item.discountedPrice < item.price;
+          const price = hasDiscount ? item.discountedPrice : item.price;
+
+          return (
+            <div
+              key={`${item._id}-${item.size}`}
+              className={`flex justify-between items-center p-2 rounded-lg ${
+                productError === item._id
+                  ? "bg-red-100 border border-red-500"
+                  : ""
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <img
+                  src={Array.isArray(item.image) ? item.image[0] : item.image}
+
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded-md"
                 />
-            )
-        } <
-        div className = "flex justify-between" >
-        <
-        b > Total < /b> <
-        b > {
-            currency
-        } {
-            total
-        }.00 < /b> <
-        /div> <
-        /div> <
-        /div>
-    );
+
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-end">
+                {hasDiscount && (
+                  <p className="text-xs line-through text-gray-500">
+                    {currencySymbol}
+                    {item.price * item.quantity}.00
+                  </p>
+                )}
+                <p>
+                  {currencySymbol}
+                  {price * item.quantity}.00
+                </p>
+              </div>
+
+              {productError === item._id && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <AlertCircle size={16} />
+                  <p className="text-xs">Item unavailable</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* CART TOTALS */}
+      <div className="text-2xl mt-8">
+        <Title text1="CART" text2="TOTALS" />
+      </div>
+
+      <div className="flex flex-col gap-2 mt-2 text-sm">
+        <div className="flex justify-between">
+          <p>Subtotal</p>
+          <p>
+            {currencySymbol}
+            {subtotal}.00
+          </p>
+        </div>
+
+        <hr />
+
+        {itemsDiscount > 0 && (
+          <>
+            <div className="flex justify-between text-green-600">
+              <p>Product Discount</p>
+              <p>
+                - {currencySymbol}
+                {itemsDiscount}.00
+              </p>
+            </div>
+            <hr />
+          </>
+        )}
+
+        {discountPercentage > 0 && (
+          <>
+            <div className="flex justify-between text-green-600">
+              <p>Coupon Discount ({discountPercentage}%)</p>
+              <p>
+                - {currencySymbol}
+                {couponDiscountAmount}.00
+              </p>
+            </div>
+            <hr />
+          </>
+        )}
+
+        <div className="flex justify-between">
+          <p>Shipping Fee</p>
+          <p>
+            {deliveryFee === 0 ? (
+              <span className="text-green-600">Free</span>
+            ) : (
+              `${currencySymbol}${deliveryFee}.00`
+            )}
+          </p>
+        </div>
+
+        <hr />
+
+        <div className="flex justify-between font-semibold text-lg">
+          <p>Total</p>
+          <p>
+            {currencySymbol}
+            {total + deliveryFee}.00
+
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CartTotal;

@@ -1,17 +1,44 @@
 import React from "react";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: "easeOut" }
+  }
+};
 
 const Terms = () => {
   return (
     <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28 overflow-hidden">
 
       {/* Background glow */}
-      <div className="absolute -top-40 left-32 w-[480px] h-[480px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
-      <div className="absolute -bottom-40 right-32 w-[520px] h-[520px] bg-rose-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute -top-40 left-32 w-[480px] h-[480px] bg-pink-200 rounded-full blur-3xl opacity-40" />
+      <div className="absolute -bottom-40 right-32 w-[520px] h-[520px] bg-rose-300 rounded-full blur-3xl opacity-30" />
 
-      <div className="relative max-w-5xl mx-auto px-8">
-
+      <motion.div
+        className="relative max-w-5xl mx-auto px-8"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={containerVariants}
+      >
         {/* Header */}
-        <div className="text-center mb-20">
+        <motion.div
+          className="text-center mb-20"
+          variants={fadeUp}
+        >
           <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
             Legal
           </p>
@@ -23,119 +50,120 @@ const Terms = () => {
             By accessing our website or making a purchase, you agree to the
             conditions described below.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Content */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-xl p-10 space-y-10 text-pink-800">
-
-          {/* General */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              General Information
-            </h3>
-            <p className="leading-relaxed text-sm">
-              Revakalp is an online platform offering curated Indian apparel
-              and textiles. All content, products, and services provided on
-              this website are subject to these terms.
-            </p>
-          </div>
-
-          {/* Products */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Products & Descriptions
-            </h3>
-            <p className="leading-relaxed text-sm">
-              We strive to display product details, colors, and descriptions
-              as accurately as possible. However, minor variations may occur
-              due to lighting, screen settings, or the handcrafted nature of
-              our products.
-            </p>
-          </div>
-
-          {/* Pricing */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Pricing & Availability
-            </h3>
-            <p className="leading-relaxed text-sm">
-              Prices are subject to change without prior notice. All orders
-              are subject to availability and confirmation. In rare cases,
-              we may cancel or limit quantities at our discretion.
-            </p>
-          </div>
-
-          {/* Orders */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Orders & Payments
-            </h3>
-            <p className="leading-relaxed text-sm">
-              By placing an order, you confirm that the information provided
-              is accurate and complete. Payments must be made through our
-              approved payment methods. Revakalp reserves the right to refuse
-              or cancel any order if fraud or misuse is suspected.
-            </p>
-          </div>
-
-          {/* Returns */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Returns & Refunds
-            </h3>
-            <p className="leading-relaxed text-sm">
-              Our return and exchange policies are outlined on the Returns &
-              Exchanges page. By placing an order, you acknowledge and agree
-              to those policies.
-            </p>
-          </div>
-
-          {/* Intellectual Property */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Intellectual Property
-            </h3>
-            <p className="leading-relaxed text-sm">
-              All content on this website, including images, text, logos, and
-              designs, is the property of Revakalp and may not be used,
-              reproduced, or distributed without prior written permission.
-            </p>
-          </div>
-
-          {/* Liability */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Limitation of Liability
-            </h3>
-            <p className="leading-relaxed text-sm">
-              Revakalp shall not be liable for any indirect, incidental, or
-              consequential damages arising from the use of our website or
-              products, to the extent permitted by law.
-            </p>
-          </div>
-
-          {/* Changes */}
-          <div>
-            <h3 className="font-serif text-2xl text-pink-900 mb-4">
-              Changes to Terms
-            </h3>
-            <p className="leading-relaxed text-sm">
-              We reserve the right to update or modify these terms at any
-              time. Continued use of the website after changes indicates
-              acceptance of the updated terms.
-            </p>
-          </div>
+        {/* Content Card */}
+        <motion.div
+          className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-xl p-10 space-y-10 text-pink-800"
+          variants={fadeUp}
+        >
+          {[
+            {
+              title: "General Information",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  Revakalp is an online platform offering curated Indian apparel
+                  and textiles. All content, products, and services provided on
+                  this website are subject to these terms.
+                </p>
+              )
+            },
+            {
+              title: "Products & Descriptions",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  We strive to display product details, colors, and descriptions
+                  as accurately as possible. Minor variations may occur due to
+                  lighting, screen settings, or the handcrafted nature of our
+                  products.
+                </p>
+              )
+            },
+            {
+              title: "Pricing & Availability",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  Prices are subject to change without prior notice. All orders
+                  are subject to availability and confirmation. In rare cases,
+                  we may cancel or limit quantities at our discretion.
+                </p>
+              )
+            },
+            {
+              title: "Orders & Payments",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  By placing an order, you confirm that the information provided
+                  is accurate and complete. Payments must be made through our
+                  approved payment methods. Revakalp reserves the right to refuse
+                  or cancel any order if fraud or misuse is suspected.
+                </p>
+              )
+            },
+            {
+              title: "Returns & Refunds",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  Our return and exchange policies are outlined on the Returns &
+                  Exchanges page. By placing an order, you acknowledge and agree
+                  to those policies.
+                </p>
+              )
+            },
+            {
+              title: "Intellectual Property",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  All content on this website, including images, text, logos,
+                  and designs, is the property of Revakalp and may not be used,
+                  reproduced, or distributed without prior written permission.
+                </p>
+              )
+            },
+            {
+              title: "Limitation of Liability",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  Revakalp shall not be liable for any indirect, incidental, or
+                  consequential damages arising from the use of our website or
+                  products, to the extent permitted by law.
+                </p>
+              )
+            },
+            {
+              title: "Changes to Terms",
+              body: (
+                <p className="leading-relaxed text-sm">
+                  We reserve the right to update or modify these terms at any
+                  time. Continued use of the website after changes indicates
+                  acceptance of the updated terms.
+                </p>
+              )
+            }
+          ].map((section, index) => (
+            <motion.div
+              key={index}
+              variants={fadeUp}
+            >
+              <h3 className="font-serif text-2xl text-pink-900 mb-4">
+                {section.title}
+              </h3>
+              {section.body}
+            </motion.div>
+          ))}
 
           {/* Contact */}
-          <div className="pt-8 border-t border-pink-200">
+          <motion.div
+            className="pt-8 border-t border-pink-200"
+            variants={fadeUp}
+          >
             <p className="text-sm text-center text-pink-700">
               For any questions regarding these terms, please contact us at{" "}
               <strong>contact@revakalp.com</strong>.
             </p>
-          </div>
-
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

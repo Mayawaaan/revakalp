@@ -3,7 +3,7 @@ import useStore from "../store/store";
 import axios from "axios";
 
 const useAuth = () => {
-  const { user, login, logout, showToast, updateProfilePic } = useStore();
+  const { user, login, logout, showToast, updateProfile } = useStore();
 
   useEffect(() => {
     let isMounted = true;
@@ -14,7 +14,7 @@ const useAuth = () => {
           login(res.data);
         }
       } catch (error) {
-        // do nothing if check auth fails
+        console.log("User is not authenticated", error.message);
       }
     };
     checkAuth();
@@ -50,6 +50,7 @@ const useAuth = () => {
           fullName,
           email,
           password,
+          profilePic: "",
         });
         if (res.data) {
           login(res.data);
@@ -77,32 +78,52 @@ const useAuth = () => {
     }
   }, [logout, showToast]);
 
-  const handleUpdateProfilePic = useCallback(
-    async (profilePic) => {
-      try {
-        const res = await axios.put("/api/auth/update-profile", { profilePic });
-        if (res.data) {
-          updateProfilePic(res.data.profilePic);
-          showToast("Profile picture updated successfully", "success");
-          return true;
-        }
-        return false;
-      } catch (error) {
-        const message =
-          error.response?.data?.message || "Profile picture update failed";
-        showToast(message, "error");
-        return false;
+const handleUpdateProfile = useCallback(
+  async ({ fullName, profilePic }) => {
+    try {
+      console.log("profilePic:", profilePic);
+console.log("isFile:", profilePic instanceof File);
+      const formData = new FormData();
+      formData.append("fullName", fullName);
+
+      // Only append if a new image is selected
+      if (profilePic instanceof File) {
+        formData.append("profilePic", profilePic);
       }
-    },
-    [updateProfilePic, showToast]
-  );
+
+      const res = await axios.put(
+        "/api/auth/update-profile",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.data) {
+        updateProfile(res.data);
+        showToast("Profile updated successfully", "success");
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Profile update failed";
+      showToast(message, "error");
+      return false;
+    }
+  },
+  [updateProfile, showToast]
+);
 
   return {
     user,
     handleLogin,
     handleSignup,
     handleLogout,
-    handleUpdateProfilePic,
+    handleUpdateProfile,
   };
 };
 

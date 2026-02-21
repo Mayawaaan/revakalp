@@ -3,14 +3,14 @@ import NewsletterBox from "../../components/homepage/NewsletterBox";
 
 const About = () => {
   return (
-    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] overflow-hidden">
+    <section className="relative bg-linear-to-br from-[#ff3e8b69] via-[#fff1f4ab] to-[#ffe6ee] overflow-hidden">
 
       {/* Background flow */}
-      <div className="absolute -top-40 left-32 w-[500px] h-[500px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
-      <div className="absolute -bottom-40 right-32 w-[600px] h-[600px] bg-rose-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute -top-40 left-32 w-125 h-125 bg-pink-200 rounded-full blur-3xl opacity-40"></div>
+      <div className="absolute -bottom-40 right-32 w-150 h-150 bg-rose-300 rounded-full blur-3xl opacity-30"></div>
 
       {/* Hero */}
-      <div className="relative text-center pt-28 pb-20 max-w-4xl mx-auto px-8">
+      <div className="relative text-center pt-10 pb-20 max-w-4xl mx-auto px-8">
         <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
           About Revakalp
         </p>

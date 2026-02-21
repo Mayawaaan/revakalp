@@ -120,41 +120,76 @@ const ManageTypes = () => {
       </div>
 
       <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-3">Type</th>
-              <th className="px-6 py-3">Category</th>
-              <th className="px-6 py-3">Slug</th>
-              <th className="px-6 py-3">Image</th>
-              <th className="px-6 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {types.map((t) => (
-              <tr key={t._id} className="border-b">
-                <td className="px-6 py-4">{t.name}</td>
-                <td className="px-6 py-4 capitalize">{t.category}</td>
-                <td className="px-6 py-4 text-xs text-gray-500">{t.slug}</td>
-                <td className="px-6 py-4">
-                  {t.image ? (
-                    <img src={t.image} className="h-10 w-10 rounded-md" />
-                  ) : (
-                    <ImageIcon size={16} />
-                  )}
-                </td>
-                <td className="px-6 py-4 text-right space-x-2">
-                  <button onClick={() => openEdit(t)}>
-                    <Edit2 size={14} />
-                  </button>
-                  <button onClick={() => removeType(t._id)}>
-                    <Trash2 size={14} />
-                  </button>
-                </td>
+        <div className="hidden md:block">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-6 py-3">Type</th>
+                <th className="px-6 py-3">Category</th>
+                <th className="px-6 py-3">Slug</th>
+                <th className="px-6 py-3">Image</th>
+                <th className="px-6 py-3 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {types.map((t) => (
+                <tr key={t._id} className="border-b">
+                  <td className="px-6 py-4">{t.name}</td>
+                  <td className="px-6 py-4 capitalize">{t.category}</td>
+                  <td className="px-6 py-4 text-xs text-gray-500">{t.slug}</td>
+                  <td className="px-6 py-4">
+                    {t.image ? (
+                      <img src={t.image} className="h-10 w-10 rounded-md" />
+                    ) : (
+                      <ImageIcon size={16} />
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <button onClick={() => openEdit(t)}>
+                      <Edit2 size={14} />
+                    </button>
+                    <button onClick={() => removeType(t._id)}>
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="md:hidden">
+          {types.map((t) => (
+            <div key={t._id} className="border-b p-4">
+              <div className="flex items-center gap-4">
+                {t.image ? (
+                  <img
+                    src={t.image}
+                    className="h-16 w-16 rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-md bg-gray-100 flex items-center justify-center">
+                    <ImageIcon size={24} />
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold">{t.name}</p>
+                  <p className="text-sm capitalize text-gray-600">
+                    {t.category}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{t.slug}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-4 mt-4">
+                <button onClick={() => openEdit(t)} className="text-gray-700">
+                  <Edit2 size={16} />
+                </button>
+                <button onClick={() => removeType(t._id)} className="text-red-600">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {modalOpen && (

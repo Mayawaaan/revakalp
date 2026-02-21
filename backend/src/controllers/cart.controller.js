@@ -3,6 +3,7 @@ import Product from '../models/product.model.js';
 import Coupon from '../models/coupon.model.js';
 
 export const getCart = async (req, res) => {
+  // console.log("Getting cart for user:", req.user._id);
   try {
     const userId = req.user._id;
     let cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -17,19 +18,21 @@ export const getCart = async (req, res) => {
 };
 
 export const addToCart = async (req, res) => {
+  // console.log("Add to cart request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size } = req.body;
-
+    
     if (!productId || !size) {
       return res.status(400).json({ message: 'productId and size are required' });
     }
-
+    
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-
+    // console.log("Product found:", product);
+    
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId, items: [] });
@@ -51,6 +54,7 @@ export const addToCart = async (req, res) => {
 };
 
 export const updateCartItem = async (req, res) => {
+  // console.log("Update cart item request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size, quantity } = req.body;
@@ -83,6 +87,7 @@ export const updateCartItem = async (req, res) => {
 };
 
 export const removeFromCart = async (req, res) => {
+  // console.log("Remove from cart request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size } = req.body;
@@ -106,6 +111,7 @@ export const removeFromCart = async (req, res) => {
 };
 
 export const clearCart = async (req, res) => {
+  // console.log("Clear cart request for user:", req.user._id);
   try {
     const userId = req.user._id;
     const cart = await Cart.findOneAndUpdate(
@@ -120,6 +126,7 @@ export const clearCart = async (req, res) => {
 };
 
 export const applyCoupon = async (req, res) => {
+    // console.log("Apply coupon request for user:", req.user._id, "with body:", req.body);
     try {
         const userId = req.user._id;
         const { code } = req.body;
@@ -158,6 +165,7 @@ export const applyCoupon = async (req, res) => {
 };
 
 export const removeCoupon = async (req, res) => {
+  // console.log("Remove coupon request for user:", req.user._id);
   try {
     const userId = req.user._id;
     const cart = await Cart.findOneAndUpdate(

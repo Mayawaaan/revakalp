@@ -42,16 +42,16 @@ const formatDateKeyUTC = (d) => {
 
 export const getAnalytics = async (req, res) => {
   try {
-    console.log("Entering getAnalytics controller.");
+    // console.log("Entering getAnalytics controller.");
 
     const totalUsers = await User.countDocuments();
-    console.log("Total Users:", totalUsers);
+    // console.log("Total Users:", totalUsers);
 
     const totalOrders = await Order.countDocuments();
-    console.log("Total Orders:", totalOrders);
+    // console.log("Total Orders:", totalOrders);
 
     const totalProducts = await Product.countDocuments();
-    console.log("Total Products:", totalProducts);
+    // console.log("Total Products:", totalProducts);
 
     // Basic sales summary (e.g., total revenue from delivered orders)
     const salesSummary = await Order.aggregate([
@@ -59,7 +59,7 @@ export const getAnalytics = async (req, res) => {
       { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
     ]);
     const totalRevenue = salesSummary.length > 0 ? salesSummary[0].totalRevenue : 0;
-    console.log("Total Revenue (Delivered Orders):", totalRevenue);
+    // console.log("Total Revenue (Delivered Orders):", totalRevenue);
 
     // You can add more complex analytics here, e.g.,
     // - Orders per month/day
@@ -183,7 +183,7 @@ export const getUsersAnalytics = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const rows = await Product.aggregate([
-      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $group: { _id: "$subCategory", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
     ]);
 

@@ -9,7 +9,17 @@ router.post("/signup", upload.single('profilePic'), signup); // 'profilePic' is 
 router.post("/login", login);
 router.post("/logout", logout);
 
-router.put("/update-profile/:id", protectRoute, upload.single('profilePic'), updateProfile); // 'profilePic' is the field name for the single file
+router.put(  "/update-profile",
+  protectRoute,
+  upload.single("profilePic"),
+  (req, res, next) => {
+    if (!req.body.fullName && !req.file) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+    next();
+  },
+  updateProfile
+);// 'profilePic' is the field name for the single file
 
 router.get("/check", protectRoute, checkAuth);
 

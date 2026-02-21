@@ -13,10 +13,22 @@ import orderRoutes from "./src/routes/order.routes.js";
 import typeRoutes from "./src/routes/type.routes.js";
 import settingsRoutes from "./src/routes/settings.routes.js";
 import adminRoutes from "./src/routes/admin.routes.js";
+import reviewRoutes from "./src/routes/review.routes.js";
+import paymentRoutes from "./src/routes/payment.routes.js";
+import Razorpay from "razorpay";
 import fs from "fs";
 import path from "path";
 
 dotenv.config();
+
+export const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// console.log("RAZORPAY KEY:", process.env.RAZORPAY_KEY_ID);
+// console.log("RAZORPAY SECRET:", process.env.RAZORPAY_KEY_SECRET);
+
 
 const PORT = process.env.PORT;
 const app = express();
@@ -31,8 +43,12 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
+
+
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/collections", collectionRoutes);
@@ -44,17 +60,20 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/types", typeRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/admin",adminRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.listen(PORT, () => {
-    console.log("server is running on http://localhost:" + PORT);
+    // console.log("server is running on http://localhost:" + PORT);
+    
     connectDB();
     if (process.env.MONGO_URI) {
-        console.log("MONGO_URI environment variable is loaded.");
+        // console.log("MONGO_URI environment variable is loaded.");
     } else {
         console.error("MONGO_URI environment variable is NOT loaded. Please check your .env file.");
     }
     if (process.env.JWT_SECRET) {
-        console.log("JWT_SECRET environment variable is loaded.");
+        // console.log("JWT_SECRET environment variable is loaded.");
     } else {
         console.error("JWT_SECRET environment variable is NOT loaded. Please check your .env file.");
     }

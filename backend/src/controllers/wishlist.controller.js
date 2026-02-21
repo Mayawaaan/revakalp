@@ -4,9 +4,9 @@ import Product from '../models/product.model.js';
 export const getWishlist = async (req, res) => {
   try {
     const userId = req.user._id;
-    let wishlist = await Wishlist.findOne({ userId }).populate('products');
+    let wishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
     if (!wishlist) {
-      wishlist = new Wishlist({ userId, products: [] });
+      wishlist = new Wishlist({ user: userId, items: [] });
       await wishlist.save();
     }
     res.status(200).json(wishlist);
@@ -25,20 +25,20 @@ export const addToWishlist = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    let wishlist = await Wishlist.findOne({ userId });
+    let wishlist = await Wishlist.findOne({ user: userId });
     if (!wishlist) {
-      wishlist = new Wishlist({ userId, products: [] });
+      wishlist = new Wishlist({ user: userId, items: [] });
     }
 
-    const existingProduct = wishlist.products.find(p => p.toString() === productId);
+    const existingProduct = wishlist.items.find(item => item.product.toString() === productId);
     if (existingProduct) {
         return res.status(400).json({ message: 'Product already in wishlist' });
     } else {
-        wishlist.products.push(productId);
+        wishlist.items.push({ product: productId });
     }
 
     await wishlist.save();
-    await wishlist.populate('products');
+    await wishlist.populate('items.product');
     res.status(200).json(wishlist);
   } catch (error) {
     res.status(500).json({ message: 'Error adding to wishlist', error: error.message });
@@ -50,14 +50,14 @@ export const removeFromWishlist = async (req, res) => {
         const userId = req.user._id;
         const { productId } = req.params;
     
-        const wishlist = await Wishlist.findOne({ userId });
+        const wishlist = await Wishlist.findOne({ user: userId });
         if (!wishlist) {
           return res.status(404).json({ message: 'Wishlist not found' });
         }
     
-        wishlist.products = wishlist.products.filter(p => p.toString() !== productId);
+        wishlist.items = wishlist.items.filter(item => item.product.toString() !== productId);
         await wishlist.save();
-        await wishlist.populate('products');
+        await wishlist.populate('items.product');
         res.status(200).json(wishlist);
       } catch (error) {
         res.status(500).json({ message: 'Error removing from wishlist', error: error.message });
@@ -68,8 +68,8 @@ export const clearWishlist = async (req, res) => {
     try {
         const userId = req.user._id;
         const wishlist = await Wishlist.findOneAndUpdate(
-          { userId },
-          { products: [] },
+          { user: userId },
+          { items: [] },
           { new: true }
         );
         res.status(200).json(wishlist);

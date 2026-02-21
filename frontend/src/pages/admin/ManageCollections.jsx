@@ -8,12 +8,14 @@ const ManageCollections = () => {
 
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [activeCollection, setActiveCollection] = useState(null);
 
   const [form, setForm] = useState({
+    id: "",
     name: "",
     description: "",
   });
@@ -50,7 +52,7 @@ const ManageCollections = () => {
   const openCreate = () => {
     setEditing(false);
     setActiveCollection(null);
-    setForm({ name: "", description: "" });
+    setForm({ id: "", name: "", description: "" });
     setImage(null);
     setModalOpen(true);
   };
@@ -78,6 +80,12 @@ const ManageCollections = () => {
     e.preventDefault();
 
     const data = new FormData();
+
+    // ✅ id ONLY on create
+    if (!editing) {
+      data.append("id", form.id);
+    }
+
     data.append("name", form.name);
     data.append("description", form.description);
     if (image) data.append("image", image);
@@ -124,7 +132,7 @@ const ManageCollections = () => {
   ========================= */
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Collections</h1>
           <p className="text-gray-500 mt-1">
@@ -134,7 +142,7 @@ const ManageCollections = () => {
 
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-md"
+          className="mt-4 md:mt-0 inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-md"
         >
           <Plus size={16} />
           Add Collection
@@ -142,61 +150,103 @@ const ManageCollections = () => {
       </div>
 
       <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr className="text-left text-gray-500">
-              <th className="px-6 py-3">Image</th>
-              <th className="px-6 py-3">Name</th>
-              <th className="px-6 py-3">Description</th>
-              <th className="px-6 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!loading && collections.length === 0 && (
-              <tr>
-                <td colSpan="4" className="px-6 py-10 text-center text-gray-500">
-                  No collections found
-                </td>
+        <div className="hidden md:block">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 border-b">
+              <tr className="text-left text-gray-500">
+                <th className="px-6 py-3">Image</th>
+                <th className="px-6 py-3">Name</th>
+                <th className="px-6 py-3">Description</th>
+                <th className="px-6 py-3 text-right">Actions</th>
               </tr>
-            )}
+            </thead>
 
+            <tbody>
+              {!loading && collections.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="px-6 py-10 text-center text-gray-500">
+                    No collections found
+                  </td>
+                </tr>
+              )}
+
+              {collections.map((c) => (
+                <tr key={c._id} className="border-b">
+                  <td className="px-6 py-4">
+                    {c.image && (
+                      <img
+                        src={c.image}
+                        alt={c.name}
+                        className="h-10 w-10 rounded-md object-cover"
+                      />
+                    )}
+                  </td>
+                  <td className="px-6 py-4 font-medium">{c.name}</td>
+                  <td className="px-6 py-4 text-gray-600">{c.description}</td>
+                  <td className="px-6 py-4 text-right space-x-3">
+                    <button
+                      onClick={() => openEdit(c)}
+                      className="text-gray-700"
+                    >
+                      <Edit2 size={14} /> Edit
+                    </button>
+                    <button
+                      onClick={() => deleteCollection(c._id)}
+                      className="text-red-600"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="md:hidden">
             {collections.map((c) => (
-              <tr key={c._id} className="border-b">
-                <td className="px-6 py-4">
-                  {c.image && (
-                    <img
-                      src={c.image}
-                      alt={c.name}
-                      className="h-10 w-10 rounded-md object-cover"
-                    />
-                  )}
-                </td>
-                <td className="px-6 py-4 font-medium">{c.name}</td>
-                <td className="px-6 py-4 text-gray-600">{c.description}</td>
-                <td className="px-6 py-4 text-right space-x-3">
-                  <button
-                    onClick={() => openEdit(c)}
-                    className="text-gray-700"
-                  >
-                    <Edit2 size={14} /> Edit
-                  </button>
-                  <button
-                    onClick={() => deleteCollection(c._id)}
-                    className="text-red-600"
-                  >
-                    <Trash2 size={14} /> Delete
-                  </button>
-                </td>
-              </tr>
+                <div key={c._id} className="border-t p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            {c.image && (
+                                <img
+                                src={c.image}
+                                alt={c.name}
+                                className="h-16 w-16 rounded-md object-cover"
+                                />
+                            )}
+                            <div>
+                                <p className="font-medium">{c.name}</p>
+                                <p className="text-gray-600 text-sm">{c.description}</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                             <button
+                                onClick={() => openEdit(c)}
+                                className="text-gray-700"
+                            >
+                                <Edit2 size={16} />
+                            </button>
+                            <button
+                                onClick={() => deleteCollection(c._id)}
+                                className="text-red-600"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
             ))}
-          </tbody>
-        </table>
+             {!loading && collections.length === 0 && (
+              <div className="px-6 py-10 text-center text-gray-500">
+                No collections found
+              </div>
+            )}
+        </div>
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl w-full max-w-xl p-6 relative">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-xl max-h-full overflow-y-auto p-6 relative">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 text-gray-400"
@@ -209,6 +259,18 @@ const ManageCollections = () => {
             </h2>
 
             <form onSubmit={submitForm} className="space-y-4">
+              {!editing && (
+                <input
+                  required
+                  placeholder="Collection ID (e.g. saree, indo-western)"
+                  className="w-full border rounded-md px-3 py-2"
+                  value={form.id}
+                  onChange={(e) =>
+                    setForm({ ...form, id: e.target.value })
+                  }
+                />
+              )}
+
               <input
                 required
                 placeholder="Collection Name"

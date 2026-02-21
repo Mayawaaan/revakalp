@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Batch Tester</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 950px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            margin-bottom: 1rem;
+            padding: 0.7rem;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #summary {
+            margin-top: 1.5rem;
+            padding: 10px;
+            border-radius: 6px;
+            background: #f5f5f5;
+            font-size: 1rem;
+        }
+
+        #result {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .item {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .positive { color: green; }
+        .negative { color: red; }
+        .neutral  { color: orange; }
+
+        .confidence {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Sentiment Analysis — Batch Tester</h1>
+    <p>
+        Enter one sentence per line.<br>
+        Supports <b>1000+ sentences</b> in one request.
+    </p>
+
+    <textarea id="reviewText" placeholder="This product is amazing
+Works as expected
+Waste of money"></textarea>
+
+    <button onclick="analyzeBatch()">Analyze Batch</button>
+
+    <div id="summary"></div>
+    <div id="result"></div>
+
+    <script>
+        async function analyzeBatch() {
+            const rawText = document.getElementById("reviewText").value.trim();
+            const summaryDiv = document.getElementById("summary");
+            const resultDiv = document.getElementById("result");
+
+            if (!rawText) {
+                summaryDiv.innerHTML = "<b>Please enter at least one sentence.</b>";
+                resultDiv.innerHTML = "";
+                return;
+            }
+
+            const texts = rawText
+                .split("\n")
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+
+            summaryDiv.innerHTML = `Analyzing ${texts.length} sentences...`;
+            resultDiv.innerHTML = "";
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/predict-batch", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ texts })
+                });
+
+                const data = await response.json();
+
+                let pos = 0, neu = 0, neg = 0;
+
+                data.results.forEach(r => {
+                    if (r.sentiment === "positive") pos++;
+                    else if (r.sentiment === "neutral") neu++;
+                    else if (r.sentiment === "negative") neg++;
+                });
+
+                const total = data.count;
+
+                summaryDiv.innerHTML = `
+                    <b>Total Sentences:</b> ${total}<br><br>
+                    <span class="positive"><b>Positive:</b> ${pos} (${((pos/total)*100).toFixed(1)}%)</span><br>
+                    <span class="neutral"><b>Neutral:</b> ${neu} (${((neu/total)*100).toFixed(1)}%)</span><br>
+                    <span class="negative"><b>Negative:</b> ${neg} (${((neg/total)*100).toFixed(1)}%)</span>
+                `;
+
+                let html = "";
+
+                data.results.forEach((item, index) => {
+                    html += `
+                        <div class="item ${item.sentiment}">
+                            <b>${index + 1}.</b> ${item.text}<br>
+                            <b>Sentiment:</b> ${item.sentiment.toUpperCase()}
+                            <span class="confidence">
+                                (${(item.confidence * 100).toFixed(1)}%)
+                            </span>
+                        </div>
+                    `;
+                });
+
+                resultDiv.innerHTML = html;
+
+            } catch (err) {
+                summaryDiv.innerHTML =
+                    "<b>Error:</b> API not reachable or batch too large.";
+            }
+        }
+    </script>
+</body>
+</html>

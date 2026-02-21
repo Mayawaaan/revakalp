@@ -19,7 +19,9 @@ const Settings = () => {
     freeShippingThreshold: 500,
     deliveryFee: 50,
     codEnabled: true,
-    stripeEnabled: false,
+    razorpayEnabled: false,
+    upiEnabled: false,
+    // stripeEnabled: false,
     emailNotifications: true,
     admin2FA: false,
     maintenanceMode: false,
@@ -42,7 +44,9 @@ const Settings = () => {
         freeShippingThreshold: settings.freeShippingThreshold || 500,
         deliveryFee: settings.deliveryFee || 50,
         codEnabled: settings.codEnabled !== undefined ? settings.codEnabled : true,
-        stripeEnabled: settings.stripeEnabled !== undefined ? settings.stripeEnabled : false,
+        razorpayEnabled: settings.razorpayEnabled !== undefined ? settings.razorpayEnabled : false,
+        upiEnabled: settings.upiEnabled !== undefined ? settings.upiEnabled : false,
+        // stripeEnabled: settings.stripeEnabled !== undefined ? settings.stripeEnabled : false,
         emailNotifications: settings.emailNotifications !== undefined ? settings.emailNotifications : true,
         admin2FA: settings.admin2FA !== undefined ? settings.admin2FA : false,
         maintenanceMode: settings.maintenanceMode !== undefined ? settings.maintenanceMode : false,
@@ -264,8 +268,28 @@ const Settings = () => {
             />
             Enable Cash on Delivery
           </label>
-
           <label className="flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              name="razorpayEnabled"
+              checked={formData.razorpayEnabled}
+              onChange={handleChange}
+              disabled={settingsLoading}
+            />
+            Enable Razorpay Payments
+          </label>
+          <label className="flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              name="upiEnabled"
+              checked={formData.upiEnabled}
+              onChange={handleChange}
+              disabled={settingsLoading}
+            />
+            Enable UPI Payments
+          </label>
+
+          {/* <label className="flex items-center gap-3 text-sm">
             <input
               type="checkbox"
               name="stripeEnabled"
@@ -274,7 +298,7 @@ const Settings = () => {
               disabled={settingsLoading}
             />
             Enable Stripe Payments
-          </label>
+          </label> */}
         </div>
 
         {/* Notifications */}
