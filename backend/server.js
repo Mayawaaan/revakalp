@@ -51,7 +51,7 @@ const axios = require("axios");
 
 setInterval(async () => {
   try {
-    await axios.get("https://your-backend.onrender.com");
+    await axios.get(`${process.env.BACKEND_URL}`);
     console.log("Pinged backend");
   } catch (e) {
     console.log("Error:", e.message);
