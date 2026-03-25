@@ -47,6 +47,17 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
+const axios = require("axios");
+
+setInterval(async () => {
+  try {
+    await axios.get("https://your-backend.onrender.com");
+    console.log("Pinged backend");
+  } catch (e) {
+    console.log("Error:", e.message);
+  }
+}, 10 * 60 * 1000); // every 10 minutes
+
 
 
 
