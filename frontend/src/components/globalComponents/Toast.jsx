@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import useStore from '../../store/store';
-
 const Toast = () => {
   const { toast, hideToast } = useStore();
 

@@ -7,28 +7,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sampleOrder = {
-    _id: "ORDER12345",
+    _id: "ORDER-000101",
     createdAt: new Date().toISOString(),
     userId: {
-        fullName: "John Doe",
-        email: "john.doe@example.com"
+        fullName: "Ashmita Saxena",
+        email: ""
     },
     shippingAddress: {
-        street: "123 Sample St",
-        city: "Sampleville",
-        state: "Testland",
-        country: "Fakeland",
-        zip: "12345",
-        phone: "555-555-5555"
+        street: "",
+        city: "Indore",
+        state: "Madhya Pradesh",
+        country: "India",
+        zip: "452012",
+        phone: ""
     },
     items: [
-        { name: "Elegant Silk Saree", quantity: 1, price: 4999.50 },
-        { name: "Handwoven Cotton Kurta", quantity: 2, price: 1299.00 },
-        { name: "Designer Bridal Lehenga", quantity: 1, price: 24999.00 },
+        { name: "Chunri Saree", quantity: 1, price: 749.00 },
     ],
     subtotal: 0, // will be calculated
-    discount: 2000.00,
-    deliveryFee: 150.00,
+    discount: 150.00,
+    deliveryFee: 0.00,
     total: 0 // will be calculated
 };
 

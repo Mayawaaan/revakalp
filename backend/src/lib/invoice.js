@@ -21,7 +21,7 @@ const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divid
     // .fill("#111827");
     .fill("#c9487c");
 
-  doc.image("./logoSilver.png", pageWidth - 240, 35, { width: 150 });
+  doc.image("./logogold.png", pageWidth - 240, 35, { width: 150 });
   doc
     .fillColor("#ffffff")
     .fontSize(26)

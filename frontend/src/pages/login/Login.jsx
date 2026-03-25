@@ -76,9 +76,12 @@ const Login = () => {
 
         {/* Actions */}
         <div className="flex justify-between items-center mt-6 text-sm text-gray-500">
-          <span className="cursor-pointer hover:text-gray-800 transition">
+          <Link
+            to="/forgot-password"
+            className="cursor-pointer hover:text-gray-800 transition"
+          >
             Forgot password?
-          </span>
+          </Link>
           <Link
             to="/signup"
             className="cursor-pointer hover:text-gray-800 transition"

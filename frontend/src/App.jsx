@@ -20,6 +20,7 @@ import Login from "./pages/login/Login";
 import Signup from "./pages/login/Signup";
 import MyProfile from "./pages/footer/MyProfile";
 import ExploreJobs from "./pages/contact/ExploreJobs";
+import ForgotPassword from "./pages/login/ForgotPassword";
 import Wishlist from "./pages/navbar/Wishlist";
 
 /* ===== Footer Pages ===== */
@@ -54,6 +55,7 @@ import AdminProtectedRoute from "./components/globalComponents/AdminProtectedRou
 
 /* ===== Store ===== */
 import useStore from "./store/store";
+import ResetPassword from "./pages/login/ResetPassword";
 
 const App = () => {
   const {
@@ -97,6 +99,8 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/explore-jobs" element={<ExploreJobs />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<Terms />} />
