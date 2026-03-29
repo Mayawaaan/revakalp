@@ -1,3 +1,5 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
 export const createProductSlice = (set, get) => ({
   collections: [],
   sareeTypes: [],
@@ -26,11 +28,11 @@ export const createProductSlice = (set, get) => ({
         kurtaTypesRes,
         suitTypesRes,
       ] = await Promise.all([
-        fetch(`/api/products?${params.toString()}`),
-        fetch("/api/collections"),
-        fetch("/api/types/saree"),
-        fetch("/api/types/kurta"),
-        fetch("/api/types/suit"),
+        apiFetch(`/api/products?${params.toString()}`),
+        apiFetch("/api/collections"),
+        apiFetch("/api/types/saree"),
+        apiFetch("/api/types/kurta"),
+        apiFetch("/api/types/suit"),
       ]);
 
       const products = await productsRes.json();
