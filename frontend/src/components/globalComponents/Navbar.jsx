@@ -131,6 +131,16 @@ const Navbar = () => {
                         My Profile
                       </Link>
 
+                      {user.role === "admin" && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="block px-3 py-2 text-sm hover:bg-pink-50 rounded-md"
+                        >
+                          Dashboard
+                        </Link>
+                      )}
+
                       <button
                         onClick={() => {
                           logout();
@@ -219,6 +229,9 @@ const Navbar = () => {
                 <div className="text-center">
                   <p className="text-gray-700">{user.fullName}</p>
                    <Link to="/my-profile" onClick={() => setVisible(false)} className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100">My Profile</Link>
+                  {user.role === "admin" && (
+                    <Link to="/admin" onClick={() => setVisible(false)} className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100">Dashboard</Link>
+                  )}
                   <button
                     onClick={() => {
                       logout();
