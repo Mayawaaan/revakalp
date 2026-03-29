@@ -1,5 +1,5 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connectDB } from "./src/lib/db.js";
@@ -20,12 +20,12 @@ import axios from "axios";
 import fs from "fs";
 import path from "path";
 
-dotenv.config();
-
-export const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+export const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+    ? new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+    : null;
 
 // console.log("RAZORPAY KEY:", process.env.RAZORPAY_KEY_ID);
 // console.log("RAZORPAY SECRET:", process.env.RAZORPAY_KEY_SECRET);
@@ -86,5 +86,10 @@ app.listen(PORT, () => {
         // console.log("JWT_SECRET environment variable is loaded.");
     } else {
         console.error("JWT_SECRET environment variable is NOT loaded. Please check your .env file.");
+    }
+    if (process.env.RAZORPAY_KEY_ID) {
+        // console.log("RAZORPAY_KEY_ID environment variable is loaded.");
+    } else {
+        console.error("RAZORPAY_KEY_ID environment variable is NOT loaded. Please check your .env file or hosting environment.");
     }
 });

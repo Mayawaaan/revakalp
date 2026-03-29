@@ -1,3 +1,6 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
+
 export const createAdminCollectionSlice = (set, get) => ({
     adminCollections: [],
     adminCollectionLoading: false,
@@ -6,96 +9,96 @@ export const createAdminCollectionSlice = (set, get) => ({
     fetchAdminCollections: async () => {
         set({ adminCollectionLoading: true, adminCollectionError: null });
         try {
-            const response = await fetch('/api/admin/collections', {
-                headers: {
-                    'Authorization': `Bearer ${get().token}`
-                }
+            const data = await apiFetch('/api/admin/collections', {
+                token: get().token
             });
-            if (!response.ok) {
-                throw new Error('Failed to fetch admin collections');
-            }
-            const collections = await response.json();
-            set({ adminCollections: collections, adminCollectionLoading: false });
+
+            set({
+                adminCollections: data,
+                adminCollectionLoading: false
+            });
+
         } catch (error) {
-            set({ adminCollectionError: error.message, adminCollectionLoading: false });
+            set({
+                adminCollectionError: error.message,
+                adminCollectionLoading: false
+            });
         }
     },
 
     addAdminCollection: async (collectionData) => {
         set({ adminCollectionLoading: true, adminCollectionError: null });
+
         try {
-            const response = await fetch('/api/admin/collections', {
+            const newCollection = await apiFetch('/api/admin/collections', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${get().token}`
-                },
+                token: get().token,
                 body: JSON.stringify(collectionData)
             });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add collection');
-            }
-            const newCollection = await response.json();
+
             set((state) => ({
                 adminCollections: [...state.adminCollections, newCollection],
                 adminCollectionLoading: false
             }));
+
             return newCollection;
+
         } catch (error) {
-            set({ adminCollectionError: error.message, adminCollectionLoading: false });
+            set({
+                adminCollectionError: error.message,
+                adminCollectionLoading: false
+            });
             throw error;
         }
     },
 
-    updateAdminCollection: async (collectionId, collectionData) => {
+    updateAdminCollection: async (id, data) => {
         set({ adminCollectionLoading: true, adminCollectionError: null });
+
         try {
-            const response = await fetch(`/api/admin/collections/${collectionId}`, {
+            const updated = await apiFetch(`/api/admin/collections/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${get().token}`
-                },
-                body: JSON.stringify(collectionData)
+                token: get().token,
+                body: JSON.stringify(data)
             });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update collection');
-            }
-            const updatedCollection = await response.json();
+
             set((state) => ({
-                adminCollections: state.adminCollections.map((collection) =>
-                    collection._id === collectionId ? updatedCollection : collection
+                adminCollections: state.adminCollections.map((c) =>
+                    c._id === id ? updated : c
                 ),
                 adminCollectionLoading: false
             }));
-            return updatedCollection;
+
+            return updated;
+
         } catch (error) {
-            set({ adminCollectionError: error.message, adminCollectionLoading: false });
+            set({
+                adminCollectionError: error.message,
+                adminCollectionLoading: false
+            });
             throw error;
         }
     },
 
-    deleteAdminCollection: async (collectionId) => {
+    deleteAdminCollection: async (id) => {
         set({ adminCollectionLoading: true, adminCollectionError: null });
+
         try {
-            const response = await fetch(`/api/admin/collections/${collectionId}`, {
+            await apiFetch(`/api/admin/collections/${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${get().token}`
-                }
+                token: get().token
             });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to delete collection');
-            }
+
             set((state) => ({
-                adminCollections: state.adminCollections.filter((collection) => collection._id !== collectionId),
+                adminCollections: state.adminCollections.filter((c) => c._id !== id),
                 adminCollectionLoading: false
             }));
+
         } catch (error) {
-            set({ adminCollectionError: error.message, adminCollectionLoading: false });
+            set({
+                adminCollectionError: error.message,
+                adminCollectionLoading: false
+            });
             throw error;
         }
     }
