@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://revakalp-2461.onrender.com',
         changeOrigin: true,
       },
     },
