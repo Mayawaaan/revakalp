@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "backend/server.js",
-
     "scripts": {
   "dev": "concurrently \"nodemon backend/server.js\" \"npm run dev --prefix frontend\" \"cd ml && venv\\Scripts\\uvicorn.exe main:app\"",
   "build": "npm install --prefix frontend && npm run build --prefix frontend",
