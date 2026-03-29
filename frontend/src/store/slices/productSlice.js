@@ -8,19 +8,18 @@ export const createProductSlice = (set, get) => ({
   products: [],
   loading: false,
   error: null,
+
   fetchProducts: async (filters = {}) => {
     set({ loading: true, error: null });
 
     const { category, subCategory } = filters;
+
     const params = new URLSearchParams();
-    if (category) {
-      params.append("category", category);
-    }
-    if (subCategory) {
-      params.append("subCategory", subCategory);
-    }
+    if (category) params.append("category", category);
+    if (subCategory) params.append("subCategory", subCategory);
 
     try {
+      // ✅ apiFetch already returns parsed JSON
       const [
         productsRes,
         collectionsRes,
@@ -35,41 +34,80 @@ export const createProductSlice = (set, get) => ({
         apiFetch("/api/types/suit"),
       ]);
 
-      const products = await productsRes.json();
-      const collections = await collectionsRes.json();
-      const sareeTypes = await sareeTypesRes.json();
-      const kurtaTypes = await kurtaTypesRes.json();
-      const suitTypes = await suitTypesRes.json();
+      // ✅ FIXED: No .json() here
+      const products =
+        Array.isArray(productsRes)
+          ? productsRes
+          : productsRes?.products || [];
+
+      const collections =
+        Array.isArray(collectionsRes)
+          ? collectionsRes
+          : collectionsRes?.collections || [];
+
+      const sareeTypes =
+        Array.isArray(sareeTypesRes)
+          ? sareeTypesRes
+          : sareeTypesRes?.types || [];
+
+      const kurtaTypes =
+        Array.isArray(kurtaTypesRes)
+          ? kurtaTypesRes
+          : kurtaTypesRes?.types || [];
+
+      const suitTypes =
+        Array.isArray(suitTypesRes)
+          ? suitTypesRes
+          : suitTypesRes?.types || [];
 
       set({
+        products,
         collections,
         sareeTypes,
         kurtaTypes,
         suitTypes,
-        products: products || [],
         loading: false,
       });
+
+      // 🔍 Debug (remove later)
+      console.log("FINAL PRODUCTS:", products);
+
     } catch (error) {
-      set({ error: error.message, loading: false });
+      set({
+        error: error.message,
+        loading: false,
+      });
     }
   },
+
   getProductById: (id) => {
-    // return get().products.find(product => product._id === id);
-    return get().products.find(product => product._id === id || product.id === id);
-  },
-  getProductsByCategory: (category) => {
-    return get().products.filter(product => product.category.toLowerCase() === category.toLowerCase());
-  },
-  getProductsByType: (type) => {
-    return get().products.filter(product => product.type.toLowerCase() === type.toLowerCase());
-  },
-  searchProducts: (query) => {
-    const lowercaseQuery = query.toLowerCase();
-    return get().products.filter(product =>
-      product.name.toLowerCase().includes(lowercaseQuery) ||
-      product.description.toLowerCase().includes(lowercaseQuery) ||
-      product.category.toLowerCase().includes(lowercaseQuery) ||
-      product.subCategory.toLowerCase().includes(lowercaseQuery)
+    return get().products.find(
+      (product) => product._id === id || product.id === id
     );
-  }
+  },
+
+  getProductsByCategory: (category) => {
+    return get().products.filter(
+      (product) =>
+        product.category?.toLowerCase() === category.toLowerCase()
+    );
+  },
+
+  getProductsByType: (type) => {
+    return get().products.filter(
+      (product) =>
+        product.type?.toLowerCase() === type.toLowerCase()
+    );
+  },
+
+  searchProducts: (query) => {
+    const q = query.toLowerCase();
+
+    return get().products.filter((product) =>
+      product.name?.toLowerCase().includes(q) ||
+      product.description?.toLowerCase().includes(q) ||
+      product.category?.toLowerCase().includes(q) ||
+      product.subCategory?.toLowerCase().includes(q)
+    );
+  },
 });

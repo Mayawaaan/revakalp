@@ -19,8 +19,9 @@ export const apiFetch = async (endpoint, options = {}) => {
         try {
             const errorData = await response.json();
             errorMessage = errorData.message || errorMessage;
-        } catch {}
-        throw new Error(errorMessage);
+        } catch (err) {
+            throw new Error(errorMessage, err);
+        }
     }
 
     return response.json();
