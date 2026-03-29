@@ -1,52 +1,24 @@
-import { getToken } from "../../utils/token";
+import { apiFetch } from "../../hooks/useApiHelper";
+
 export const createAdminProductSlice = (set, get) => ({
-    adminProducts: [],
-    adminProductLoading: false,
-    adminProductError: null,
+  adminProducts: [],
+  adminProductLoading: false,
+  adminProductError: null,
 
-    // fetchAdminProducts: async () => {
-    //     set({ adminProductLoading: true, adminProductError: null });
-    //     try {
-    //         const response = await fetch('/api/admin/products', {
-    //             headers: {
-    //                 'Authorization': `Bearer ${get().token}` // Assuming token is in the auth slice
-    //             }
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error('Failed to fetch admin products');
-    //         }
-    //         const products = await response.json();
-    //         set({ adminProducts: products, adminProductLoading: false });
-    //     } catch (error) {
-    //         set({ adminProductError: error.message, adminProductLoading: false });
-    //     }
-    // },
-
-    fetchAdminProducts: async () => {
+  // ✅ FETCH PRODUCTS
+  fetchAdminProducts: async () => {
     set({ adminProductLoading: true, adminProductError: null });
-    const token = getToken(); // ✅ pulled separately
-    if (!token) {
-      set({
-        adminProductError: "Authentication token missing",
-        adminProductLoading: false,
-      });
-      return;
-    }
+
     try {
-      const response = await fetch("/api/admin/products", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch admin products");
-      }
-      const products = await response.json();
-      console.log("Fetched products:", products);
+      const data = await apiFetch("/api/admin/products");
+
       set({
-        adminProducts: products,
+        adminProducts: Array.isArray(data)
+          ? data
+          : data.products || [],
         adminProductLoading: false,
       });
+
     } catch (error) {
       set({
         adminProductError: error.message,
@@ -55,34 +27,8 @@ export const createAdminProductSlice = (set, get) => ({
     }
   },
 
-    // addAdminProduct: async (productData) => {
-    //     set({ adminProductLoading: true, adminProductError: null });
-    //     try {
-    //         const response = await fetch('/api/admin/products', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${get().token}`
-    //             },
-    //             body: JSON.stringify(productData)
-    //         });
-    //         if (!response.ok) {
-    //             const errorData = await response.json();
-    //             throw new Error(errorData.message || 'Failed to add product');
-    //         }
-    //         const newProduct = await response.json();
-    //         set((state) => ({
-    //             adminProducts: [...state.adminProducts, newProduct],
-    //             adminProductLoading: false
-    //         }));
-    //         return newProduct;
-    //     } catch (error) {
-    //         set({ adminProductError: error.message, adminProductLoading: false });
-    //         throw error;
-    //     }
-    // },
-    // 1. Using FormData to handle file uploads
-addAdminProduct: async (productData) => {
+  // ✅ ADD PRODUCT (FormData + TOKEN FIXED)
+  addAdminProduct: async (productData) => {
     set({ adminProductLoading: true, adminProductError: null });
 
     try {
@@ -96,15 +42,10 @@ addAdminProduct: async (productData) => {
         }
       });
 
-      const res = await fetch("/api/admin/products", {
+      const newProduct = await apiFetch("/api/admin/products", {
         method: "POST",
         body: formData,
-        credentials: "include",
       });
-
-      if (!res.ok) throw new Error("Failed to create product");
-
-      const newProduct = await res.json();
 
       set((state) => ({
         adminProducts: [newProduct, ...state.adminProducts],
@@ -112,167 +53,106 @@ addAdminProduct: async (productData) => {
       }));
 
       return newProduct;
-    } catch (err) {
+
+    } catch (error) {
       set({
-        adminProductError: err.message,
+        adminProductError: error.message,
         adminProductLoading: false,
       });
-      throw err;
+      throw error;
     }
   },
 
-    // updateAdminProduct: async (product, productData) => {
-    //     set({ adminProductLoading: true, adminProductError: null });
-    //     try {
-    //         const response = await fetch(`/api/admin/products/${product._id}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${get().token}`
-    //             },
-    //             body: JSON.stringify(productData)
-    //         });
-    //         if (!response.ok) {
-    //             const errorData = await response.json();
-    //             throw new Error(errorData.message || 'Failed to update product');
-    //         }
-    //         const updatedProduct = await response.json();
-    //         set((state) => ({
-    //             adminProducts: state.adminProducts.map((product) =>
-    //                 product._id === product._id ? updatedProduct : product
-    //             ),
-    //             adminProductLoading: false
-    //         }));
-    //         return updatedProduct;
-    //     } catch (error) {
-    //         set({ adminProductError: error.message, adminProductLoading: false });
-    //         throw error;
-    //     }
-    // },
-// updateAdminProduct: async (product, productData) => {
-//   set({ adminProductLoading: true, adminProductError: null });
+  // ✅ UPDATE PRODUCT
+  updateAdminProduct: async (product, productData) => {
+    set({ adminProductLoading: true, adminProductError: null });
 
-//   try {
-//     const response = await fetch(`/api/admin/products/${product._id}`, {
-//       method: 'PUT',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': `Bearer ${get().token}`
-//       },
-//       body: JSON.stringify(productData)
-//     });
+    try {
+      const formData = new FormData();
 
-//     if (!response.ok) {
-//       const errorData = await response.json();
-//       throw new Error(errorData.message || 'Failed to update product');
-//     }
-
-//     const updatedProduct = await response.json();
-
-//     set((state) => ({
-//       adminProducts: state.adminProducts.map((p) =>
-//         p._id === updatedProduct._id ? updatedProduct : p
-//       ),
-//       adminProductLoading: false
-//     }));
-    
-//     return updatedProduct;
-//   } catch (error) {
-//     set({ adminProductError: error.message, adminProductLoading: false });
-//     throw error;
-//   }
-// },
-updateAdminProduct: async (product, productData) => {
-  set({ adminProductLoading: true, adminProductError: null });
-
-  try {
-    const formData = new FormData();
-
-    Object.entries(productData).forEach(([key, value]) => {
-      if (key === "images" && Array.isArray(value)) {
-        value.forEach((file) => {
-          formData.append("images", file);
-        });
-      } else if (Array.isArray(value)) {
-        value.forEach((v) => formData.append(key, v));
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
-
-    const res = await fetch(`/api/admin/products/${product._id}`, {
-      method: "PUT",
-      body: formData,
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || "Failed to update product");
-    }
-
-    const updatedProduct = await res.json();
-
-    set((state) => ({
-      adminProducts: state.adminProducts.map((p) =>
-        p._id === updatedProduct._id ? updatedProduct : p
-      ),
-      adminProductLoading: false,
-    }));
-
-    return updatedProduct;
-  } catch (error) {
-    set({
-      adminProductError: error.message,
-      adminProductLoading: false,
-    });
-    throw error;
-  }
-},
-
-    deleteAdminProduct: async (productId) => {
-        set({ adminProductLoading: true, adminProductError: null });
-        try {
-            const response = await fetch(`/api/admin/products/${productId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${get().token}`
-                }
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to delete product');
-            }
-            set((state) => ({
-                adminProducts: state.adminProducts.filter((product) => product._id !== productId),
-                adminProductLoading: false
-            }));
-        } catch (error) {
-            set({ adminProductError: error.message, adminProductLoading: false });
-            throw error;
+      Object.entries(productData).forEach(([key, value]) => {
+        if (key === "images" && Array.isArray(value)) {
+          value.forEach((file) => {
+            formData.append("images", file);
+          });
+        } else if (Array.isArray(value)) {
+          value.forEach((v) => formData.append(key, v));
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value);
         }
-    },
+      });
 
-    deleteAllAdminProducts: async () => {
-        set({ adminProductLoading: true, adminProductError: null });
-        try {
-            const response = await fetch(`/api/admin/products`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${get().token}`
-                }
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to delete all products');
-            }
-            set({
-                adminProducts: [],
-                adminProductLoading: false
-            });
-        } catch (error) {
-            set({ adminProductError: error.message, adminProductLoading: false });
-            throw error;
+      const updatedProduct = await apiFetch(
+        `/api/admin/products/${product._id}`,
+        {
+          method: "PUT",
+          body: formData,
         }
+      );
+
+      set((state) => ({
+        adminProducts: state.adminProducts.map((p) =>
+          p._id === updatedProduct._id ? updatedProduct : p
+        ),
+        adminProductLoading: false,
+      }));
+
+      return updatedProduct;
+
+    } catch (error) {
+      set({
+        adminProductError: error.message,
+        adminProductLoading: false,
+      });
+      throw error;
     }
+  },
+
+  // ✅ DELETE SINGLE
+  deleteAdminProduct: async (productId) => {
+    set({ adminProductLoading: true, adminProductError: null });
+
+    try {
+      await apiFetch(`/api/admin/products/${productId}`, {
+        method: "DELETE",
+      });
+
+      set((state) => ({
+        adminProducts: state.adminProducts.filter(
+          (p) => p._id !== productId
+        ),
+        adminProductLoading: false,
+      }));
+
+    } catch (error) {
+      set({
+        adminProductError: error.message,
+        adminProductLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // ✅ DELETE ALL
+  deleteAllAdminProducts: async () => {
+    set({ adminProductLoading: true, adminProductError: null });
+
+    try {
+      await apiFetch(`/api/admin/products`, {
+        method: "DELETE",
+      });
+
+      set({
+        adminProducts: [],
+        adminProductLoading: false,
+      });
+
+    } catch (error) {
+      set({
+        adminProductError: error.message,
+        adminProductLoading: false,
+      });
+      throw error;
+    }
+  },
 });

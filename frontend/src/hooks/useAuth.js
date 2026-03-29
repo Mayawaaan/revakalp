@@ -13,7 +13,8 @@ const useAuth = () => {
         const res = await axios.get("/api/auth/check");
 
         if (res.data && isMounted) {
-          login(res.data);
+          const { role } = res.data;
+          login({ ...res.data, role });
         }
       } catch (error) {
         console.log("User not authenticated:", error.message);
