@@ -9,6 +9,7 @@ export const createProductSlice = (set, get) => ({
   loading: false,
   error: null,
 
+  /* ================= FETCH PRODUCTS ================= */
   fetchProducts: async (filters = {}) => {
     set({ loading: true, error: null });
 
@@ -18,8 +19,10 @@ export const createProductSlice = (set, get) => ({
     if (category) params.append("category", category);
     if (subCategory) params.append("subCategory", subCategory);
 
+    const query = params.toString();
+    const url = query ? `/api/products?${query}` : `/api/products`;
+
     try {
-      // ✅ apiFetch already returns parsed JSON
       const [
         productsRes,
         collectionsRes,
@@ -27,18 +30,20 @@ export const createProductSlice = (set, get) => ({
         kurtaTypesRes,
         suitTypesRes,
       ] = await Promise.all([
-        apiFetch(`/api/products?${params.toString()}`),
+        apiFetch(url),
         apiFetch("/api/collections"),
         apiFetch("/api/types/saree"),
         apiFetch("/api/types/kurta"),
         apiFetch("/api/types/suit"),
       ]);
 
-      // ✅ FIXED: No .json() here
+      // ✅ robust normalization
       const products =
         Array.isArray(productsRes)
           ? productsRes
-          : productsRes?.products || [];
+          : productsRes?.products ||
+            productsRes?.data ||
+            [];
 
       const collections =
         Array.isArray(collectionsRes)
@@ -69,45 +74,55 @@ export const createProductSlice = (set, get) => ({
         loading: false,
       });
 
-      // 🔍 Debug (remove later)
-      console.log("FINAL PRODUCTS:", products);
-
     } catch (error) {
+      console.error("Fetch products error:", error);
+
       set({
-        error: error.message,
+        error: error.message || "Failed to fetch products",
         loading: false,
       });
     }
   },
 
+  /* ================= GET BY ID ================= */
   getProductById: (id) => {
     return get().products.find(
-      (product) => product._id === id || product.id === id
+      (p) => p?._id === id || p?.id === id
     );
   },
 
+  /* ================= FILTER BY CATEGORY ================= */
   getProductsByCategory: (category) => {
+    if (!category) return [];
+
     return get().products.filter(
-      (product) =>
-        product.category?.toLowerCase() === category.toLowerCase()
+      (p) =>
+        p?.category?.toLowerCase() ===
+        category.toLowerCase()
     );
   },
 
+  /* ================= FILTER BY TYPE ================= */
   getProductsByType: (type) => {
+    if (!type) return [];
+
     return get().products.filter(
-      (product) =>
-        product.type?.toLowerCase() === type.toLowerCase()
+      (p) =>
+        p?.type?.toLowerCase() === type.toLowerCase()
     );
   },
 
+  /* ================= SEARCH ================= */
   searchProducts: (query) => {
+    if (!query) return get().products;
+
     const q = query.toLowerCase();
 
-    return get().products.filter((product) =>
-      product.name?.toLowerCase().includes(q) ||
-      product.description?.toLowerCase().includes(q) ||
-      product.category?.toLowerCase().includes(q) ||
-      product.subCategory?.toLowerCase().includes(q)
+    return get().products.filter((p) =>
+      p?.name?.toLowerCase().includes(q) ||
+      p?.description?.toLowerCase().includes(q) ||
+      p?.category?.toLowerCase().includes(q) ||
+      p?.subCategory?.toLowerCase().includes(q)
     );
   },
 });

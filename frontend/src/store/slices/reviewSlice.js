@@ -1,4 +1,4 @@
-import { getToken } from "../../utils/token";
+import { apiFetch } from "../../hooks/useApiHelper";
 
 export const createReviewSlice = (set, get) => ({
   reviews: [],
@@ -7,31 +7,20 @@ export const createReviewSlice = (set, get) => ({
   status: "idle",
   error: null,
 
-  // ----------------------------
-  // FETCH REVIEWS (GET)
-  // ----------------------------
+  /* ================= FETCH REVIEWS ================= */
   fetchReviews: async (productId) => {
     set({ status: "loading", error: null });
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/reviews/${productId}`
-      );
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to fetch reviews");
-      }
-
-      const { reviews, sentimentBreakdown, positivityPercentage } =
-        await res.json();
+      const data = await apiFetch(`/api/reviews/${productId}`);
 
       set({
         status: "succeeded",
-        reviews,
-        sentimentBreakdown,
-        positivityPercentage,
+        reviews: data.reviews || [],
+        sentimentBreakdown: data.sentimentBreakdown || null,
+        positivityPercentage: data.positivityPercentage || 0,
       });
+
     } catch (error) {
       set({
         status: "failed",
@@ -40,20 +29,11 @@ export const createReviewSlice = (set, get) => ({
     }
   },
 
-  // ----------------------------
-  // ADD REVIEW (POST – AUTH)
-  // ----------------------------
+  /* ================= ADD REVIEW ================= */
   addReview: async ({ productId, rating, reviewText }) => {
     try {
-      const token = getToken();
-      if (!token) throw new Error("Authentication token missing");
-
-      const res = await fetch("/api/reviews", {
+      const data = await apiFetch("/api/reviews", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           productId,
           rating,
@@ -61,23 +41,24 @@ export const createReviewSlice = (set, get) => ({
         }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to add review");
-      }
-
-      console.log("Review added successfully");
-
-      const data = await res.json();
-
       set((state) => ({
         reviews: [...state.reviews, data],
       }));
+
+      get().showToast("Review added successfully", "success");
+
     } catch (error) {
-      if (error.message === "You have already reviewed this product") {
-        get().showToast("You have already submitted a review for this product.", "info");
+      if (
+        error.message ===
+        "You have already reviewed this product"
+      ) {
+        get().showToast(
+          "You have already submitted a review for this product.",
+          "info"
+        );
       } else {
         set({ error: error.message });
+        get().showToast(error.message, "error");
       }
     }
   },

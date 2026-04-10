@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiFetch } from "../../hooks/useApiHelper";
 
 const defaultSettings = {
   storeName: "Revakalp",
@@ -22,42 +22,69 @@ const defaultSettings = {
 export const createSettingsSlice = (set, get) => ({
   settings: defaultSettings,
   settingsLoading: false,
-  
-  // Fetch public settings (for all users)
+
+  /* ================= PUBLIC SETTINGS ================= */
   fetchPublicSettings: async () => {
     try {
-      const res = await axios.get("/api/settings");
-      set({ settings: res.data });
-      return res.data;
+      const data = await apiFetch("/api/settings");
+
+      set({
+        settings: data || defaultSettings,
+      });
+
+      return data;
+
     } catch (error) {
       console.error("Failed to fetch public settings:", error);
-      // Use defaults on error
-      set({ settings: defaultSettings });
+
+      set({
+        settings: defaultSettings,
+      });
+
       return defaultSettings;
     }
   },
-  
-  // Fetch admin settings (requires auth)
+
+  /* ================= ADMIN SETTINGS ================= */
   fetchSettings: async () => {
     set({ settingsLoading: true });
+
     try {
-      const res = await axios.get("/api/admin/settings");
-      set({ settings: res.data, settingsLoading: false });
-      return res.data;
+      const data = await apiFetch("/api/admin/settings");
+
+      set({
+        settings: data || defaultSettings,
+        settingsLoading: false,
+      });
+
+      return data;
+
     } catch (error) {
       console.error("Failed to fetch settings:", error);
+
       set({ settingsLoading: false });
+
       return get().settings;
     }
   },
-  
+
+  /* ================= UPDATE SETTINGS ================= */
   updateSettings: async (updates) => {
     try {
-      const res = await axios.put("/api/admin/settings", updates);
-      set({ settings: res.data.settings });
-      // Also update public settings cache
+      const data = await apiFetch("/api/admin/settings", {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+
+      set({
+        settings: data.settings || data,
+      });
+
+      // refresh public cache
       await get().fetchPublicSettings();
-      return res.data.settings;
+
+      return data.settings || data;
+
     } catch (error) {
       console.error("Failed to update settings:", error);
       throw error;

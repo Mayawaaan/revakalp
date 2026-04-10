@@ -7,10 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sampleOrder = {
-    _id: "ORDER-000101",
+    _id: "ORDER-000103",
     createdAt: new Date().toISOString(),
     userId: {
-        fullName: "Ashmita Saxena",
+        fullName: "",
         email: ""
     },
     shippingAddress: {
@@ -22,10 +22,11 @@ const sampleOrder = {
         phone: ""
     },
     items: [
-        { name: "Chunri Saree", quantity: 1, price: 749.00 },
+        { name: "Sider Lengha", quantity: 1, price: 1799.00 },
+        { name: "Bridal Lengha", quantity: 1, price: 2499.00 },
     ],
     subtotal: 0, // will be calculated
-    discount: 150.00,
+    discount: 698.00,
     deliveryFee: 0.00,
     total: 0 // will be calculated
 };

@@ -1,16 +1,18 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
 const normalizeCart = (cart) =>
-  cart.items
+  (cart.items || [])
     .filter((i) => i.productId)
     .map((i) => ({
-    _id: i.productId._id ,
-    name: i.productId.name,
-    price: i.productId.price,
-    discount: i.productId.discount,
-    discountedPrice: i.productId.discountedPrice,
-    image: i.productId.image || i.productId.images?.[0],
-    size: i.size,
-    quantity: i.quantity,
-  }));
+      _id: i.productId._id,
+      name: i.productId.name || "",
+      price: i.productId.price || 0,
+      discount: i.productId.discount || 0,
+      discountedPrice: i.productId.discountedPrice || i.productId.price,
+      image: i.productId.image || i.productId.images?.[0] || "",
+      size: i.size,
+      quantity: i.quantity || 1,
+    }));
 
 export const createCartSlice = (set, get) => ({
   cart: [],
@@ -19,18 +21,17 @@ export const createCartSlice = (set, get) => ({
 
   /* ================= FETCH CART ================= */
   fetchCart: async () => {
-    const res = await fetch("/api/cart", {
-      credentials: "include",
-    });
+    try {
+      const data = await apiFetch("/api/cart");
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to fetch cart");
-
-    set({
-      cart: normalizeCart(data),
-      couponCode: data.couponCode || "",
-      discountPercentage: data.discountPercentage || 0,
-    });
+      set({
+        cart: normalizeCart(data),
+        couponCode: data.couponCode || "",
+        discountPercentage: data.discountPercentage || 0,
+      });
+    } catch (error) {
+      console.error("Fetch cart error:", error);
+    }
   },
 
   /* ================= ADD TO CART ================= */
@@ -39,15 +40,10 @@ export const createCartSlice = (set, get) => ({
       throw new Error("Product ID and size are required");
     }
 
-    const res = await fetch("/api/cart/add", {
+    const data = await apiFetch("/api/cart/add", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ productId, size }),
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to add to cart");
 
     set({
       cart: normalizeCart(data),
@@ -56,26 +52,21 @@ export const createCartSlice = (set, get) => ({
     });
   },
 
-  /* ================= UPDATE QUANTITY ================= */
+  /* ================= UPDATE ================= */
   incrementQuantity: async (productId, size) => {
     const item = get().cart.find(
       (p) => p._id === productId && p.size === size
     );
     if (!item) return;
 
-    const res = await fetch("/api/cart/update", {
+    const data = await apiFetch("/api/cart/update", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({
         productId,
         size,
         quantity: item.quantity + 1,
       }),
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to update cart");
 
     set({ cart: normalizeCart(data) });
   },
@@ -86,10 +77,8 @@ export const createCartSlice = (set, get) => ({
     );
     if (!item) return;
 
-    const res = await fetch("/api/cart/update", {
+    const data = await apiFetch("/api/cart/update", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({
         productId,
         size,
@@ -97,66 +86,50 @@ export const createCartSlice = (set, get) => ({
       }),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to update cart");
-
     set({ cart: normalizeCart(data) });
   },
 
-  /* ================= REMOVE ITEM ================= */
+  /* ================= REMOVE ================= */
   removeFromCart: async (productId, size) => {
-    const res = await fetch("/api/cart/remove", {
+    const data = await apiFetch("/api/cart/remove", {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ productId, size }),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to remove item");
-
     set({ cart: normalizeCart(data) });
   },
 
-  /* ================= CLEAR CART ================= */
+  /* ================= CLEAR ================= */
   clearCart: async () => {
-    const res = await fetch("/api/cart/clear", {
+    await apiFetch("/api/cart/clear", {
       method: "DELETE",
-      credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Failed to clear cart");
-
-    set({ cart: [], couponCode: "", discountPercentage: 0 });
+    set({
+      cart: [],
+      couponCode: "",
+      discountPercentage: 0,
+    });
   },
 
   /* ================= COUPON ================= */
   applyCoupon: async (code) => {
-    const res = await fetch("/api/cart/coupon/apply", {
+    const data = await apiFetch("/api/cart/coupon/apply", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ code }),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Invalid coupon");
-
     set({
       cart: normalizeCart(data),
-      couponCode: data.couponCode,
-      discountPercentage: data.discountPercentage,
+      couponCode: data.couponCode || "",
+      discountPercentage: data.discountPercentage || 0,
     });
   },
 
   removeCoupon: async () => {
-    const res = await fetch("/api/cart/coupon/remove", {
+    const data = await apiFetch("/api/cart/coupon/remove", {
       method: "DELETE",
-      credentials: "include",
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to remove coupon");
 
     set({
       cart: normalizeCart(data),
@@ -167,24 +140,32 @@ export const createCartSlice = (set, get) => ({
 
   /* ================= TOTALS ================= */
   getCartSubtotal: () =>
-    get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    get().cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    ),
 
   getCartItemsDiscount: () =>
-    get().cart.reduce((totalDiscount, item) => {
+    get().cart.reduce((total, item) => {
       const price = item.price;
-      const discountedPrice = item.discountedPrice;
-      if (discountedPrice && discountedPrice < price) {
-        return totalDiscount + (price - discountedPrice) * item.quantity;
+      const discounted = item.discountedPrice;
+
+      if (discounted && discounted < price) {
+        return total + (price - discounted) * item.quantity;
       }
-      return totalDiscount;
+
+      return total;
     }, 0),
 
   getCartTotal: () => {
     const subtotal = get().getCartSubtotal();
-    const itemsDiscount = get().getCartItemsDiscount();
-    const subtotalAfterItemDiscounts = subtotal - itemsDiscount;
+    const itemDiscount = get().getCartItemsDiscount();
+
+    const afterDiscount = subtotal - itemDiscount;
+
     const couponDiscount =
-      (subtotalAfterItemDiscounts * get().discountPercentage) / 100;
-    return subtotalAfterItemDiscounts - couponDiscount;
+      (afterDiscount * get().discountPercentage) / 100;
+
+    return afterDiscount - couponDiscount;
   },
 });

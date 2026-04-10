@@ -1,13 +1,46 @@
-
-export const createAppSlice = (set) => ({
+export const createAppSlice = (set, get) => ({
+  /* =========================
+     SEARCH STATE
+  ========================= */
   showSearch: false,
-  setShowSearch: (show) => set({ showSearch: show }),
-  search: '',
-  setSearch: (search) => set({ search: search }),
+  search: "",
+
+  setShowSearch: (show) =>
+    set({ showSearch: Boolean(show) }),
+
+  setSearch: (search) =>
+    set({ search: search || "" }),
+
+  /* =========================
+     TOAST STATE
+  ========================= */
   toast: {
-    message: '',
-    type: '',
+    message: "",
+    type: "", // success | error | info
   },
-  showToast: (message, type) => set({ toast: { message, type } }),
-  hideToast: () => set({ toast: { message: '', type: '' } }),
+
+  showToast: (message, type = "info") => {
+    set({
+      toast: {
+        message: message || "",
+        type: type || "info",
+      },
+    });
+
+    // ✅ Auto-hide after 3 seconds
+    setTimeout(() => {
+      // prevent overriding newer toast
+      const current = get().toast;
+      if (current.message === message) {
+        set({
+          toast: { message: "", type: "" },
+        });
+      }
+    }, 3000);
+  },
+
+  hideToast: () =>
+    set({
+      toast: { message: "", type: "" },
+    }),
 });

@@ -1,3 +1,5 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
 export const createTypeSlice = (set, get) => ({
   /* =========================
      STATE
@@ -12,16 +14,16 @@ export const createTypeSlice = (set, get) => ({
      FETCH TYPES BY CATEGORY
   ========================= */
   fetchTypesByCategory: async (category) => {
+    if (!category) return;
+
     set({ typeLoading: true, typeError: null });
 
     try {
-      const res = await fetch(`/api/types/${category}`);
+      const data = await apiFetch(`/api/types/${category}`);
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch types");
-      }
-
-      const types = await res.json();
+      const types = Array.isArray(data)
+        ? data
+        : data?.types || [];
 
       if (category === "saree") {
         set({ sareeTypes: types });
@@ -32,7 +34,10 @@ export const createTypeSlice = (set, get) => ({
       }
 
       set({ typeLoading: false });
+
     } catch (error) {
+      console.error("Type fetch error:", error);
+
       set({
         typeError: error.message,
         typeLoading: false,

@@ -1,3 +1,5 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
 export const createOrderSlice = (set, get) => ({
   orders: [],
   orderLoading: false,
@@ -8,15 +10,10 @@ export const createOrderSlice = (set, get) => ({
     set({ orderLoading: true });
 
     try {
-      const res = await fetch("/api/orders", {
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch orders");
+      const data = await apiFetch("/api/orders");
 
       set({
-        orders: data,
+        orders: Array.isArray(data) ? data : data.orders || [],
         orderLoading: false,
       });
 
@@ -31,24 +28,17 @@ export const createOrderSlice = (set, get) => ({
   /* ================= PLACE ORDER ================= */
   placeOrder: async (orderData) => {
     try {
-      const res = await fetch("/api/orders/place", {
+      const data = await apiFetch("/api/orders/place", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
         body: JSON.stringify(orderData),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to place order");
 
       set((state) => ({
         orders: [data, ...state.orders],
         currentOrder: data,
       }));
 
-      // ✅ Clear cart after successful order
+      // ✅ Clear cart safely
       if (get().clearCart) {
         await get().clearCart();
       }
@@ -62,60 +52,55 @@ export const createOrderSlice = (set, get) => ({
 
   /* ================= GET ORDER BY ID ================= */
   getOrderById: async (orderId) => {
-    const res = await fetch(`/api/orders/${orderId}`, {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to fetch order");
-
-    return data;
+    return await apiFetch(`/api/orders/${orderId}`);
   },
 
   /* ================= TRACK ORDER ================= */
   trackOrder: async (orderId) => {
-    const res = await fetch(`/api/orders/${orderId}/track`, {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to track order");
-
-    return data;
+    return await apiFetch(`/api/orders/${orderId}/track`);
   },
 
-  /* ================= REORDER ITEMS ================= */
+  /* ================= REORDER ================= */
   reorderItems: async (orderId) => {
-    const res = await fetch(`/api/orders/reorder/${orderId}`, {
+    return await apiFetch(`/api/orders/reorder/${orderId}`, {
       method: "POST",
-      credentials: "include",
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to reorder items");
-
-    return data;
   },
 
   /* ================= DOWNLOAD INVOICE ================= */
   downloadInvoice: async (orderId) => {
-    const res = await fetch(`/api/orders/${orderId}/invoice`, {
-      credentials: "include",
-    });
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem("token");
 
-    if (!res.ok) throw new Error("Failed to download invoice");
+      const res = await fetch(
+        `${API_BASE}/api/orders/${orderId}/invoice`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+      if (!res.ok) throw new Error("Failed to download invoice");
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `invoice-${orderId}.pdf`;
-    document.body.appendChild(link);
-    link.click();
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
 
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${orderId}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Invoice download failed:", error);
+      throw error;
+    }
   },
 
   /* ================= LEGACY SUPPORT ================= */

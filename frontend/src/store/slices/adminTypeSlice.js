@@ -1,3 +1,5 @@
+import { apiFetch } from "../../hooks/useApiHelper";
+
 export const createAdminTypeSlice = (set, get) => ({
   /* =========================
      STATE
@@ -7,58 +9,18 @@ export const createAdminTypeSlice = (set, get) => ({
   adminTypeError: null,
 
   /* =========================
-     HELPERS
-  ========================= */
-  getAuthHeaders: () => {
-    const token = get().token;
-    return token
-      ? {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        }
-      : {
-          Accept: "application/json",
-        };
-  },
-
-  handleApiError: async (response) => {
-    let message = "Something went wrong";
-
-    try {
-      const contentType = response.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        message = data?.message || message;
-      } else {
-        message = response.statusText || message;
-      }
-    } catch {
-      message = response.statusText || message;
-    }
-
-    throw new Error(message);
-  },
-
-  /* =========================
      FETCH ALL TYPES
   ========================= */
   fetchAdminTypes: async () => {
     set({ adminTypeLoading: true, adminTypeError: null });
 
     try {
-      const res = await fetch("/api/admin/types", {
-        headers: get().getAuthHeaders(),
-      });
-
-      if (!res.ok) {
-        await get().handleApiError(res);
-      }
-
-      const types = await res.json();
+      const data = await apiFetch("/api/admin/types");
 
       set({
-        adminTypes: Array.isArray(types) ? types : [],
+        adminTypes: Array.isArray(data)
+          ? data
+          : data.types || [],
         adminTypeLoading: false,
       });
     } catch (error) {
@@ -71,27 +33,15 @@ export const createAdminTypeSlice = (set, get) => ({
 
   /* =========================
      CREATE TYPE
-     NOTE: formData MUST include:
-     - name
-     - slug (manual)
-     - category
-     - image
   ========================= */
   addAdminType: async (formData) => {
     set({ adminTypeLoading: true, adminTypeError: null });
 
     try {
-      const res = await fetch("/api/admin/types", {
+      const newType = await apiFetch("/api/admin/types", {
         method: "POST",
-        headers: get().getAuthHeaders(), // never set Content-Type for FormData
         body: formData,
       });
-
-      if (!res.ok) {
-        await get().handleApiError(res);
-      }
-
-      const newType = await res.json();
 
       set((state) => ({
         adminTypes: [...state.adminTypes, newType],
@@ -110,27 +60,18 @@ export const createAdminTypeSlice = (set, get) => ({
 
   /* =========================
      UPDATE TYPE
-     NOTE: formData MAY include:
-     - name
-     - slug (manual)
-     - category
-     - image OR existingImage
   ========================= */
   updateAdminType: async (typeId, formData) => {
     set({ adminTypeLoading: true, adminTypeError: null });
 
     try {
-      const res = await fetch(`/api/admin/types/${typeId}`, {
-        method: "PUT",
-        headers: get().getAuthHeaders(),
-        body: formData,
-      });
-
-      if (!res.ok) {
-        await get().handleApiError(res);
-      }
-
-      const updatedType = await res.json();
+      const updatedType = await apiFetch(
+        `/api/admin/types/${typeId}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
 
       set((state) => ({
         adminTypes: state.adminTypes.map((t) =>
@@ -156,17 +97,14 @@ export const createAdminTypeSlice = (set, get) => ({
     set({ adminTypeLoading: true, adminTypeError: null });
 
     try {
-      const res = await fetch(`/api/admin/types/${typeId}`, {
+      await apiFetch(`/api/admin/types/${typeId}`, {
         method: "DELETE",
-        headers: get().getAuthHeaders(),
       });
 
-      if (!res.ok) {
-        await get().handleApiError(res);
-      }
-
       set((state) => ({
-        adminTypes: state.adminTypes.filter((t) => t._id !== typeId),
+        adminTypes: state.adminTypes.filter(
+          (t) => t._id !== typeId
+        ),
         adminTypeLoading: false,
       }));
     } catch (error) {
