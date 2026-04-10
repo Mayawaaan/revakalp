@@ -1,13 +1,15 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5173";
+import { getToken } from "../utils/token";
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export const apiFetch = async (endpoint, options = {}) => {
-  const token = localStorage.getItem("token"); // or your getToken()
+  const token = getToken();
 
   const headers = {
     ...(options.body instanceof FormData
       ? {}
       : { "Content-Type": "application/json" }),
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
@@ -21,11 +23,9 @@ export const apiFetch = async (endpoint, options = {}) => {
     try {
       const data = await res.json();
       error = data.message || error;
-    } catch (err) {
-      console.error("Error parsing response:", err);
-    }
+    } catch {}
     throw new Error(error);
   }
 
-  return res.json(); // ✅ already parsed
+  return res.json();
 };

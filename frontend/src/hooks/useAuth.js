@@ -1,33 +1,46 @@
 import { useEffect, useCallback } from "react";
 import useStore from "../store/store";
 import axios from "../utils/axiosInstance";
+import { setToken, clearToken, getToken } from "../utils/token";
 
 const useAuth = () => {
-  const { user, login, logout, showToast, updateProfile } = useStore();
+  const {
+    user,
+    login,
+    logout,
+    showToast,
+    updateProfile,
+    setAuthReady,
+  } = useStore();
 
+  /* ================= RESTORE AUTH ================= */
   useEffect(() => {
-    let isMounted = true;
-
     const checkAuth = async () => {
       try {
+        const token = getToken();
+
+        if (!token) {
+          setAuthReady(true);
+          return;
+        }
+
         const res = await axios.get("/api/auth/check");
 
-        if (res.data && isMounted) {
-          const { role } = res.data;
-          login({ ...res.data, role });
-        }
+        login({
+          user: res.data,
+          token,
+        });
       } catch (error) {
-        console.log("User not authenticated:", error.message);
+        clearToken();
+      } finally {
+        setAuthReady(true); // 🔥 prevents race condition
       }
     };
 
     checkAuth();
+  }, [login, setAuthReady]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [login]);
-
+  /* ================= LOGIN ================= */
   const handleLogin = useCallback(
     async (email, password) => {
       try {
@@ -36,23 +49,30 @@ const useAuth = () => {
           password,
         });
 
-        if (res.data) {
-          login(res.data);
-          showToast("Logged in successfully", "success");
+        if (res.data?.token) {
+          setToken(res.data.token);
+
+          login({
+            user: res.data.user,
+            token: res.data.token,
+          });
+
+          showToast?.("Logged in successfully", "success");
           return true;
         }
 
-        return false;
+        throw new Error("Invalid response");
       } catch (error) {
         const message =
           error.response?.data?.message || "Login failed";
-        showToast(message, "error");
+        showToast?.(message, "error");
         return false;
       }
     },
     [login, showToast]
   );
 
+  /* ================= SIGNUP ================= */
   const handleSignup = useCallback(
     async (fullName, email, password) => {
       try {
@@ -63,35 +83,42 @@ const useAuth = () => {
           profilePic: "",
         });
 
-        if (res.data) {
-          login(res.data);
-          showToast("Signed up successfully", "success");
+        if (res.data?.token) {
+          setToken(res.data.token);
+
+          login({
+            user: res.data.user,
+            token: res.data.token,
+          });
+
+          showToast?.("Signed up successfully", "success");
           return true;
         }
 
-        return false;
+        throw new Error("Invalid response");
       } catch (error) {
         const message =
           error.response?.data?.message || "Sign up failed";
-        showToast(message, "error");
+        showToast?.(message, "error");
         return false;
       }
     },
     [login, showToast]
   );
 
+  /* ================= LOGOUT ================= */
   const handleLogout = useCallback(async () => {
     try {
       await axios.post("/api/auth/logout");
-      logout();
-      showToast("Logged out successfully", "success");
-    } catch (error) {
-      const message =
-        error.response?.data?.message || "Logout failed";
-      showToast(message, "error");
-    }
+    } catch {}
+
+    logout();
+    clearToken();
+
+    showToast?.("Logged out successfully", "success");
   }, [logout, showToast]);
 
+  /* ================= UPDATE PROFILE ================= */
   const handleUpdateProfile = useCallback(
     async ({ fullName, profilePic }) => {
       try {
@@ -107,18 +134,15 @@ const useAuth = () => {
           formData
         );
 
-        if (res.data) {
-          updateProfile(res.data);
-          showToast("Profile updated successfully", "success");
-          return true;
-        }
+        updateProfile(res.data);
+        showToast?.("Profile updated", "success");
 
-        return false;
+        return true;
       } catch (error) {
-        const message =
-          error.response?.data?.message ||
-          "Profile update failed";
-        showToast(message, "error");
+        showToast?.(
+          error.response?.data?.message || "Update failed",
+          "error"
+        );
         return false;
       }
     },
