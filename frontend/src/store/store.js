@@ -16,7 +16,6 @@ import { createPaymentSlice } from "./slices/paymentSlice";
 const useStore = create((...a) => ({
     ...createPaymentSlice(...a),
   ...createProductSlice(...a),
-  ...createCartSlice(...a),
   ...createAuthSlice(...a),
   ...createWishlistSlice(...a),
   ...createTypeSlice(...a),
@@ -27,6 +26,7 @@ const useStore = create((...a) => ({
   ...createAdminTypeSlice(...a),
   ...createSettingsSlice(...a),
   ...createReviewSlice(...a),
+  ...createCartSlice(...a),
 }));
 
 export default useStore;
