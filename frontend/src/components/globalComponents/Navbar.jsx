@@ -124,7 +124,7 @@ const Navbar = () => {
                       </p>
 
                       <Link
-                        to="/profile"
+                        to="/my-profile"
                         onClick={() => setUserMenuOpen(false)}
                         className="block px-3 py-2 text-sm hover:bg-pink-50 rounded-md"
                       >
