@@ -156,36 +156,36 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // 🔥 Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 🔐 Hash OTP
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     user.resetOTP = hashedOTP;
-    user.otpExpire = Date.now() + 10 * 60 * 1000;
+    user.otpExpire = Date.now() + 10 * 60 * 1000; // 10 min
 
     await user.save({ validateBeforeSave: false });
 
-    const message = `Your OTP is: ${otp}`;
+    const message = `Your OTP for password reset is: ${otp}\n\nValid for 10 minutes.`;
 
-    // 🔥 SEND EMAIL WITHOUT BLOCKING
-    sendEmail({
-  email: user.email,
-  subject: "Password Reset OTP",
-  message,
-})
-  .then(() => console.log("Email sent"))
-  .catch((err) => console.log("Email error:", err));
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset OTP",
+      message,
+    });
 
-    // ✅ ALWAYS RESPOND
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "OTP sent to email",
     });
 
   } catch (error) {
     console.log("Forgot password error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 // =========================
 // ✅ RESET PASSWORD

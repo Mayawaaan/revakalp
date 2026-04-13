@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { showToast } = useStore();
 
   const [email, setEmail] = useState("");
@@ -15,17 +14,18 @@ const ResetPassword = () => {
     confirmPassword: "",
   });
 
-  // ✅ Get email from navigation state
+  // ✅ FIX: load email safely
   useEffect(() => {
-    const emailFromState = location.state?.email;
+    const storedEmail = localStorage.getItem("resetEmail");
+    console.log("Loaded email:", storedEmail);
 
-    if (!emailFromState) {
+    if (!storedEmail) {
       showToast("Please enter email first", "error");
       navigate("/forgot-password");
     } else {
-      setEmail(emailFromState);
+      setEmail(storedEmail);
     }
-  }, [location, navigate, showToast]);
+  }, [navigate, showToast]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,11 +42,13 @@ const ResetPassword = () => {
     try {
       const response = await axios.post("/api/auth/verify-otp-reset", {
         email,
-        otp: form.otp,
-        password: form.password,
+        ...form,
       });
 
       showToast(response.data.message, "success");
+
+      // ✅ cleanup
+      localStorage.removeItem("resetEmail");
 
       setTimeout(() => {
         navigate("/login");
