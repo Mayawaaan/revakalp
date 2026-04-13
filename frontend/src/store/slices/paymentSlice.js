@@ -13,7 +13,7 @@ export const createPaymentSlice = (set, get) => ({
       if (!token) throw new Error("Unauthorized");
       console.log("Token:", token);
 
-      const res = await fetch(`api/payment/create-order`, {
+      const res = await fetch(`/api/payment/create-order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export const createPaymentSlice = (set, get) => ({
       console.log("Token:", token);
       if (!token) throw new Error("Unauthorized");
 
-      const res = await fetch(`api/payment/verify-payment`, {
+      const res = await fetch(`/api/payment/verify-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
