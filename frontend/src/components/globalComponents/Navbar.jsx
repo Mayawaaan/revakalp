@@ -77,7 +77,7 @@ const Navbar = () => {
             <div className="hidden sm:flex items-center gap-5">
               
               {/* Search */}
-              <button
+              {/* <button
                 onClick={() => {
                   setShowSearch(true);
                   navigate("/shop");
@@ -85,7 +85,7 @@ const Navbar = () => {
                 className="hover:scale-110 transition-transform"
               >
                 <Search className="w-5 h-5 text-[#9c2756]" />
-              </button>
+              </button> */}
 
               {/* Wishlist */}
               <NavLink to="/wishlist" className="relative">
@@ -197,7 +197,7 @@ const Navbar = () => {
 
             {/* Actions */}
             <div className="mt-2 space-y-3">
-              <button
+              {/* <button
                 onClick={() => {
                   setVisible(false);
                   setShowSearch(true);
@@ -206,7 +206,7 @@ const Navbar = () => {
                 className="w-full flex items-center justify-center gap-3 bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100"
               >
                 <Search size={18} /> Search
-              </button>
+              </button> */}
 
               <button
                 onClick={() => handleLinkClick("/wishlist")}
@@ -224,10 +224,10 @@ const Navbar = () => {
             </div>
 
             {/* Auth */}
-            <div className="mt-8 relative bottom-8 left-0 right-0 px-6 border-3 rounded-2xl px-3 bg-gray-250">
+            <div className="mt-8 relative bottom-8 left-0 right-0 px-6 border-3 rounded-2xl py-3 bg-gray-250">
               {user ? (
                 <div className="text-center">
-                  <p className="text-gray-700">{user.fullName}</p>
+                  
                    <Link to="/my-profile" onClick={() => setVisible(false)} className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100">My Profile</Link>
                   {user.role === "admin" && (
                     <Link to="/admin" onClick={() => setVisible(false)} className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100">Dashboard</Link>
@@ -237,7 +237,7 @@ const Navbar = () => {
                       logout();
                       setVisible(false);
                     }}
-                    className="mt-2  font-semibold  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100"
+                    className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100"
                   >
                     Logout
                   </button>
