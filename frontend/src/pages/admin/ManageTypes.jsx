@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, X, Image as ImageIcon } from "lucide-react";
-import axios from "axios";
+import axios from "../utils/axiosInstance"; 
 import useStore from "../../store/store";
 
 const ManageTypes = () => {
