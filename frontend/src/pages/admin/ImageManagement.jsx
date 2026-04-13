@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../utils/axiosInstance"; 
 import { Image, Upload, Copy, Check } from "lucide-react";
 import useStore from "../../store/store";
 

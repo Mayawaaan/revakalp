@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/axiosInstance"; 
+import axios from "../../utils/axiosInstance"; 
 import { Plus, Edit2, Trash2, X, Percent } from "lucide-react";
 import useStore from "../../store/store";
 
