@@ -38,6 +38,9 @@ export const apiFetch = async (endpoint, options = {}) => {
 
     throw new Error(error);
   }
+   if (options.isBlob) {
+    return await res.blob();
+  }
 
   return res.json();
 };

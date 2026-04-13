@@ -29,7 +29,7 @@ const Admin = () => {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r px-4 py-6 flex flex-col transform ${
+        className={`fixed inset-y-0 left-0  w-64 bg-white border-r px-4 py-6 flex flex-col transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
       >

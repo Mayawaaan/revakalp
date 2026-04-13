@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-// import logo from "./logoSilver.png";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,7 +13,8 @@ export const generateInvoicePDF = (order, stream) => {
   const currency = "₹";
   const pageWidth = doc.page.width;
   const leftX = 50; // left margin
-const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divided by 2
+  const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divided by 2
+
 
   /* ================= HEADER ================= */
   doc
@@ -21,7 +22,7 @@ const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divid
     // .fill("#111827");
     .fill("#c9487c");
 
-  doc.image("./logogold.png", pageWidth - 240, 35, { width: 150 });
+
   doc
     .fillColor("#ffffff")
     .fontSize(26)
@@ -57,8 +58,7 @@ const yOfShippingBody = doc.y;
   .font("Helvetica")
   .fontSize(11)
   .text(
-`Shipping Details
-Address: ${addr.street}
+`Address: ${addr.street}
 ${addr.city}, ${addr.state}, ${addr.country}
 (${addr.zip})
 Phone: ${addr.phone}`,
@@ -112,7 +112,7 @@ Phone: ${addr.phone}`,
 
     doc.text(item.name, itemX, y);
     doc.text(String(item.quantity), qtyX, y);
-    doc.text(`Rs ${item.price.toFixed(2)}`, priceX, y);
+    doc.text(`${currency} ${item.price.toFixed(2)}`, priceX, y);
     doc.text(
       `Rs ${(item.quantity * item.price).toFixed(2)}`,
       totalX,
@@ -157,8 +157,9 @@ Phone: ${addr.phone}`,
     .fontSize(9)
     .fillColor("#6b7280")
     .text(
-      "Thank you for shopping with us.\nThis is a system-generated invoice and does not require a signature.",
+      "Thank you for shopping with us.\nThis is a system-generated invoice and does not require a signature.Remember to keep this invoice for your records. and make sure to contact us within 7 days for any issues regarding this order. and we will be happy to assist you.also, please check seal on the bill and ensure it is not tampered with. if you find any discrepancies, please contact our support immediately.",
       50,
+
       doc.page.height - 80,
       { align: "center", width: pageWidth - 100 }
     );

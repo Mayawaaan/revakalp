@@ -69,39 +69,29 @@ export const createOrderSlice = (set, get) => ({
 
   /* ================= DOWNLOAD INVOICE ================= */
   downloadInvoice: async (orderId) => {
-    try {
-      const API_BASE = import.meta.env.VITE_API_URL;
-      const token = localStorage.getItem("token");
+  try {
+    const blob = await apiFetch(`/api/orders/${orderId}/invoice`, {
+      method: "GET",
+      isBlob: true, // 👈 you need to support this in apiFetch
+    });
 
-      const res = await fetch(
-        `${API_BASE}/api/orders/${orderId}/invoice`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const url = window.URL.createObjectURL(blob);
 
-      if (!res.ok) throw new Error("Failed to download invoice");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `invoice-${orderId}.pdf`;
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+    document.body.appendChild(link);
+    link.click();
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `invoice-${orderId}.pdf`;
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error("Invoice download failed:", error);
-      throw error;
-    }
-  },
+  } catch (error) {
+    console.error("Invoice download failed:", error);
+    throw error;
+  }
+},
 
   /* ================= LEGACY SUPPORT ================= */
   addOrder: (order) =>

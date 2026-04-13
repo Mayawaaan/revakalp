@@ -10,25 +10,45 @@ import crypto from "crypto";
 import { generateInvoicePDF } from '../lib/invoice.js';
 
 export const getInvoice = async (req, res) => {
-    try {
-        const { orderId } = req.params;
-        const userId = req.user._id;
+  try {
+    const { orderId } = req.params;
 
-        const order = await Order.findOne({ _id: orderId, userId }).populate('userId', 'fullName email');
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
-
-        generateInvoicePDF(order, res);
-    } catch (error) {
-        console.error('Error generating invoice:', error);
-        res.status(500).json({ message: 'Error generating invoice' });
+    // Validate ID
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ message: "Invalid order ID" });
     }
-};
 
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const order = await Order.findOne({ _id: orderId, userId })
+      .populate("userId", "fullName email");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice-${order._id}.pdf`
+    );
+
+    return generateInvoicePDF(order, res);
+
+  } catch (error) {
+  console.error("FULL ERROR:", error);
+
+  return res.status(500).json({
+    message: "Error generating invoice",
+    error: error.message,
+    stack: error.stack // 👈 temporary debug
+  });
+}
+};
 // NOTE: Removed `import Product from '../models/product.model.js';` 
 // because it is only imported dynamically in placeOrder and not needed statically
 
