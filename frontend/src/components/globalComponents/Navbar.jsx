@@ -245,7 +245,7 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => handleLinkClick("/login")}
-                  className="w-full bg-[#c9487c] text-white py-3 rounded-full shadow-lg"
+                  className="w-full bg-[#c9487c] text-white py-3 rounded-2xl shadow-lg"
                 >
                   Login / Signup
                 </button>
