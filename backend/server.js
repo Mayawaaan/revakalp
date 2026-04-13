@@ -74,7 +74,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoutes);
 
 app.listen(PORT, () => {
-    // console.log("server is running on http://localhost:" + PORT);
+    console.log("server is running on http://localhost:" + PORT);
     
     connectDB();
     if (process.env.MONGO_URI) {
