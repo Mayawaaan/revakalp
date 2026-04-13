@@ -14,6 +14,7 @@ export const generateInvoicePDF = (order, stream) => {
   const pageWidth = doc.page.width;
   const leftX = 50; // left margin
   const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divided by 2
+  const path = "https://res.cloudinary.com/dn9vvfdjp/image/upload/v1776108037/logogold_kgudur.png";
 
 
   /* ================= HEADER ================= */
@@ -22,7 +23,7 @@ export const generateInvoicePDF = (order, stream) => {
     // .fill("#111827");
     .fill("#c9487c");
 
-
+  doc.image(path, pageWidth - 240, 35, { width: 150 });
   doc
     .fillColor("#ffffff")
     .fontSize(26)
@@ -160,7 +161,7 @@ Phone: ${addr.phone}`,
       "Thank you for shopping with us.\nThis is a system-generated invoice and does not require a signature.Remember to keep this invoice for your records. and make sure to contact us within 7 days for any issues regarding this order. and we will be happy to assist you.also, please check seal on the bill and ensure it is not tampered with. if you find any discrepancies, please contact our support immediately.",
       50,
 
-      doc.page.height - 80,
+      doc.page.height - 110,
       { align: "center", width: pageWidth - 100 }
     );
 
