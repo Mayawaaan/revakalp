@@ -25,9 +25,9 @@ export const generateInvoicePDF = (order, stream) => {
 
   doc
     .fillColor("#ffffff")
-    .fontSize(20)
+    .fontSize(10)
     .font("Helvetica-Bold")
-    .text(storeName, leftX, 30);
+    .text(storeName, leftX, 20);
   doc
     .fillColor("#ffffff")
     .fontSize(26)
