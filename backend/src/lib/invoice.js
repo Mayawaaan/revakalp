@@ -14,7 +14,7 @@ export const generateInvoicePDF = (order, stream) => {
   const pageWidth = doc.page.width;
   const leftX = 50; // left margin
   const halfWidth = (doc.page.width - 100) / 2; // page width minus margins, divided by 2
-  const path = "https://res.cloudinary.com/dn9vvfdjp/image/upload/v1776108037/logogold_kgudur.png";
+
 
 
   /* ================= HEADER ================= */
@@ -23,7 +23,11 @@ export const generateInvoicePDF = (order, stream) => {
     // .fill("#111827");
     .fill("#c9487c");
 
-  doc.image(path, pageWidth - 240, 35, { width: 150 });
+  doc
+    .fillColor("#ffffff")
+    .fontSize(20)
+    .font("Helvetica-Bold")
+    .text(storeName, leftX, 30);
   doc
     .fillColor("#ffffff")
     .fontSize(26)
