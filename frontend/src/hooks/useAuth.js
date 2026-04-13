@@ -1,24 +1,40 @@
 import { useEffect, useCallback } from "react";
 import useStore from "../store/store";
 import axios from "../utils/axiosInstance";
-
+import { getToken } from "../utils/token";
 
 const useAuth = () => {
-  const { user, login, logout, showToast, updateProfile } = useStore();
+  const { user, login, logout, showToast, updateProfile, setAuthReady } = useStore();
 
+  // =========================
+  // ✅ CHECK AUTH (FIXED)
+  // =========================
   useEffect(() => {
     let isMounted = true;
 
     const checkAuth = async () => {
+      const token = getToken();
+
+      // 🔥 DO NOT CALL API WITHOUT TOKEN
+      if (!token) {
+        setAuthReady(true);
+        return;
+      }
+
       try {
         const res = await axios.get("/api/auth/check");
 
         if (res.data && isMounted) {
-          const { role } = res.data;
-          login({ user: { ...res.data, role } });
+          login({
+            user: res.data,
+            token, // 🔥 KEEP TOKEN
+          });
         }
       } catch (error) {
         console.log("User not authenticated:", error.message);
+        logout(); // 🔥 clear invalid token
+      } finally {
+        setAuthReady(true);
       }
     };
 
@@ -27,8 +43,11 @@ const useAuth = () => {
     return () => {
       isMounted = false;
     };
-  }, [login]);
+  }, [login, logout, setAuthReady]);
 
+  // =========================
+  // ✅ LOGIN (FIXED)
+  // =========================
   const handleLogin = useCallback(
     async (email, password) => {
       try {
@@ -38,7 +57,11 @@ const useAuth = () => {
         });
 
         if (res.data) {
-          login({ user: res.data });
+          login({
+            user: res.data.user,
+            token: res.data.token, // 🔥 CRITICAL FIX
+          });
+
           showToast("Logged in successfully", "success");
           return true;
         }
@@ -54,18 +77,29 @@ const useAuth = () => {
     [login, showToast]
   );
 
+  // =========================
+  // ✅ SIGNUP (FIXED)
+  // =========================
   const handleSignup = useCallback(
-    async (fullName, email, password) => {
+    async (fullName, email, password, profilePic) => {
       try {
-        const res = await axios.post("/api/auth/signup", {
-          fullName,
-          email,
-          password,
-          profilePic: "",
-        });
+        const formData = new FormData();
+        formData.append("fullName", fullName);
+        formData.append("email", email);
+        formData.append("password", password);
+
+        if (profilePic) {
+          formData.append("profilePic", profilePic);
+        }
+
+        const res = await axios.post("/api/auth/signup", formData);
 
         if (res.data) {
-          login({ user: res.data });
+          login({
+            user: res.data.user,
+            token: res.data.token, // 🔥 FIX
+          });
+
           showToast("Signed up successfully", "success");
           return true;
         }
@@ -81,6 +115,9 @@ const useAuth = () => {
     [login, showToast]
   );
 
+  // =========================
+  // ✅ LOGOUT (NO CHANGE)
+  // =========================
   const handleLogout = useCallback(async () => {
     try {
       await axios.post("/api/auth/logout");
@@ -93,6 +130,9 @@ const useAuth = () => {
     }
   }, [logout, showToast]);
 
+  // =========================
+  // ✅ UPDATE PROFILE (NO CHANGE)
+  // =========================
   const handleUpdateProfile = useCallback(
     async ({ fullName, profilePic }) => {
       try {
@@ -125,7 +165,6 @@ const useAuth = () => {
     },
     [updateProfile, showToast]
   );
-
 
   return {
     user,

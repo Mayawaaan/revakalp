@@ -9,22 +9,33 @@ export const apiFetch = async (endpoint, options = {}) => {
     ...(options.body instanceof FormData
       ? {}
       : { "Content-Type": "application/json" }),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
+    ...(token && token !== "undefined"
+      ? { Authorization: `Bearer ${token}` }
+      : {}),
+
     ...options.headers,
   };
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
-    credentials: "include",
     ...options,
     headers,
   });
 
   if (!res.ok) {
     let error = "Request failed";
+
     try {
       const data = await res.json();
       error = data.message || error;
     } catch {}
+
+    // 🔥 AUTO LOGOUT ON 401 (VERY IMPORTANT)
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+
     throw new Error(error);
   }
 

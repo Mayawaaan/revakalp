@@ -3,7 +3,6 @@ import { getToken } from "./token";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
 });
 
 /* ================= REQUEST INTERCEPTOR ================= */
@@ -11,8 +10,10 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = getToken();
 
-    if (token) {
+    if (token && token !== "undefined") {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
 
     return config;
