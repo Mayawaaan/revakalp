@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios from "axiosInstance.js";
 import  Toast  from "../../components/globalComponents/Toast";
 
 const ForgotPassword = () => {
