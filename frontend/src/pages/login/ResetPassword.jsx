@@ -1,102 +1,105 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Toast from "../../components/globalComponents/Toast";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../../utils/axiosInstance";
+import useStore from "../../store/store";
 
 const ResetPassword = () => {
-  const { token } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useStore();
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [form, setForm] = useState({
+    otp: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const [toastMsg, setToastMsg] = useState(null);
-  const [toastType, setToastType] = useState("success");
+  // ✅ FIX: load email safely
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("resetEmail");
+    console.log("Loaded email:", storedEmail);
+
+    if (!storedEmail) {
+      showToast("Please enter email first", "error");
+      navigate("/forgot-password");
+    } else {
+      setEmail(storedEmail);
+    }
+  }, [navigate, showToast]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setToastMsg("Passwords do not match!");
-      setToastType("error");
+    if (form.password !== form.confirmPassword) {
+      showToast("Passwords do not match", "error");
       return;
     }
 
     try {
-      const response = await axios.put(
-        `http://localhost:5000/api/auth/reset-password/${token}`,
-        { password, confirmPassword }
-      );
+      const response = await axios.post("/api/auth/verify-otp-reset", {
+        email,
+        ...form,
+      });
 
-      setToastMsg(response.data.message);
-      setToastType("success");
+      showToast(response.data.message, "success");
+
+      // ✅ cleanup
+      localStorage.removeItem("resetEmail");
 
       setTimeout(() => {
         navigate("/login");
       }, 1500);
 
     } catch (error) {
-      const message =
-        error?.response?.data?.message || "Something went wrong";
-
-      setToastMsg(message);
-      setToastType("error");
+      showToast(error.response?.data?.message || "Error", "error");
     }
   };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-[#faf9f6] px-4">
-      {toastMsg && (
-        <Toast message={toastMsg} type={toastType} />
-      )}
-
       <form
         onSubmit={onSubmitHandler}
         className="bg-white w-full max-w-md rounded-2xl shadow-sm px-10 py-12"
       >
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-gray-900">
-            Reset Your Password
-          </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Enter your new password below.
-          </p>
-        </div>
+        <h2 className="text-2xl font-semibold mb-6 text-center">
+          Verify OTP & Reset Password
+        </h2>
 
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              New Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
-              required
-            />
-          </div>
+        <input
+          type="text"
+          name="otp"
+          placeholder="Enter 6-digit OTP"
+          value={form.otp}
+          onChange={handleChange}
+          className="w-full mb-4 border px-4 py-2 rounded-lg"
+          required
+        />
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
-              required
-            />
-          </div>
-        </div>
+        <input
+          type="password"
+          name="password"
+          placeholder="New Password"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full mb-4 border px-4 py-2 rounded-lg"
+          required
+        />
 
-        <button
-          type="submit"
-          className="mt-8 w-full bg-black text-white py-3 rounded-lg text-sm tracking-wide hover:bg-gray-900 transition"
-        >
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={form.confirmPassword}
+          onChange={handleChange}
+          className="w-full mb-6 border px-4 py-2 rounded-lg"
+          required
+        />
+
+        <button className="w-full bg-black text-white py-3 rounded-lg">
           Reset Password
         </button>
       </form>

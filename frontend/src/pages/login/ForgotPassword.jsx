@@ -1,25 +1,30 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../../utils/axiosInstance";
-import  Toast  from "../../components/globalComponents/Toast";
+import useStore from "../../store/store";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  const onChangeHandler = (e) => {
-    setEmail(e.target.value);
-  };
+  const navigate = useNavigate();
+  const { showToast } = useStore();
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
     try {
       const response = await axios.post("/api/auth/forgot-password", { email });
-      setMessage(response.data.message);
-      Toast(response.data.message, "success");
+
+      // ✅ show toast
+      showToast(response.data.message, "success");
+
+      // ✅ save email
+      localStorage.setItem("resetEmail", email);
+
+      // ✅ navigate (absolute path)
+      navigate("/reset-password");
+
     } catch (error) {
-      setMessage(error.response.data.message);
-      Toast(error.response.data.message, "error");
+      showToast(error.response?.data?.message || "Error", "error");
     }
   };
 
@@ -29,45 +34,30 @@ const ForgotPassword = () => {
         onSubmit={onSubmitHandler}
         className="bg-white w-full max-w-md rounded-2xl shadow-sm px-10 py-12"
       >
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-semibold text-gray-900">
             Forgot Your Password?
           </h1>
           <p className="mt-2 text-sm text-gray-500">
-            Enter your email address and we will send you a link to reset your
-            password.
+            Enter your email and we will send you a 6-digit OTP.
           </p>
         </div>
 
-        {/* Form Fields */}
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
-              required
-            />
-          </div>
-        </div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-lg border px-4 py-2.5"
+          placeholder="Enter email"
+          required
+        />
 
-        {/* Submit */}
-        <button
-          type="submit"
-          className="mt-8 w-full bg-black text-white py-3 rounded-lg text-sm tracking-wide hover:bg-gray-900 transition"
-        >
-          Send Reset Link
+        <button className="mt-8 w-full bg-black text-white py-3 rounded-lg">
+          Send OTP
         </button>
 
-        {/* Back to Login */}
         <div className="text-center mt-4">
-          <Link to="/login" className="text-sm text-gray-500 hover:text-gray-800">
+          <Link to="/login" className="text-sm text-gray-500">
             Back to Login
           </Link>
         </div>

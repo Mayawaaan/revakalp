@@ -156,42 +156,29 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // create reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    // 🔥 Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
+    // 🔐 Hash OTP
+    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
+    user.resetOTP = hashedOTP;
+    user.otpExpire = Date.now() + 10 * 60 * 1000; // 10 min
 
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const message = `Your OTP for password reset is: ${otp}\n\nValid for 10 minutes.`;
 
-    const message = `Reset your password using this link:\n\n${resetUrl}`;
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset OTP",
+      message,
+    });
 
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: "Password Reset",
-        message,
-      });
-
-      res.status(200).json({
-        success: true,
-        message: "Reset email sent successfully",
-      });
-
-    } catch (err) {
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpire = undefined;
-      await user.save({ validateBeforeSave: false });
-
-      return res.status(500).json({ message: "Email failed to send" });
-    }
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to email",
+    });
 
   } catch (error) {
     console.log("Forgot password error:", error);
@@ -205,31 +192,39 @@ export const forgotPassword = async (req, res) => {
 // =========================
 export const resetPassword = async (req, res) => {
   try {
-    const resetToken = crypto
-      .createHash("sha256")
-      .update(req.params.token)
-      .digest("hex");
+    const { email, otp, password, confirmPassword } = req.body;
 
-    const user = await User.findOne({
-      resetPasswordToken: resetToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
+    const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid or expired token" });
+    // ❌ No user or no OTP data
+    if (!user || !user.resetOTP || !user.otpExpire) {
+      return res.status(400).json({ message: "Invalid request" });
     }
 
-    const { password, confirmPassword } = req.body;
+    // 🔐 Hash entered OTP
+    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
+    // ❌ OTP mismatch
+    if (user.resetOTP !== hashedOTP) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // ❌ OTP expired
+    if (user.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    // ❌ Password mismatch
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    // ✅ Hash new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetOTP = undefined;
+    user.otpExpire = undefined;
 
     await user.save();
 
