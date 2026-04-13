@@ -152,7 +152,7 @@ const Admin = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="h-16 bg-white border-b flex items-center justify-between px-4 md:px-8">
           <button
