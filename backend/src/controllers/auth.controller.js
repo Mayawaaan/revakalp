@@ -168,10 +168,12 @@ export const forgotPassword = async (req, res) => {
 
     // 🔥 SEND EMAIL WITHOUT BLOCKING
     sendEmail({
-      email: user.email,
-      subject: "Password Reset OTP",
-      message,
-    }).catch(err => console.log("Email error:", err));
+  email: user.email,
+  subject: "Password Reset OTP",
+  message,
+})
+  .then(() => console.log("Email sent"))
+  .catch((err) => console.log("Email error:", err));
 
     // ✅ ALWAYS RESPOND
     return res.status(200).json({
