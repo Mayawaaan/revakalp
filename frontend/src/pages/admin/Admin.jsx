@@ -21,7 +21,7 @@ const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItem =
-    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition";
+    "flex items-center gap-3 px-4 py-2.5 z-[50] rounded-lg text-sm transition";
   const active = "bg-gray-900 text-white";
   const inactive = "text-gray-700 hover:bg-gray-100";
 
@@ -29,9 +29,9 @@ const Admin = () => {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0  w-64 bg-white border-r px-4 py-6 flex flex-col transform ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r px-4 py-6 flex flex-col transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
+        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto`}
       >
         {/* Brand and Close button */}
         <div className="flex items-center justify-between mb-10 px-2">
