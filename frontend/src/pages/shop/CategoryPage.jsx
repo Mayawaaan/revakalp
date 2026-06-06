@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useStore from "../../store/store";
 import Breadcrums from "../../components/globalComponents/Breadcrums";
+import { ArrowRight } from "lucide-react";
 
 const CategoryPage = () => {
   const { collections } = useStore();
@@ -39,31 +40,25 @@ const CategoryPage = () => {
             <Link
               to={`/shop/${collection.id}`}
               key={collection.id}
-              className="group relative"
+              className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-[#f5f3ef] shadow-[0_40px_80px_-20px_rgba(110,18,46,0.2),0_20px_40px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-end transform transition-all duration-700 hover:-translate-y-6 hover:shadow-[0_60px_120px_-20px_rgba(110,18,46,0.25)] block w-full"
             >
-            
-              {/* Card */}
-              <div className="relative overflow-hidden rounded-3xl shadow-xl bg-white">
-
-                {/* Image */}
-                <img
-                  src={collection.image}
-                  alt={collection.name}
-                  className="w-full h-72 object-cover object-top group-hover:scale-130 transition-transform duration-700" 
-                />
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-80"></div>
-
-                {/* Text */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="font-serif text-2xl text-white mb-2">
+              <img
+                src={collection.image}
+                alt={collection.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#c9487c]/80 via-transparent to-transparent opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+              
+              <div className="relative z-10 w-full flex justify-between items-end backdrop-blur-2xl bg-white/20 p-5 sm:p-6 lg:p-8 m-3 sm:m-4 rounded-[1.5rem] border border-white/40 shadow-[0_30px_60px_-15px_rgba(110,18,46,0.15),inset_0_0_0_1px_rgba(255,255,255,0.2)] group-hover:bg-white/30 transition-all duration-700">
+                <div className="flex-1 pr-2">
+                  <p className="text-white/90 text-[10px] sm:text-xs mb-1.5 sm:mb-2 uppercase tracking-[0.2em] drop-shadow-sm font-semibold">
+                    Collection
+                  </p>
+                  <h3 className="font-serif text-xl sm:text-2xl text-white drop-shadow-md leading-tight">
                     {collection.name}
                   </h3>
-                  <p className="text-pink-200 text-sm leading-relaxed">
-                    {collection.description}
-                  </p>
                 </div>
+                <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-white transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 drop-shadow-md shrink-0 mb-1" />
               </div>
             </Link>
           ))}

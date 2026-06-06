@@ -7,6 +7,7 @@ import SearchBar from "./components/search/SearchBar";
 import Footer from "./components/globalComponents/Footer";
 import Toast from "./components/globalComponents/Toast";
 import ScrollToTop from "./components/globalComponents/ScrollToTop";
+import WebsiteLoader from "./components/globalComponents/WebsiteLoader";
 
 /* ===== Pages ===== */
 import Home from "./pages/home/Home";
@@ -82,6 +83,7 @@ const App = () => {
 
   return (
     <div>
+      <WebsiteLoader />
       <Toast />
       <Navbar />
       <ScrollToTop />
