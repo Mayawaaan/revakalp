@@ -29,14 +29,14 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-[#faf9f6] px-4">
+    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#fff1f4] to-[#fff8fa] px-4 py-8">
       <form
         onSubmit={onSubmitHandler}
-        className="bg-white w-full max-w-md rounded-2xl shadow-sm px-10 py-12"
+        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-pink-100 px-10 py-12"
       >
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-[#9c2756]">
             Create Account
           </h1>
           <p className="mt-2 text-sm text-gray-500">
@@ -45,55 +45,59 @@ const Signup = () => {
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Full Name
-            </label>
+        <div className="space-y-6">
+          <div className="relative">
             <input
               type="text"
               name="fullName"
+              id="fullName"
               value={formData.fullName}
               onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
+              className="input-floating peer"
               required
             />
+            <label htmlFor="fullName" className="label-floating">
+              Full Name
+            </label>
           </div>
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Email Address
-            </label>
+          <div className="relative">
             <input
               type="email"
               name="email"
+              id="email"
               value={formData.email}
               onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
+              className="input-floating peer"
               required
             />
+            <label htmlFor="email" className="label-floating">
+              Email Address
+            </label>
           </div>
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Password
-            </label>
+          <div className="relative">
             <input
               type="password"
               name="password"
+              id="password"
               value={formData.password}
               onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
+              className="input-floating peer"
               required
             />
+            <label htmlFor="password" className="label-floating">
+              Password
+            </label>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end items-center mt-6 text-sm text-gray-500">
+        <div className="flex justify-end items-center mt-6 text-sm">
+          <span className="text-gray-500 mr-2">Already have an account?</span>
           <Link
             to="/login"
-            className="cursor-pointer hover:text-gray-800 transition"
+            className="cursor-pointer font-medium text-[#9c2756] hover:text-[#c9487c] transition-colors"
           >
             Login instead
           </Link>
@@ -102,7 +106,7 @@ const Signup = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="mt-8 w-full bg-black text-white py-3 rounded-lg text-sm tracking-wide hover:bg-gray-900 transition"
+          className="mt-8 w-full bg-[#c9487c] text-white font-medium py-3.5 rounded-full text-sm tracking-wide hover:bg-[#9c2756] shadow-lg transition-colors"
         >
           Sign Up
         </button>

@@ -180,7 +180,7 @@ const Navbar = () => {
           visible ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setVisible(false)}></div>
+        <div className="fixed inset-0 bg-black/60 " onClick={() => setVisible(false)}></div>
         <div className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-gradient-to-b from-white to-[#fff8fa] p-6 shadow-xl">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-xl font-semibold text-[#9c2756]">Menu</h2>
@@ -224,7 +224,7 @@ const Navbar = () => {
             </div>
 
             {/* Auth */}
-            <div className="mt-8 relative bottom-8 left-0 right-0 px-6 border-3 rounded-2xl py-3 bg-gray-250">
+            <div className="mt-4 relative bottom-8 left-0 right-0 px-6 rounded-2xl py-1 bg-gray-250">
               {user ? (
                 <div className="text-center">
                   
@@ -237,7 +237,7 @@ const Navbar = () => {
                       logout();
                       setVisible(false);
                     }}
-                    className="block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100"
+                    className="block w-full text-center mt-2  text-white bg-[#9c2756] py-3 rounded-full shadow-md border border-pink-100"
                   >
                     Logout
                   </button>

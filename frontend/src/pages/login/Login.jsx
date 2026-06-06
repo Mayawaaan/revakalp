@@ -28,14 +28,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-[#faf9f6] px-4">
+    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#fff1f4] to-[#fff8fa] px-4 py-8">
       <form
         onSubmit={onSubmitHandler}
-        className="bg-white w-full max-w-md rounded-2xl shadow-sm px-10 py-12"
+        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-pink-100 px-10 py-12"
       >
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-[#9c2756]">
             Welcome Back
           </h1>
           <p className="mt-2 text-sm text-gray-500">
@@ -44,33 +44,35 @@ const Login = () => {
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Email Address
-            </label>
+        <div className="space-y-6">
+          <div className="relative">
             <input
               type="email"
               name="email"
+              id="email"
               value={formData.email}
               onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
+              className="input-floating peer"
               required
             />
+            <label htmlFor="email" className="label-floating">
+              Email Address
+            </label>
           </div>
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Password
-            </label>
+          <div className="relative">
             <input
               type="password"
               name="password"
+              id="password"
               value={formData.password}
               onChange={onChangeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-gray-800"
+              className="input-floating peer"
               required
             />
+            <label htmlFor="password" className="label-floating">
+              Password
+            </label>
           </div>
         </div>
 
@@ -78,13 +80,13 @@ const Login = () => {
         <div className="flex justify-between items-center mt-6 text-sm text-gray-500">
           <Link
             to="/forgot-password"
-            className="cursor-pointer hover:text-gray-800 transition"
+            className="cursor-pointer hover:text-[#c9487c] transition-colors"
           >
             Forgot password?
           </Link>
           <Link
             to="/signup"
-            className="cursor-pointer hover:text-gray-800 transition"
+            className="cursor-pointer font-medium text-[#9c2756] hover:text-[#c9487c] transition-colors"
           >
             Create account
           </Link>
@@ -93,7 +95,7 @@ const Login = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="mt-8 w-full bg-black text-white py-3 rounded-lg text-sm tracking-wide hover:bg-gray-900 transition"
+          className="mt-8 w-full bg-[#c9487c] text-white font-medium py-3.5 rounded-full text-sm tracking-wide hover:bg-[#9c2756] shadow-lg transition-colors"
         >
           Sign In
         </button>
@@ -103,4 +105,3 @@ const Login = () => {
 };
 
 export default Login;
-

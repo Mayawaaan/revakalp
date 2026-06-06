@@ -11,7 +11,7 @@ const Footer = () => {
             <div className='md:col-span-1'>
                 <Link to='/' className='text-3xl font-serif text-pink-700'>Revakalp <span className='text-sm text-pink-800 align-top'>&trade;</span></Link>
                 <p className='mt-4 text-pink-600 text-sm leading-relaxed'>
-                    Woven with grace, for the modern woman. Discover timeless sarees that tell a story.
+                    Woven with grace, for the modern woman. Discover authentic handloom sarees, synthetic sarees, and lehengas that tell a story.
                 </p>
                 <div className='flex gap-4 mt-6'>
                     <a href="https://www.facebook.com/people/Revakalp/61587307439316/" target="_blank" rel="noopener noreferrer" className='text-pink-600 hover:text-pink-800 transition'>

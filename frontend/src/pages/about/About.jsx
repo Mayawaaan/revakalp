@@ -95,8 +95,8 @@ const About = () => {
               desc: "We treat artisans as creators, not suppliers — supporting fair practices and long-term relationships."
             },
             {
-              title: "Authentic Handloom",
-              desc: "Every saree reflects regional identity, traditional techniques, and genuine craftsmanship."
+              title: "Authentic Collections",
+              desc: "Every handloom saree, synthetic saree, and lehenga reflects regional identity, traditional techniques, and genuine craftsmanship."
             },
             {
               title: "Conscious Luxury",
@@ -137,3 +137,4 @@ const About = () => {
 };
 
 export default About;
+

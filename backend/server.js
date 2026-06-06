@@ -78,17 +78,17 @@ app.listen(PORT, () => {
     
     connectDB();
     if (process.env.MONGO_URI) {
-        // console.log("MONGO_URI environment variable is loaded.");
+        console.log("MONGO_URI environment variable is loaded.");
     } else {
         console.error("MONGO_URI environment variable is NOT loaded. Please check your .env file.");
     }
     if (process.env.JWT_SECRET) {
-        // console.log("JWT_SECRET environment variable is loaded.");
+        console.log("JWT_SECRET environment variable is loaded.");
     } else {
         console.error("JWT_SECRET environment variable is NOT loaded. Please check your .env file.");
     }
     if (process.env.RAZORPAY_KEY_ID) {
-        // console.log("RAZORPAY_KEY_ID environment variable is loaded.");
+        console.log("RAZORPAY_KEY_ID environment variable is loaded.");
     } else {
         console.error("RAZORPAY_KEY_ID environment variable is NOT loaded. Please check your .env file or hosting environment.");
     }

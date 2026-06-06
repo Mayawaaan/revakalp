@@ -21,6 +21,7 @@ const defaultSettings = {
 
 export const createSettingsSlice = (set, get) => ({
   settings: defaultSettings,
+  currency: defaultSettings.currencySymbol, // Expose currency symbol directly for components
   settingsLoading: false,
 
   /* ================= PUBLIC SETTINGS ================= */
@@ -30,6 +31,7 @@ export const createSettingsSlice = (set, get) => ({
 
       set({
         settings: data || defaultSettings,
+        currency: (data || defaultSettings).currencySymbol,
       });
 
       return data;
@@ -39,6 +41,7 @@ export const createSettingsSlice = (set, get) => ({
 
       set({
         settings: defaultSettings,
+        currency: defaultSettings.currencySymbol,
       });
 
       return defaultSettings;
@@ -54,6 +57,7 @@ export const createSettingsSlice = (set, get) => ({
 
       set({
         settings: data || defaultSettings,
+        currency: (data || defaultSettings).currencySymbol,
         settingsLoading: false,
       });
 
@@ -78,6 +82,7 @@ export const createSettingsSlice = (set, get) => ({
 
       set({
         settings: data.settings || data,
+        currency: (data.settings || data).currencySymbol,
       });
 
       // refresh public cache

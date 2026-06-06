@@ -60,46 +60,68 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-[#faf9f6] px-4">
+    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#fff1f4] to-[#fff8fa] px-4 py-8">
       <form
         onSubmit={onSubmitHandler}
-        className="bg-white w-full max-w-md rounded-2xl shadow-sm px-10 py-12"
+        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-pink-100 px-10 py-12"
       >
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Verify OTP & Reset Password
-        </h2>
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-semibold text-[#9c2756]">
+            Reset Password
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">
+            Verify OTP and enter your new password
+          </p>
+        </div>
 
-        <input
-          type="text"
-          name="otp"
-          placeholder="Enter 6-digit OTP"
-          value={form.otp}
-          onChange={handleChange}
-          className="w-full mb-4 border px-4 py-2 rounded-lg"
-          required
-        />
+        <div className="space-y-6">
+          <div className="relative">
+            <input
+              type="text"
+              name="otp"
+              id="otp"
+              value={form.otp}
+              onChange={handleChange}
+              className="input-floating peer"
+              required
+            />
+            <label htmlFor="otp" className="label-floating">
+              Enter 6-digit OTP
+            </label>
+          </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="New Password"
-          value={form.password}
-          onChange={handleChange}
-          className="w-full mb-4 border px-4 py-2 rounded-lg"
-          required
-        />
+          <div className="relative">
+            <input
+              type="password"
+              name="password"
+              id="password"
+              value={form.password}
+              onChange={handleChange}
+              className="input-floating peer"
+              required
+            />
+            <label htmlFor="password" className="label-floating">
+              New Password
+            </label>
+          </div>
 
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          className="w-full mb-6 border px-4 py-2 rounded-lg"
-          required
-        />
+          <div className="relative">
+            <input
+              type="password"
+              name="confirmPassword"
+              id="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className="input-floating peer"
+              required
+            />
+            <label htmlFor="confirmPassword" className="label-floating">
+              Confirm Password
+            </label>
+          </div>
+        </div>
 
-        <button className="w-full bg-black text-white py-3 rounded-lg">
+        <button className="mt-8 w-full bg-[#c9487c] text-white font-medium py-3.5 rounded-full text-sm tracking-wide hover:bg-[#9c2756] shadow-lg transition-colors">
           Reset Password
         </button>
       </form>
