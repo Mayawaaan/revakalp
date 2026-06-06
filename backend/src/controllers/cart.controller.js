@@ -23,14 +23,21 @@ export const addToCart = async (req, res) => {
     const userId = req.user._id;
     const { productId, size } = req.body;
     
-    if (!productId || !size) {
-      return res.status(400).json({ message: 'productId and size are required' });
+    if (!productId) {
+      return res.status(400).json({ message: 'productId is required' });
     }
     
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
+
+    // If product has sizes enabled, size must be provided
+    if (product.hasSizes && !size) {
+      return res.status(400).json({ message: 'size is required for this product' });
+    }
+
+    const effectiveSize = product.hasSizes ? size : 'NO_SIZE';
     // console.log("Product found:", product);
     
     let cart = await Cart.findOne({ userId });
@@ -38,11 +45,11 @@ export const addToCart = async (req, res) => {
       cart = new Cart({ userId, items: [] });
     }
 
-    const existingItem = cart.items.find(item => item.productId.toString() === productId && item.size === size);
+    const existingItem = cart.items.find(item => item.productId.toString() === productId && item.size === effectiveSize);
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
-      cart.items.push({ productId, size, quantity: 1 });
+      cart.items.push({ productId, size: effectiveSize, quantity: 1 });
     }
 
     await cart.save();

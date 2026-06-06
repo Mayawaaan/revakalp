@@ -43,8 +43,19 @@ export const getPublicIdFromUrl = (url) => {
 };
 
 
-export const generateToken = (userId) => {
+// Short-lived: 15 minutes — used in Authorization header
+export const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
+    expiresIn: "15m",
   });
 };
+
+// Long-lived: 4 days — stored in DB + sent as httpOnly cookie
+export const generateRefreshToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: "4d",
+  });
+};
+
+// Legacy alias (kept so nothing breaks during migration)
+export const generateToken = generateAccessToken;

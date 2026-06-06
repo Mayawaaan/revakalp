@@ -129,7 +129,7 @@ const Orders = () => {
                         {item.name}
                       </h4>
                       <p className="text-sm text-pink-600">
-                        {currency}{item.price} • Size {item.size} • Qty{" "}
+                        {currency}{item.price}{item.size && item.size !== "NO_SIZE" ? ` • Size ${item.size}` : ""} • Qty{" "}
                         {item.quantity || item.qty}
                       </p>
                     </div>

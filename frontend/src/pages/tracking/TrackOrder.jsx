@@ -229,7 +229,7 @@ const TrackOrder = () => {
               <div className="flex-1">
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-gray-500">
-                  Size {item.size} • Qty {item.quantity}
+                  {item.size && item.size !== "NO_SIZE" ? `Size ${item.size} \u2022 ` : ""}Qty {item.quantity}
                 </p>
               </div>
               <p className="font-semibold text-pink-700">

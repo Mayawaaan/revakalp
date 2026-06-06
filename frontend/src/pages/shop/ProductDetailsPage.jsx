@@ -65,6 +65,7 @@ const ProductDetailsPage = () => {
     subCategory,
     print,
     exclusivity,
+    hasSizes,
     sizes,
     bestseller,
   } = product;
@@ -80,23 +81,25 @@ const ProductDetailsPage = () => {
 
   /* ================= HANDLERS ================= */
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (hasSizes && !selectedSize) {
       showToast("Please select a size", "error");
       return;
     }
 
-    addToCart(product._id || product.id, selectedSize);
+    const sizeToUse = hasSizes ? selectedSize : "NO_SIZE";
+    addToCart(product._id || product.id, sizeToUse);
     showToast("Added to cart", "success");
     navigate("/cart");
   };
 
   const handleBuyNow = () => {
-    if (!selectedSize) {
+    if (hasSizes && !selectedSize) {
       showToast("Please select a size", "error");
       return;
     }
 
-    addToCart(product._id || product.id, selectedSize);
+    const sizeToUse = hasSizes ? selectedSize : "NO_SIZE";
+    addToCart(product._id || product.id, sizeToUse);
     showToast("Proceeding to checkout", "success");
     navigate("/place-order");
   };
@@ -204,8 +207,8 @@ const ProductDetailsPage = () => {
                 </div>
               </div>
 
-            {/* SIZES */}
-            {sizes?.length > 0 && (
+            {/* SIZES - only shown when hasSizes is enabled for this product */}
+            {hasSizes && sizes?.length > 0 && (
               <div className="mb-6">
                 <p className="text-xs font-medium uppercase tracking-wider mb-3">Select Size</p>
                 <div className="flex gap-2 flex-wrap">

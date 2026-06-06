@@ -1,9 +1,42 @@
-import { generateToken, uploadImageToCloudinary } from "../lib/utils.js";
+import { generateAccessToken, generateRefreshToken, uploadImageToCloudinary } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { sendEmail } from "../lib/sendEmail.js";
+
+/* ─────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────── */
+
+/** Hash a refresh token before storing in DB (so a DB leak doesn't expose live tokens) */
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
+
+/** Cookie options — httpOnly so JS can't read it */
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  maxAge: 4 * 24 * 60 * 60 * 1000, // 4 days in ms
+};
+
+/** Issue both tokens, store hashed refresh in DB, set cookie */
+const issueTokens = async (user, res) => {
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+  const hashedRefresh = hashToken(refreshToken);
+
+  // Keep up to 5 refresh tokens (one per device / session)
+  user.refreshTokens = [...(user.refreshTokens || []), hashedRefresh].slice(-5);
+  await user.save({ validateBeforeSave: false });
+
+  // Send refresh token as httpOnly cookie
+  res.cookie("refreshToken", refreshToken, COOKIE_OPTS);
+
+  return accessToken;
+};
 
 
 // =========================
@@ -41,7 +74,7 @@ export const signup = async (req, res) => {
       profilePic,
     });
 
-    const token = generateToken(user._id);
+    const accessToken = await issueTokens(user, res);
 
     res.status(201).json({
       user: {
@@ -51,7 +84,7 @@ export const signup = async (req, res) => {
         profilePic: user.profilePic,
         role: user.role,
       },
-      token,
+      token: accessToken,       // ← access token (short-lived)
     });
 
   } catch (error) {
@@ -78,7 +111,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(user._id);
+    const accessToken = await issueTokens(user, res);
 
     res.status(200).json({
       user: {
@@ -88,7 +121,7 @@ export const login = async (req, res) => {
         profilePic: user.profilePic,
         role: user.role,
       },
-      token,
+      token: accessToken,       // ← access token (short-lived)
     });
 
   } catch (error) {
@@ -99,10 +132,90 @@ export const login = async (req, res) => {
 
 
 // =========================
-// ✅ LOGOUT (CLIENT SIDE)
+// ✅ REFRESH TOKEN
 // =========================
-export const logout = (req, res) => {
-  res.status(200).json({ message: "Logout successful (clear token on frontend)" });
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const incomingRefreshToken = req.cookies?.refreshToken;
+
+    if (!incomingRefreshToken) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    // Verify signature + expiry
+    let decoded;
+    try {
+      decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch {
+      return res.status(401).json({ message: "Refresh token expired or invalid" });
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const hashedIncoming = hashToken(incomingRefreshToken);
+
+    // Check it exists in DB (prevents reuse after logout)
+    const tokenIndex = user.refreshTokens.indexOf(hashedIncoming);
+    if (tokenIndex === -1) {
+      // Token was already used or revoked — wipe all tokens (possible theft)
+      user.refreshTokens = [];
+      await user.save({ validateBeforeSave: false });
+      res.clearCookie("refreshToken");
+      return res.status(401).json({ message: "Refresh token reuse detected. Please log in again." });
+    }
+
+    // ── ROTATION: remove old, issue new ──
+    user.refreshTokens.splice(tokenIndex, 1);
+
+    const newAccessToken = generateAccessToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+    const hashedNew = hashToken(newRefreshToken);
+
+    user.refreshTokens = [...user.refreshTokens, hashedNew].slice(-5);
+    await user.save({ validateBeforeSave: false });
+
+    res.cookie("refreshToken", newRefreshToken, COOKIE_OPTS);
+
+    return res.status(200).json({ token: newAccessToken });
+
+  } catch (error) {
+    console.log("Refresh token error:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+// =========================
+// ✅ LOGOUT
+// =========================
+export const logout = async (req, res) => {
+  try {
+    const incomingRefreshToken = req.cookies?.refreshToken;
+
+    if (incomingRefreshToken) {
+      // Remove only THIS device's refresh token from DB
+      try {
+        const decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
+        const user = await User.findById(decoded.userId);
+        if (user) {
+          const hashed = hashToken(incomingRefreshToken);
+          user.refreshTokens = user.refreshTokens.filter((t) => t !== hashed);
+          await user.save({ validateBeforeSave: false });
+        }
+      } catch {
+        // Token already expired — that's fine, just clear cookie
+      }
+    }
+
+    res.clearCookie("refreshToken", COOKIE_OPTS);
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Logout error:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 
@@ -225,6 +338,7 @@ export const resetPassword = async (req, res) => {
     user.password = hashedPassword;
     user.resetOTP = undefined;
     user.otpExpire = undefined;
+    user.refreshTokens = []; // Revoke all sessions on password reset
 
     await user.save();
 

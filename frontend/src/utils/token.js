@@ -1,11 +1,12 @@
+/* ─────────────────────────────────────────────
+   ACCESS TOKEN HELPERS
+   (stored in memory via localStorage)
+   Refresh token lives in httpOnly cookie — no JS access needed.
+───────────────────────────────────────────── */
+
 export const getToken = () => {
   const token = localStorage.getItem("token");
-
-  // ❌ prevent invalid tokens
-  if (!token || token === "undefined" || token === "null") {
-    return null;
-  }
-
+  if (!token || token === "undefined" || token === "null") return null;
   return token;
 };
 

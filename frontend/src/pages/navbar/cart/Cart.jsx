@@ -113,9 +113,11 @@ const Cart = () => {
                         </p>
                       )}
                     </div>
-                    <p className="text-pink-700 text-sm mt-1">
-                      Size: {item.size}
-                    </p>
+                    {item.size && item.size !== "NO_SIZE" && (
+                      <p className="text-pink-700 text-sm mt-1">
+                        Size: {item.size}
+                      </p>
+                    )}
                   </div>
 
                   {/* Quantity */}

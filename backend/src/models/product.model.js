@@ -25,6 +25,7 @@ const productSchema = new mongoose.Schema(
     gender: { type: String, required: true },
 
     state: { type: String, required: true },
+    hasSizes: { type: Boolean, default: false },
     sizes: [{ type: String }],
 
     stock: { type: Number, required: true, default: 0 },

@@ -7,7 +7,7 @@ import { createType, updateType, deleteType, getAllTypes } from "../controllers/
 import { getAnalytics, getRevenueAnalytics, getOrdersByStatus, getUsersAnalytics, getProductsByCategory } from "../controllers/adminControllers/admin.analytics.controller.js";
 import { getSettings, updateSettings } from "../controllers/adminControllers/admin.settings.controller.js";
 import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin,getAdminProductById, deleteAllProducts} from "../controllers/adminControllers/admin.product.controller.js";
-import { getAllOrders, updateOrderStatus } from "../controllers/adminControllers/admin.order.controller.js";
+import { getAllOrders, getOrderById, updateOrderStatus } from "../controllers/adminControllers/admin.order.controller.js";
 import { createCoupon, updateCoupon, deleteCoupon, getAllCoupons } from "../controllers/adminControllers/admin.coupon.controller.js";
 import upload from "../middlewares/upload.middleware.js";
 
@@ -57,6 +57,7 @@ router.delete("/products", protectRoute, protectAdminRoute, deleteAllProducts);
 
 // Admin order management routes
 router.get("/orders", protectRoute, protectAdminRoute, getAllOrders);
+router.get("/orders/:id", protectRoute, protectAdminRoute, getOrderById);
 router.put("/orders/:id/status", protectRoute, protectAdminRoute, updateOrderStatus);
 
 // Admin coupon management routes

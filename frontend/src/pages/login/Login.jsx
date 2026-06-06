@@ -44,7 +44,7 @@ const Login = () => {
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="relative">
             <input
               type="email"

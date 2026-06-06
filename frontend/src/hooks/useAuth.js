@@ -1,49 +1,17 @@
 import { useEffect, useCallback } from "react";
 import useStore from "../store/store";
 import axios from "../utils/axiosInstance";
-import { getToken } from "../utils/token";
 
 const useAuth = () => {
-  const { user, login, logout, showToast, updateProfile, setAuthReady } = useStore();
+  const { user, login, logout, showToast, updateProfile } = useStore();
 
   // =========================
-  // ✅ CHECK AUTH (FIXED)
+  // ✅ CHECK AUTH ON MOUNT (uses initAuth for silent refresh support)
   // =========================
   useEffect(() => {
-    let isMounted = true;
-
-    const checkAuth = async () => {
-      const token = getToken();
-
-      // 🔥 DO NOT CALL API WITHOUT TOKEN
-      if (!token) {
-        setAuthReady(true);
-        return;
-      }
-
-      try {
-        const res = await axios.get("/api/auth/check");
-
-        if (res.data && isMounted) {
-          login({
-            user: res.data,
-            token, // 🔥 KEEP TOKEN
-          });
-        }
-      } catch (error) {
-        console.log("User not authenticated:", error.message);
-        logout(); // 🔥 clear invalid token
-      } finally {
-        setAuthReady(true);
-      }
-    };
-
-    checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [login, logout, setAuthReady]);
+    const { initAuth } = useStore.getState();
+    initAuth(axios);
+  }, []);
 
   // =========================
   // ✅ LOGIN (FIXED)

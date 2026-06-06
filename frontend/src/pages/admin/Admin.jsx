@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -13,164 +13,138 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import useStore from "../../store/store";
+import useAuth from "../../hooks/useAuth";
+
+const navLinks = [
+  { to: "/admin",           end: true,  icon: LayoutDashboard, label: "Dashboard"   },
+  { to: "/admin/products",              icon: Package,          label: "Products"    },
+  { to: "/admin/orders",                icon: ShoppingCart,     label: "Orders"      },
+  { to: "/admin/users",                 icon: Users,            label: "Users"       },
+  { to: "/admin/collections",           icon: Layers,           label: "Collections" },
+  { to: "/admin/types",                 icon: List,             label: "Types"       },
+  { to: "/admin/coupons",               icon: Ticket,           label: "Coupons"     },
+  { to: "/admin/analytics",             icon: BarChart3,        label: "Analytics"   },
+  { to: "/admin/images",                icon: Image,            label: "Media"       },
+  { to: "/admin/settings",              icon: Settings,         label: "Settings"    },
+];
 
 const Admin = () => {
-  const settings = useStore((state) => state.settings);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const settings  = useStore((state) => state.settings);
+  const { handleLogout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navItem =
-    "flex items-center gap-3 px-4 py-2.5 z-[50] rounded-lg text-sm transition";
-  const active = "bg-gray-900 text-white";
-  const inactive = "text-gray-700 hover:bg-gray-100";
+  const storeName = settings?.storeName || "Revakalp";
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee]">
+
+      {/* ── MOBILE OVERLAY ── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* ══════════════ SIDEBAR ══════════════ */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r px-4 py-6 flex flex-col transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto`}
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 flex flex-col
+          bg-gradient-to-b from-[#7b1c3e] via-[#9d2a52] to-[#c9487c]
+          shadow-2xl
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:relative md:translate-x-0 md:z-auto
+        `}
       >
-        {/* Brand and Close button */}
-        <div className="flex items-center justify-between mb-10 px-2">
+        {/* Brand */}
+        <div className="flex items-center justify-between px-5 pt-7 pb-6">
           <div>
-            <p className="text-xs uppercase tracking-widest text-gray-400">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-pink-200/70 font-medium">
               Admin Panel
             </p>
-            <h1 className="text-xl font-semibold text-gray-900 mt-1">
-              {settings?.storeName || "Revakalp"}
+            <h1 className="text-xl font-serif text-white mt-1 tracking-wide">
+              {storeName}
             </h1>
           </div>
           <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="md:hidden text-gray-500 hover:text-gray-800"
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden text-pink-200 hover:text-white transition"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1">
-          <NavLink
-            to="/admin"
-            end
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <LayoutDashboard size={16} /> Dashboard
-          </NavLink>
+        {/* Divider */}
+        <div className="mx-5 h-px bg-white/10 mb-4" />
 
-          <NavLink
-            to="/admin/products"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Package size={16} /> Products
-          </NavLink>
-
-          <NavLink
-            to="/admin/orders"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <ShoppingCart size={16} /> Orders
-          </NavLink>
-
-          <NavLink
-            to="/admin/users"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Users size={16} /> Users
-          </NavLink>
-
-          <NavLink
-            to="/admin/collections"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Layers size={16} /> Collections
-          </NavLink>
-
-          <NavLink
-            to="/admin/types"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <List size={16} /> Types
-          </NavLink>
-
-          <NavLink
-            to="/admin/coupons"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Ticket size={16} /> Coupons
-          </NavLink>
-
-          <NavLink
-            to="/admin/analytics"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <BarChart3 size={16} /> Analytics
-          </NavLink>
-
-          <NavLink
-            to="/admin/images"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Image size={16} /> Media
-          </NavLink>
-
-          <NavLink
-            to="/admin/settings"
-            className={({ isActive }) =>
-              `${navItem} ${isActive ? active : inactive}`
-            }
-          >
-            <Settings size={16} /> Settings
-          </NavLink>
+        {/* Nav links */}
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto scrollbar-hide">
+          {navLinks.map(({ to, end, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                ${isActive
+                  ? "bg-white/20 text-white shadow-lg backdrop-blur-sm ring-1 ring-white/20"
+                  : "text-pink-100/80 hover:bg-white/10 hover:text-white"
+                }`
+              }
+            >
+              <Icon size={16} />
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
-        {/* Footer */}
-        <div className="pt-6 border-t text-xs text-gray-400">
-          © 2026 Revakalp Admin
+        {/* Footer / Logout */}
+        <div className="px-3 pb-6 pt-4">
+          <div className="mx-2 h-px bg-white/10 mb-4" />
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-pink-100/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+          <p className="text-[10px] text-pink-200/40 text-center mt-4">
+            © {new Date().getFullYear()} {storeName}
+          </p>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* ══════════════ MAIN ══════════════ */}
+      <div className="flex-1 flex flex-col min-w-0">
+
         {/* Header */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-4 md:px-8">
+        <header className="sticky top-0 z-30 h-16 bg-white/70 backdrop-blur-xl border-b border-pink-100 flex items-center justify-between px-4 md:px-8 shadow-sm">
+          {/* Hamburger */}
           <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden text-gray-500 hover:text-gray-800"
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden text-pink-700 hover:text-pink-900 transition"
           >
-            <Menu size={24} />
+            <Menu size={22} />
           </button>
-          <p className="text-sm text-gray-500 hidden md:block">
-            Welcome back, Admin
+
+          {/* Title breadcrumb area */}
+          <p className="hidden md:block text-sm text-pink-500 font-medium tracking-wide">
+            Welcome back, <span className="text-pink-800">Admin</span>
           </p>
 
-          <div className="relative">
-            <img
-              className="w-10 h-10 rounded-full cursor-pointer"
-              src={"/smlogo.png"}
-              alt="Admin Profile"
-            />
+          {/* Avatar / Logo */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-pink-50 border border-pink-200 rounded-full px-3 py-1.5">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#c9487c] to-[#7b1c3e] flex items-center justify-center">
+                <span className="text-white text-[10px] font-bold">A</span>
+              </div>
+              <span className="text-xs text-pink-800 font-medium hidden sm:block">Admin</span>
+            </div>
           </div>
         </header>
 
@@ -179,14 +153,6 @@ const Admin = () => {
           <Outlet />
         </main>
       </div>
-
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 bg-black opacity-50 z-40 md:hidden"
-        ></div>
-      )}
     </div>
   );
 };

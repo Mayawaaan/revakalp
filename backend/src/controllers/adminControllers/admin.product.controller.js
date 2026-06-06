@@ -62,13 +62,15 @@ export const createProduct = async (req, res) => {
             gender,
             state,
             sizes,
+            hasSizes: hasSizesRaw,
             stock,
             bestseller,
             print,
             exclusivity,
         } = req.body;
 
-        const parsedSizes = normalizeSizes(sizes);
+        const hasSizes = hasSizesRaw === 'true' || hasSizesRaw === true;
+        const parsedSizes = hasSizes ? normalizeSizes(sizes) : [];
 
         if (
             !name ||
@@ -79,7 +81,7 @@ export const createProduct = async (req, res) => {
             !type ||
             !gender ||
             !state ||
-            !parsedSizes?.length ||
+            (hasSizes && !parsedSizes?.length) ||
             !stock
         ) {
             return res.status(400).json({ message: "All fields are required" });
@@ -114,6 +116,7 @@ const discountedPrice = discount
             type,
             gender,
             state,
+            hasSizes,
             sizes: parsedSizes,
             stock,
             date: Date.now(),
@@ -199,6 +202,7 @@ export const updateProduct = async (req, res) => {
             gender,
             state,
             sizes,
+            hasSizes: hasSizesRaw,
             stock,
             bestseller,
             print,
@@ -206,7 +210,10 @@ export const updateProduct = async (req, res) => {
             existingImages,
         } = req.body;
 
-        const parsedSizes = normalizeSizes(sizes);
+        const hasSizes = hasSizesRaw !== undefined
+            ? (hasSizesRaw === 'true' || hasSizesRaw === true)
+            : undefined;
+        const parsedSizes = hasSizes === false ? [] : normalizeSizes(sizes);
 
         const updateFields = {
             ...(name !== undefined && { name }),
@@ -217,6 +224,7 @@ export const updateProduct = async (req, res) => {
             ...(type !== undefined && { type }),
             ...(gender !== undefined && { gender }),
             ...(state !== undefined && { state }),
+            ...(hasSizes !== undefined && { hasSizes }),
             ...(parsedSizes !== undefined && { sizes: parsedSizes }),
             ...(stock !== undefined && { stock }),
             ...(bestseller !== undefined && { bestseller }),

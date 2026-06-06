@@ -1,17 +1,28 @@
 import express from "express";
-import { checkAuth, login, logout, signup, updateProfile, forgotPassword, resetPassword } from "../controllers/auth.controller.js";
+import {
+  checkAuth,
+  login,
+  logout,
+  signup,
+  updateProfile,
+  forgotPassword,
+  resetPassword,
+  refreshAccessToken,
+} from "../controllers/auth.controller.js";
 import { protectRoute } from "../middlewares/auth.middleware.js";
-import upload from "../middlewares/upload.middleware.js"; // Import the upload middleware
+import upload from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-router.post("/signup", upload.single('profilePic'), signup); // 'profilePic' is the field name for the single file
+router.post("/signup", upload.single("profilePic"), signup);
 router.post("/login", login);
 router.post("/logout", logout);
+router.post("/refresh", refreshAccessToken);         // 🔄 Token refresh
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp-reset", resetPassword);
 
-router.put(  "/update-profile",
+router.put(
+  "/update-profile",
   protectRoute,
   upload.single("profilePic"),
   (req, res, next) => {
@@ -21,7 +32,7 @@ router.put(  "/update-profile",
     next();
   },
   updateProfile
-);// 'profilePic' is the field name for the single file
+);
 
 router.get("/check", protectRoute, checkAuth);
 

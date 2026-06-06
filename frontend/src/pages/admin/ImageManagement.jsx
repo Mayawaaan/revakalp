@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "../../utils/axiosInstance"; 
-import { Image, Upload, Copy, Check } from "lucide-react";
+import axios from "../../utils/axiosInstance";
+import { Image, Upload, Copy, Check, Loader2 } from "lucide-react";
 import useStore from "../../store/store";
 
 const ImageManagement = () => {
@@ -9,32 +9,29 @@ const ImageManagement = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [preview, setPreview] = useState("");
+
+  const handleFileChange = (e) => {
+    const f = e.target.files[0];
+    setFile(f);
+    if (f) setPreview(URL.createObjectURL(f));
+  };
 
   const handleUpload = async () => {
-    if (!file) {
-      showToast("Please select an image first", "error");
-      return;
-    }
-
-    setLoading(true);
-    setImageUrl("");
-    setCopied(false);
-
+    if (!file) { showToast("Please select an image first", "error"); return; }
+    setLoading(true); setImageUrl(""); setCopied(false);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "YOUR_UPLOAD_PRESET"); // replace
+    formData.append("upload_preset", "YOUR_UPLOAD_PRESET");
     try {
       const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload", // replace
+        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
         formData
       );
       setImageUrl(res.data.secure_url);
       showToast("Image uploaded successfully", "success");
-    } catch (error) {
-      showToast("Image upload failed", "error");
-    } finally {
-      setLoading(false);
-    }
+    } catch { showToast("Image upload failed", "error"); }
+    finally { setLoading(false); }
   };
 
   const copyToClipboard = () => {
@@ -44,102 +41,77 @@ const ImageManagement = () => {
   };
 
   return (
-    <div className="space-y-10">
-
+    <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Image Management
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Upload images to Cloudinary and reuse them across products and pages
-        </p>
+        <p className="text-xs uppercase tracking-[0.2em] text-pink-500 mb-1 font-medium">Assets</p>
+        <h1 className="text-3xl font-serif text-pink-900">Image Management</h1>
+        <p className="text-pink-600 text-sm mt-1">Upload images to Cloudinary and reuse them across products and pages</p>
       </div>
 
       {/* Upload Card */}
-      <div className="bg-white border rounded-xl p-6 max-w-2xl">
-
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Image size={20} className="text-gray-700" />
+      <div className="bg-white/70 backdrop-blur-xl border border-pink-100 rounded-2xl p-6 max-w-2xl shadow-sm">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-pink-100">
+          <div className="w-9 h-9 bg-pink-100 rounded-xl flex items-center justify-center">
+            <Image size={17} className="text-[#c9487c]" />
           </div>
-          <h2 className="text-lg font-medium text-gray-900">
-            Upload Image
-          </h2>
+          <h2 className="font-serif text-lg text-pink-900">Upload Image</h2>
         </div>
 
-        {/* File Input */}
-        <div className="space-y-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="block w-full text-sm text-gray-600
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border
-              file:text-sm file:bg-white
-              file:text-gray-700 hover:file:bg-gray-50"
-          />
+        <div className="space-y-5">
+          {/* Drop zone / file input */}
+          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-pink-200 rounded-2xl cursor-pointer hover:border-[#c9487c] hover:bg-pink-50/50 transition-all duration-200">
+            {preview ? (
+              <img src={preview} alt="Preview" className="h-full w-auto rounded-xl object-contain p-2" />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-pink-400">
+                <Upload size={24} />
+                <p className="text-sm">Click to select an image</p>
+                <p className="text-xs text-pink-300">PNG, JPG, WEBP supported</p>
+              </div>
+            )}
+            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+          </label>
 
           <button
             onClick={handleUpload}
-            disabled={loading}
-            className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-2.5 text-sm rounded-md hover:bg-gray-800 disabled:opacity-50"
+            disabled={loading || !file}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c9487c] to-[#9d2a52] hover:from-[#b53f6c] hover:to-[#7b1c3e] text-white px-6 py-2.5 text-sm rounded-full shadow-lg shadow-pink-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Upload size={16} />
-            {loading ? "Uploading..." : "Upload Image"}
+            {loading ? <><Loader2 size={15} className="animate-spin" /> Uploading…</> : <><Upload size={15} /> Upload Image</>}
           </button>
         </div>
       </div>
 
       {/* Result */}
       {imageUrl && (
-        <div className="bg-white border rounded-xl p-6 max-w-3xl space-y-6">
+        <div className="bg-white/70 backdrop-blur-xl border border-pink-100 rounded-2xl p-6 max-w-3xl shadow-sm space-y-5">
+          <h3 className="font-serif text-lg text-pink-900">Uploaded Image</h3>
 
-          <h3 className="text-lg font-medium text-gray-900">
-            Uploaded Image
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
-
-            {/* Preview */}
-            <div className="border rounded-lg p-2">
-              <img
-                src={imageUrl}
-                alt="Uploaded"
-                className="w-full h-auto rounded-md"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 items-start">
+            <div className="border border-pink-100 rounded-xl p-2 bg-pink-50/50">
+              <img src={imageUrl} alt="Uploaded" className="w-full h-auto rounded-xl" />
             </div>
 
-            {/* URL */}
             <div className="space-y-3">
-              <p className="text-sm text-gray-500">
-                Image URL
-              </p>
-
+              <p className="text-xs uppercase tracking-wider text-pink-500 font-semibold">Image URL</p>
               <div className="flex items-center gap-2">
                 <input
-                  value={imageUrl}
-                  readOnly
-                  className="w-full border rounded-md px-3 py-2 text-sm text-gray-700 bg-gray-50"
+                  value={imageUrl} readOnly
+                  className="w-full border border-pink-200 rounded-xl px-3 py-2.5 text-sm text-pink-800 bg-pink-50/80 focus:outline-none focus:ring-2 focus:ring-pink-300"
                 />
                 <button
                   onClick={copyToClipboard}
-                  className="border rounded-md px-3 py-2 hover:bg-gray-50"
+                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-pink-200 rounded-xl hover:bg-pink-50 transition text-pink-500"
                 >
-                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                  {copied ? <Check size={15} className="text-green-500" /> : <Copy size={15} />}
                 </button>
               </div>
-
-              <p className="text-xs text-gray-500">
-                Use this URL in product images, banners, or content sections.
-              </p>
+              <p className="text-xs text-pink-400">Use this URL in product images, banners, or content sections.</p>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -1,8 +1,22 @@
 import Order from "../../models/order.model.js";
 
+const VALID_STATUSES = [
+  "Processing",
+  "Confirmed",
+  "Preparing",
+  "Shipped",
+  "Out for Delivery",
+  "Delivered",
+  "Cancelled",
+  "Returned",
+];
+
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate("userId", "fullName email").populate("items.productId", "name image"); // Populate user info and product name/image
+    const orders = await Order.find({})
+      .sort({ createdAt: -1 })
+      .populate("userId", "fullName email")
+      .populate("items.productId", "name image");
     res.status(200).json(orders);
   } catch (error) {
     console.error("Error in getAllOrders:", error);
@@ -10,28 +24,54 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("userId", "fullName email")
+      .populate("items.productId", "name image");
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error in getOrderById:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, note } = req.body;
 
-    // Validate status (you might want a more comprehensive list of valid statuses)
-    const validStatuses = ["Processing", "Shipped", "Delivered", "Cancelled", "Pending"];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid order status" });
+    if (!VALID_STATUSES.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`,
+      });
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true, runValidators: true }
-    ).populate("userId", "fullName email").populate("items.productId", "name image");
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    if (!updatedOrder) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+    order.status = status;
 
-    res.status(200).json(updatedOrder);
+    // Append to status history
+    order.statusHistory = [
+      ...(order.statusHistory || []),
+      {
+        status,
+        timestamp: new Date(),
+        note: note || `Status changed to ${status}`,
+      },
+    ];
+
+    await order.save();
+
+    const updated = await Order.findById(id)
+      .populate("userId", "fullName email")
+      .populate("items.productId", "name image");
+
+    res.status(200).json(updated);
   } catch (error) {
     console.error("Error in updateOrderStatus:", error);
     res.status(500).json({ message: "Internal Server Error" });

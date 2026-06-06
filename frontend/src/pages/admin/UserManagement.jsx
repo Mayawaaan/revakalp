@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../utils/axiosInstance"; 
-import {
-  User,
-  Shield,
-  Trash2,
-  Users
-} from "lucide-react";
+import axios from "../../utils/axiosInstance";
+import { User, Trash2, Users, Loader2 } from "lucide-react";
 import useStore from "../../store/store";
 
 const UserManagement = () => {
@@ -13,9 +8,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -23,10 +16,7 @@ const UserManagement = () => {
       const res = await axios.get("/api/admin/users");
       setUsers(res.data);
     } catch (error) {
-      showToast(
-        error.response?.data?.message || "Failed to fetch users",
-        "error"
-      );
+      showToast(error.response?.data?.message || "Failed to fetch users", "error");
     } finally {
       setLoading(false);
     }
@@ -37,7 +27,7 @@ const UserManagement = () => {
       await axios.put(`/api/admin/users/${userId}/role`, { role });
       showToast("User role updated", "success");
       fetchUsers();
-    } catch (error) {
+    } catch {
       showToast("Failed to update role", "error");
     }
   };
@@ -59,71 +49,56 @@ const UserManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            User Management
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Manage users and admin access
-          </p>
+          <p className="text-xs uppercase tracking-[0.2em] text-pink-500 mb-1 font-medium">People</p>
+          <h1 className="text-3xl font-serif text-pink-900">User Management</h1>
+          <p className="text-pink-600 text-sm mt-1">Manage users and admin access</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-md text-sm">
-          <Users size={16} />
+        <div className="flex items-center gap-2 bg-gradient-to-r from-[#c9487c] to-[#9d2a52] text-white px-5 py-2.5 rounded-full text-sm shadow-lg shadow-pink-200">
+          <Users size={15} />
           {users.length} Users
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div className="bg-white/70 backdrop-blur-xl border border-pink-100 rounded-2xl overflow-hidden shadow-sm">
+        {/* Desktop */}
         <div className="hidden md:block">
-          <table className="min-w-full divide-y">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-pink-50">
+            <thead className="bg-pink-50/80">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500">
-                  Actions
-                </th>
+                {["User", "Email", "Role", "Actions"].map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-6 py-4 text-xs uppercase tracking-wider text-pink-500 font-semibold ${i === 3 ? "text-right" : "text-left"}`}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
 
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-pink-50">
               {users.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50 transition">
+                <tr key={user._id} className="hover:bg-pink-50/40 transition-colors">
 
-                  {/* Name */}
                   <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User size={18} />
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-pink-100 flex items-center justify-center">
+                      <User size={15} className="text-[#c9487c]" />
                     </div>
-                    <span className="font-medium text-gray-900">
-                      {user.fullName}
-                    </span>
+                    <span className="font-medium text-pink-900">{user.fullName}</span>
                   </td>
 
-                  {/* Email */}
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.email}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-pink-600">{user.email}</td>
 
-                  {/* Role */}
                   <td className="px-6 py-4">
                     <select
                       value={user.role}
-                      onChange={(e) =>
-                        handleRoleChange(user._id, e.target.value)
-                      }
-                      className={`text-sm rounded-md px-3 py-1 border ${
+                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      className={`text-sm rounded-full px-3 py-1 border focus:outline-none focus:ring-2 focus:ring-pink-300 ${
                         user.role === "admin"
-                          ? "border-red-300 text-red-700 bg-red-50"
-                          : "border-gray-300 text-gray-700"
+                          ? "border-[#c9487c] text-[#c9487c] bg-pink-50"
+                          : "border-pink-200 text-pink-700 bg-white"
                       }`}
                     >
                       <option value="user">User</option>
@@ -131,14 +106,12 @@ const UserManagement = () => {
                     </select>
                   </td>
 
-                  {/* Actions */}
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => handleDeleteUser(user._id)}
-                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"
+                      className="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-sm transition-colors"
                     >
-                      <Trash2 size={16} />
-                      Delete
+                      <Trash2 size={14} /> Delete
                     </button>
                   </td>
                 </tr>
@@ -146,7 +119,7 @@ const UserManagement = () => {
 
               {!users.length && !loading && (
                 <tr>
-                  <td colSpan="4" className="text-center py-10 text-gray-500">
+                  <td colSpan="4" className="text-center py-10 text-pink-400">
                     No users found
                   </td>
                 </tr>
@@ -154,31 +127,33 @@ const UserManagement = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile */}
         <div className="md:hidden">
           {users.map((user) => (
-            <div key={user._id} className="border-t p-4">
+            <div key={user._id} className="border-t border-pink-50 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User size={18} />
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-pink-100 flex items-center justify-center">
+                    <User size={15} className="text-[#c9487c]" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{user.fullName}</p>
-                    <p className="text-sm text-gray-600">{user.email}</p>
+                    <p className="font-medium text-pink-900">{user.fullName}</p>
+                    <p className="text-sm text-pink-500">{user.email}</p>
                   </div>
                 </div>
-                <button onClick={() => handleDeleteUser(user._id)} className="text-red-600">
+                <button onClick={() => handleDeleteUser(user._id)} className="text-red-400 hover:text-red-600 transition-colors">
                   <Trash2 size={16} />
                 </button>
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <select
                   value={user.role}
                   onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                  className={`w-full text-sm rounded-md px-3 py-2 border ${
+                  className={`w-full text-sm rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-pink-300 ${
                     user.role === "admin"
-                      ? "border-red-300 text-red-700 bg-red-50"
-                      : "border-gray-300 text-gray-700"
+                      ? "border-[#c9487c] text-[#c9487c] bg-pink-50"
+                      : "border-pink-200 text-pink-700"
                   }`}
                 >
                   <option value="user">User</option>
@@ -190,8 +165,8 @@ const UserManagement = () => {
         </div>
 
         {loading && (
-          <div className="text-center py-6 text-gray-500">
-            Loading users…
+          <div className="flex items-center justify-center py-10 text-pink-400 gap-2">
+            <Loader2 size={18} className="animate-spin" /> Loading users…
           </div>
         )}
       </div>
