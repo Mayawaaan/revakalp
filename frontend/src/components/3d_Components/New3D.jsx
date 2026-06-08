@@ -141,7 +141,7 @@ const New3D = () => (
   <Canvas
     shadows
     camera={{ fov: 42, position: [0, 1.5, 9] }}
-    style={{ background: 'transparent', width: '100%', height: '100%' }}
+    style={{ background: 'gray', width: '100%', height: '100%' }}
   >
     <Suspense fallback={null}>
       <Scene />
