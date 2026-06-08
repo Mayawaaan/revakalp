@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import useWindowSize from "../../hooks/useWindowSize";
+import New3D from "../3d_Components/New3D";
 
 const Landing = () => {
   const { width } = useWindowSize();
@@ -11,55 +12,56 @@ const Landing = () => {
   }
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image */}
-      <img
-        src="/hero.png"
-        alt="Revakalp Ethnic Wear Collection"
-        className="absolute inset-0 w-full h-full object-cover object-top brightness-75"
-      />
+    <section className="relative h-screen w-full overflow-hidden flex bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee]">
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/40 to-black/20"></div>
+      {/* Decorative soft blobs */}
+      <div className="pointer-events-none absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-pink-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-1/3 w-[400px] h-[400px] rounded-full bg-pink-300/20 blur-3xl" />
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-center items-left text-left px-14">
+      {/* ── LEFT — Content ── */}
+      <div className="relative z-10 h-full w-[60%] flex flex-col justify-center items-start text-left px-10 lg:px-16">
+
         {/* Micro branding */}
-        <p className="uppercase tracking-[0.35em] text-xs text-pink-200 mb-6">
-          Curated • Authentic • Timeless
+        <p className="uppercase tracking-[0.3em] text-xs text-pink-500 mb-3">
+          Premium Lenghas • Handloom Sarees
         </p>
 
         {/* Headline */}
-        <h1 className="font-serif text-5xl md:text-6xl lg:text-6xl text-white leading-tight max-w-4xl">
-          Rooted in Heritage
-          <span className="block text-pink-200">
-            Curated for the Modern Woman
+        <h1 className="font-serif text-5xl md:text-[3.25rem] text-pink-900 leading-snug">
+          Discover Exquisite Lenghas
+          <span className="block text-[#c9487c]">
+            & Authentic Handloom Sarees
           </span>
         </h1>
 
         {/* Subtext */}
-        <p className="mt-6 text-lg md:text-xl text-gray-200 max-w-2xl leading-relaxed">
-          Explore a thoughtfully selected range of ethnic wear inspired by
-          India’s rich textile traditions — chosen for quality, elegance, and
-          everyday sophistication.
+        <p className="mt-3 text-sm md:text-base text-pink-700 max-w-md leading-relaxed">
+          Your premier destination for stunning designer lenghas and traditional handloom sarees. 
+          Whether you shop our exclusive online boutique or visit our retail outlet, 
+          find the perfect breathtaking ensemble for your next celebration.
         </p>
 
         {/* CTAs */}
-        <div className="mt-10 flex flex-col sm:flex-row gap-6">
+        <div className="mt-6 flex flex-row gap-3">
           <Link
             to="/shop"
-            className="bg-[#c9487c] hover:bg-[#9c2756] text-white px-10 py-4 rounded-full font-medium shadow-xl transition"
+            className="bg-[#c9487c] hover:bg-[#9c2756] text-white px-8 py-3 rounded-full text-sm font-medium shadow-lg shadow-pink-300/40 transition-all duration-300"
           >
             Explore Collection
           </Link>
 
           <Link
             to="/about"
-            className="border border-white/70 text-white px-10 py-4 rounded-full font-medium hover:bg-white hover:text-black transition"
+            className="border border-[#c9487c] text-[#c9487c] px-8 py-3 rounded-full text-sm font-medium hover:bg-[#c9487c] hover:text-white transition-all duration-300"
           >
             Our Store
           </Link>
         </div>
+      </div>
+
+      {/* ── RIGHT — 3D Scene ── */}
+      <div className="relative z-10 h-full w-[40%] flex items-center justify-center">
+        <New3D />
       </div>
     </section>
   );

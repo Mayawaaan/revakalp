@@ -36,7 +36,7 @@ const OurPolicy = () => {
               Complimentary Shipping
             </h3>
             <p className="text-pink-700 mt-3 leading-relaxed">
-              Enjoy free delivery on all orders above ₹500 — carefully packed
+              Enjoy free delivery in Indore, and on all orders above ₹5000 elsewhere — carefully packed
               and delivered with care.
             </p>
           </div>

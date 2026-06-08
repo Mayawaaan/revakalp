@@ -1,126 +1,143 @@
-import React from "react";
-import { motion } from "framer-motion";
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12
-    }
-  }
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: "easeOut" }
-  }
-};
+import React, { useState } from "react";
+import PageHero from "../../components/globalComponents/PageHero";
+import { Link } from "react-router-dom";
 
 const FAQ = () => {
+  const [open, setOpen] = useState(null);
+
   const faqs = [
     {
       q: "Are all Revakalp sarees authentic?",
-      a: "Yes. Every saree at Revakalp is carefully curated from trusted weavers, cooperatives, and manufacturers across India. Each piece is quality-checked for fabric, weave, and craftsmanship before being listed."
+      a: "Yes. Every saree at Revakalp is carefully curated from trusted weavers, cooperatives, and manufacturers across India. Each piece is quality-checked for fabric, weave, and craftsmanship before being listed.",
     },
     {
       q: "Do you sell handloom sarees?",
-      a: "Yes. We offer a wide selection of handloom sarees. Product descriptions clearly mention fabric, weave, and sourcing details to help you make an informed choice."
+      a: "Yes. We offer a wide selection of handloom sarees including Chanderi, Maheshwari, and Banarasi weaves. Product descriptions clearly mention fabric, weave, and sourcing details.",
     },
     {
       q: "How long does delivery take?",
-      a: "Orders are usually dispatched within 2–4 business days. Delivery timelines vary based on location and will be shared once your order is shipped."
+      a: "Orders are usually dispatched within 3–5 business days. Delivery timelines vary based on your location and will be shared via email once your order is shipped.",
     },
     {
       q: "Can I return or exchange a saree?",
-      a: "Yes. We accept return or exchange requests within 7 days of delivery, provided the product is unused, unwashed, and has original tags intact."
+      a: "Yes. We accept return or exchange requests within 7 days of delivery, provided the product is unused, unwashed, and has original tags intact.",
     },
     {
       q: "Do the saree colors match the images?",
-      a: "We make every effort to display accurate colors. However, slight variations may occur due to screen settings or the handcrafted nature of textiles."
+      a: "We make every effort to display accurate colors. However, slight variations may occur due to screen settings or the handcrafted nature of textiles.",
     },
     {
       q: "Is Cash on Delivery available?",
-      a: "Yes, Cash on Delivery is available for most locations in India."
+      a: "Yes, Cash on Delivery is available for most locations across India.",
     },
     {
       q: "How do I know my size?",
-      a: "Sarees are free-size. For stitched garments, size details are provided on each product page."
+      a: "Sarees are free-size. For stitched garments and lehengas, size charts and measurements are provided on each product page.",
     },
     {
       q: "How can I contact customer support?",
-      a: "You can reach us at contact@revakalp.com. Our team typically responds within 24–48 hours."
-    }
+      a: "You can reach us at contact@revakalp.com or call/WhatsApp us at +91 91096-76562. Our team typically responds within 24 hours.",
+    },
   ];
 
   return (
-    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28 overflow-hidden">
+    <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff9fb" }}>
 
-      {/* Background glow (kept static for elegance) */}
-      <div className="absolute -top-40 left-32 w-[480px] h-[480px] bg-pink-200 rounded-full blur-3xl opacity-40" />
-      <div className="absolute -bottom-40 right-32 w-[520px] h-[520px] bg-rose-300 rounded-full blur-3xl opacity-30" />
+      <PageHero
+        label="Support"
+        title="Frequently Asked Questions"
+        subtitle="Everything you need to know about shopping with Revakalp — thoughtfully answered for your peace of mind."
+      />
 
-      <motion.div
-        className="relative max-w-5xl mx-auto px-8"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-      >
-        {/* Header */}
-        <motion.div
-          className="text-center mb-20"
-          variants={fadeUp}
-        >
-          <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
-            Support
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl text-pink-900">
-            Frequently Asked Questions
-          </h1>
-          <p className="mt-6 text-pink-700 max-w-2xl mx-auto leading-relaxed">
-            Everything you need to know about shopping with Revakalp —
-            thoughtfully answered for your peace of mind.
-          </p>
-        </motion.div>
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "80px 32px 100px" }}>
 
-        {/* FAQ Card */}
-        <motion.div
-          className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-xl p-10 space-y-8"
-          variants={fadeUp}
-        >
-          {faqs.map((item, index) => (
-            <motion.div
-              key={index}
-              className="border-b border-pink-200 pb-6"
-              variants={fadeUp}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.25 }}
+        {/* Accordion */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {faqs.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                background: "#fff",
+                borderRadius: 18,
+                border: open === i ? "1.5px solid #c9487c" : "1.5px solid #fce7f3",
+                boxShadow: open === i
+                  ? "0 8px 32px rgba(201,72,124,0.12)"
+                  : "0 2px 12px rgba(201,72,124,0.05)",
+                overflow: "hidden",
+                transition: "border-color 0.25s, box-shadow 0.25s",
+              }}
             >
-              <h3 className="font-serif text-xl text-pink-900 mb-3">
-                {item.q}
-              </h3>
-              <p className="text-pink-700 text-sm leading-relaxed">
-                {item.a}
-              </p>
-            </motion.div>
-          ))}
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                style={{
+                  width: "100%", textAlign: "left",
+                  padding: "22px 28px",
+                  background: "none", border: "none",
+                  cursor: "pointer",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  gap: 16,
+                }}
+              >
+                <span style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "1.05rem", color: "#831843", fontWeight: 600,
+                  lineHeight: 1.4,
+                }}>{item.q}</span>
+                <span style={{
+                  flexShrink: 0,
+                  width: 28, height: 28, borderRadius: "50%",
+                  background: open === i
+                    ? "linear-gradient(135deg, #c9487c, #7a1045)"
+                    : "#fce7f3",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "1rem", color: open === i ? "#fff" : "#c9487c",
+                  transition: "all 0.25s",
+                  transform: open === i ? "rotate(45deg)" : "rotate(0)",
+                }}>+</span>
+              </button>
 
-          {/* Footer Note */}
-          <motion.div
-            className="pt-8 text-center"
-            variants={fadeUp}
-          >
-            <p className="text-sm text-pink-700">
-              Still have questions? Write to us at{" "}
-              <strong>contact@revakalp.com</strong> — we’re always happy to help.
-            </p>
-          </motion.div>
-        </motion.div>
-      </motion.div>
-    </section>
+              {open === i && (
+                <div style={{
+                  padding: "0 28px 24px",
+                  borderTop: "1px solid #fce7f3",
+                }}>
+                  <p style={{
+                    color: "#9d174d", fontSize: "0.92rem",
+                    lineHeight: 1.85, paddingTop: 16,
+                  }}>{item.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div style={{
+          marginTop: 64, textAlign: "center",
+          background: "linear-gradient(135deg, #1a0010, #3d0030)",
+          borderRadius: 28, padding: "48px 40px",
+        }}>
+          <p style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "1.4rem", color: "#fff", marginBottom: 12,
+          }}>Still have a question?</p>
+          <p style={{ color: "#fce7f3", fontSize: "0.9rem", marginBottom: 28, opacity: 0.85 }}>
+            Write to us at <strong>contact@revakalp.com</strong> — we're always happy to help.
+          </p>
+          <Link to="/contact" style={{
+            background: "linear-gradient(135deg, #c9487c, #7a1045)",
+            color: "#fff", padding: "13px 36px", borderRadius: 50,
+            textDecoration: "none", fontWeight: 600, fontSize: "0.9rem",
+            boxShadow: "0 6px 24px rgba(201,72,124,0.4)",
+            display: "inline-block",
+          }}>
+            Contact Us
+          </Link>
+        </div>
+      </div>
+
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
+    </div>
   );
 };
 

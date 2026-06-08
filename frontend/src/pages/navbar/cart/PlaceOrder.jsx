@@ -460,7 +460,7 @@ paymentObject.open();
                 </div>
               )}
             </div>
-            <CartTotal productError={productError} />
+            <CartTotal productError={productError} city={formData.city} />
           </div>
 
           <div className="bg-white rounded-3xl shadow-lg p-8">

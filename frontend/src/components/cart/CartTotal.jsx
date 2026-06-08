@@ -3,7 +3,7 @@ import useStore from "../../store/store";
 import Title from "../globalComponents/Title";
 import { AlertCircle } from "lucide-react";
 
-const CartTotal = ({ productError }) => {
+const CartTotal = ({ productError, city }) => {
   const {
     cart,
     getCartSubtotal,
@@ -23,8 +23,9 @@ const CartTotal = ({ productError }) => {
   const itemsDiscount = getCartItemsDiscount();
   const total = getCartTotal();
 
-  // Delivery fee logic
-  const deliveryFee = total >= freeShippingThreshold ? 0 : DELIVERY_FEE;
+  // Delivery fee logic (Free delivery for Indore or if threshold met)
+  const isIndore = city?.toLowerCase().trim() === "indore";
+  const deliveryFee = (total >= freeShippingThreshold || isIndore) ? 0 : DELIVERY_FEE;
 
   // Coupon discount amount
   const subtotalAfterItemDiscounts = subtotal - itemsDiscount;

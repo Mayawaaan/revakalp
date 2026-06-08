@@ -306,8 +306,11 @@ export const placeOrder = async (req, res) => {
 
     const settings = await Settings.getSettings();
     const freeShippingThreshold = settings?.freeShippingThreshold ?? 500;
+    
+    const isIndore = shippingAddress?.city?.toLowerCase().trim() === "indore";
+
     const deliveryFee =
-      subtotal >= freeShippingThreshold
+      (subtotal >= freeShippingThreshold || isIndore)
         ? 0
         : settings?.deliveryFee ?? 50;
 
