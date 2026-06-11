@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import useLenis from "./hooks/useLenis";
 import { Routes, Route } from "react-router-dom";
 
 /* ===== Global Layout ===== */
@@ -59,6 +60,8 @@ import useStore from "./store/store";
 import ResetPassword from "./pages/login/ResetPassword";
 
 const App = () => {
+  useLenis();
+
   const {
     fetchProducts,
     fetchPublicSettings,

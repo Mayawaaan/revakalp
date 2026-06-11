@@ -36,6 +36,7 @@
   "devDependencies": {
     "stylelint": "^17.1.1",
     "stylelint-config-standard": "^40.0.0",
-    "stylelint-config-tailwindcss": "^1.0.1"
+    "stylelint-config-tailwindcss": "^1.0.1",
+    "vite-plugin-glsl": "^1.6.0"
   }
 }
