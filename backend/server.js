@@ -5,7 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
-import xss from "xss-clean";
+import xssLib from "xss-clean/lib/xss.js";
 import { connectDB } from "./src/lib/db.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import collectionRoutes from "./src/routes/collection.routes.js";
@@ -51,8 +51,26 @@ app.use(cors({
 
 // Security Middlewares
 app.use(helmet());
-app.use(mongoSanitize());
-app.use(xss());
+
+// NOTE: express-mongo-sanitize / xss-clean assign to `req.query`, which is a
+// read-only getter in Express 5 (causes "Cannot set property query" TypeError).
+// This middleware does the same sanitizing safely and runs after body parsing.
+const { clean: xssClean } = xssLib;
+const sanitizeRequest = (req, res, next) => {
+  if (req.body && typeof req.body === "object") {
+    req.body = mongoSanitize.sanitize(req.body);
+  }
+  if (req.query && typeof req.query === "object") {
+    const safeQuery = xssClean(mongoSanitize.sanitize(req.query));
+    Object.defineProperty(req, "query", {
+      value: safeQuery,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+  }
+  next();
+};
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -65,6 +83,7 @@ app.use("/api", limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
+app.use(sanitizeRequest);
 
 setInterval(async () => {
   try {
