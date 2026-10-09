@@ -24,6 +24,8 @@ import MyProfile from "./pages/footer/MyProfile";
 import ExploreJobs from "./pages/contact/ExploreJobs";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import Wishlist from "./pages/navbar/Wishlist";
+import OrderSuccess from "./pages/navbar/cart/OrderSuccess";
+import NotFound from "./pages/NotFound";
 
 /* ===== Footer Pages ===== */
 import PrivacyPolicy from "./pages/footer/PrivacyPolicy";
@@ -116,6 +118,7 @@ const App = () => {
         {/* User Protected */}
         <Route element={<ProtectedRoute />}>
           <Route path="/place-order" element={<PlaceOrder />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/track/:orderId" element={<TrackOrder />} />
           <Route path="/my-profile" element={<MyProfile />} />
@@ -137,6 +140,9 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
+
+        {/* Catch All 404 */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <Footer />

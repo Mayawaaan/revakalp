@@ -2,6 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+import xss from "xss-clean";
 import { connectDB } from "./src/lib/db.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import collectionRoutes from "./src/routes/collection.routes.js";
@@ -44,6 +48,20 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN ,
     credentials: true
 }));
+
+// Security Middlewares
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes"
+});
+app.use("/api", limiter);
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
