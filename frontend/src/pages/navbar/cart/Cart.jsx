@@ -1,326 +1,255 @@
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Trash2, ShoppingBag, ShieldCheck, RotateCcw, Minus, Plus } from "lucide-react";
 import useStore from "../../../store/store";
 import CartTotal from "../../../components/cart/CartTotal";
-import { useNavigate } from "react-router-dom";
-import { Trash2, ShoppingBag, ShieldCheck, RotateCcw } from "lucide-react";
+import PageHero from "../../../components/globalComponents/PageHero";
+import EditorialButton from "../../../components/ui/EditorialButton";
 
 const Cart = () => {
   const {
-    currency, cart,
-    incrementQuantity, decrementQuantity, removeFromCart,
-    applyCoupon, discountPercentage, removeCoupon, showToast,
+    currency,
+    cart,
+    incrementQuantity,
+    decrementQuantity,
+    removeFromCart,
+    applyCoupon,
+    discountPercentage,
+    couponCode: activeCoupon,
+    removeCoupon,
+    showToast,
   } = useStore();
 
   const navigate = useNavigate();
-  const [couponCode, setCouponCode] = useState("");
+  const [couponInput, setCouponInput] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) { showToast("Please enter a coupon code", "error"); return; }
+  const handleApplyCoupon = async (e) => {
+    e?.preventDefault();
+    if (!couponInput.trim()) {
+      showToast("Please enter a coupon code", "error");
+      return;
+    }
+    setApplyingCoupon(true);
     try {
-      await applyCoupon(couponCode.trim());
+      await applyCoupon(couponInput.trim());
       showToast("Coupon applied successfully", "success");
+      setCouponInput("");
     } catch (error) {
       showToast(error.message || "Invalid coupon code", "error");
+    } finally {
+      setApplyingCoupon(false);
     }
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fff9fb", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-[#F7F1E5]">
+      <PageHero
+        label="Shopping Bag"
+        title="Your Shopping Bag"
+        subtitle="Review your selected pieces before proceeding to checkout."
+      />
 
-      {/* ── Dark Hero ── */}
-      <div style={{
-        background: "linear-gradient(135deg, #1a0010 0%, #3d0030 45%, #7a1045 80%, #c9487c 100%)",
-        padding: "80px 32px 60px", position: "relative", overflow: "hidden", textAlign: "center",
-      }}>
-        <div style={{
-          position: "absolute", top: "-20%", right: "-5%",
-          width: 360, height: 360, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(201,72,124,0.3) 0%, transparent 70%)",
-        }} />
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <p style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontSize: 11, color: "#f9a8d4", marginBottom: 14 }}>
-            Secure Checkout
-          </p>
-          <h1 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "clamp(2rem, 4vw, 3rem)", color: "#fff", marginBottom: 12,
-          }}>Your Shopping Bag</h1>
-          <p style={{ color: "#fce7f3", fontSize: "0.92rem", opacity: 0.85 }}>
-            Review your selected pieces before placing your order.
-          </p>
-        </div>
-      </div>
-
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 32px 100px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 32, alignItems: "start" }}>
-
-          {/* ── Cart Items ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
+          {/* Cart Items */}
           <div>
             {cart.length === 0 ? (
-              <div style={{
-                background: "#fff", borderRadius: 28, padding: "80px 40px",
-                textAlign: "center", border: "1px solid #fce7f3",
-                boxShadow: "0 8px 40px rgba(201,72,124,0.08)",
-              }}>
-                <ShoppingBag size={56} style={{ color: "#f9a8d4", margin: "0 auto 24px" }} strokeWidth={1.2} />
-                <h2 style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: "1.8rem", color: "#831843", marginBottom: 12,
-                }}>Your bag is empty</h2>
-                <p style={{ color: "#9d174d", fontSize: "0.9rem", marginBottom: 32, lineHeight: 1.7 }}>
-                  Discover our curated collection of handloom sarees and lehengas.
+              <div className="rk-surface-card p-10 sm:p-16 text-center">
+                <ShoppingBag
+                  size={52}
+                  strokeWidth={1.2}
+                  className="mx-auto mb-5 text-[#38131E]/40"
+                />
+                <h2 className="font-serif text-3xl text-[#38131E] mb-3">
+                  Your bag is empty
+                </h2>
+                <p className="text-sm text-[#1A1718]/70 mb-8 max-w-md mx-auto leading-relaxed">
+                  Explore our curated collection of sarees, lehengas, kurta pajama,
+                  Jodhpuri silhouettes, and printed tees.
                 </p>
-                <button onClick={() => navigate("/shop")} style={{
-                  background: "linear-gradient(135deg, #c9487c, #7a1045)",
-                  color: "#fff", padding: "13px 36px", borderRadius: 50,
-                  border: "none", cursor: "pointer", fontWeight: 600, fontSize: "0.9rem",
-                  boxShadow: "0 6px 24px rgba(201,72,124,0.35)",
-                  fontFamily: "'Inter', sans-serif",
-                }}>Browse Collections</button>
+                <EditorialButton to="/shop" variant="primary">
+                  Browse Collections
+                </EditorialButton>
               </div>
             ) : (
-              <div style={{
-                background: "#fff", borderRadius: 28, overflow: "hidden",
-                border: "1px solid #fce7f3",
-                boxShadow: "0 8px 40px rgba(201,72,124,0.08)",
-              }}>
-                {/* Header row */}
-                <div style={{
-                  padding: "20px 32px",
-                  background: "linear-gradient(135deg, #fce7f3, #fff1f4)",
-                  borderBottom: "1px solid #fce7f3",
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                }}>
-                  <p style={{ color: "#831843", fontWeight: 700, fontSize: "0.9rem" }}>
+              <div className="rk-surface-card overflow-hidden">
+                <div className="px-6 py-4 bg-[#38131E]/5 border-b border-[#38131E]/10 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[#38131E]">
                     {cart.length} {cart.length === 1 ? "item" : "items"} in your bag
                   </p>
-                  <button onClick={() => navigate("/shop")} style={{
-                    color: "#c9487c", fontSize: "0.82rem", fontWeight: 600,
-                    background: "none", border: "none", cursor: "pointer",
-                    fontFamily: "'Inter', sans-serif",
-                  }}>+ Add More</button>
+                  <Link
+                    to="/shop"
+                    className="text-xs uppercase tracking-[0.16em] font-semibold text-[#38131E] hover:underline"
+                  >
+                    + Continue Shopping
+                  </Link>
                 </div>
 
-                {cart.map((item, idx) => {
-                  const image = Array.isArray(item.image) ? item.image[0] : item.image;
-                  const hasDiscount = item.discountedPrice && item.discountedPrice < item.price;
-                  return (
-                    <div key={`${item._id}-${item.size}`} style={{
-                      display: "flex", gap: 20, padding: "24px 32px",
-                      alignItems: "center",
-                      borderBottom: idx < cart.length - 1 ? "1px solid #fce7f3" : "none",
-                    }}>
-                      {image && (
-                        <img src={image} alt={item.name || "Product"} style={{
-                          width: 88, height: 104, objectFit: "cover",
-                          borderRadius: 14, flexShrink: 0,
-                          boxShadow: "0 4px 16px rgba(201,72,124,0.12)",
-                        }} />
-                      )}
+                <div className="divide-y divide-[#38131E]/10">
+                  {cart.map((item) => {
+                    const image = Array.isArray(item.image) ? item.image[0] : item.image;
+                    const hasDiscount =
+                      item.discountedPrice && item.discountedPrice < item.price;
 
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{
-                          fontFamily: "'Playfair Display', serif",
-                          fontSize: "1rem", color: "#831843", marginBottom: 6,
-                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                        }}>{item.name || "Product"}</h3>
+                    return (
+                      <div
+                        key={`${item._id}-${item.size}`}
+                        className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
+                      >
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          {image && (
+                            <Link to={`/product/${item._id}`} className="shrink-0">
+                              <img
+                                src={image}
+                                alt={item.name || "Product"}
+                                className="w-20 h-24 object-cover rounded-xl border border-[#38131E]/10"
+                              />
+                            </Link>
+                          )}
 
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{
-                            color: hasDiscount ? "#9ca3af" : "#9d174d",
-                            textDecoration: hasDiscount ? "line-through" : "none",
-                            fontSize: "0.88rem",
-                          }}>{currency}{item.price}</span>
-                          {hasDiscount && (
-                            <span style={{ color: "#16a34a", fontWeight: 700, fontSize: "0.88rem" }}>
-                              {currency}{item.discountedPrice}
-                            </span>
-                          )}
-                          {item.discount > 0 && (
-                            <span style={{
-                              background: "#fef2f2", color: "#dc2626",
-                              fontSize: "0.72rem", fontWeight: 700,
-                              padding: "2px 8px", borderRadius: 20,
-                            }}>-{item.discount}%</span>
-                          )}
+                          <div className="flex-1 min-w-0">
+                            <Link to={`/product/${item._id}`}>
+                              <h3 className="font-serif text-xl text-[#38131E] hover:underline truncate">
+                                {item.name || "Product"}
+                              </h3>
+                            </Link>
+
+                            <div className="mt-1 flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-[#38131E]">
+                                {currency}
+                                {(hasDiscount ? item.discountedPrice : item.price).toLocaleString("en-IN")}
+                              </span>
+                              {hasDiscount && (
+                                <span className="text-xs text-[#1A1718]/45 line-through">
+                                  {currency}
+                                  {item.price.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                              {item.discount > 0 && (
+                                <span className="text-[10px] uppercase tracking-wider font-semibold bg-[#38131E] text-[#F1D889] px-2.5 py-0.5 rounded-full">
+                                  -{item.discount}%
+                                </span>
+                              )}
+                            </div>
+
+                            {item.size && item.size !== "NO_SIZE" && (
+                              <span className="inline-block mt-2 px-3 py-0.5 rounded-full bg-[#F7F1E5] border border-[#38131E]/15 text-[11px] uppercase tracking-wider font-medium text-[#38131E]">
+                                Size: {item.size}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        {item.size && item.size !== "NO_SIZE" && (
-                          <span style={{
-                            display: "inline-block", marginTop: 6,
-                            background: "#fce7f3", color: "#c9487c",
-                            fontSize: "0.72rem", fontWeight: 600,
-                            padding: "3px 10px", borderRadius: 20,
-                            textTransform: "uppercase", letterSpacing: "0.05em",
-                          }}>Size: {item.size}</span>
-                        )}
-                      </div>
+                        <div className="flex items-center justify-between sm:justify-end gap-3">
+                          <div className="inline-flex items-center rounded-full border border-[#38131E]/20 bg-[#F7F1E5]/70">
+                            <button
+                              type="button"
+                              aria-label={`Decrease quantity of ${item.name}`}
+                              disabled={item.quantity <= 1}
+                              onClick={() => decrementQuantity(item._id, item.size)}
+                              className="w-10 h-10 flex items-center justify-center text-[#38131E] disabled:opacity-40 cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-8 text-center text-sm font-semibold text-[#38131E]">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label={`Increase quantity of ${item.name}`}
+                              onClick={() => incrementQuantity(item._id, item.size)}
+                              className="w-10 h-10 flex items-center justify-center text-[#38131E] cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
 
-                      {/* Qty stepper */}
-                      <div style={{
-                        display: "flex", alignItems: "center", gap: 0,
-                        background: "#fff9fb", borderRadius: 50,
-                        border: "1.5px solid #fce7f3", overflow: "hidden",
-                        flexShrink: 0,
-                      }}>
-                        <button
-                          disabled={item.quantity <= 1}
-                          onClick={() => decrementQuantity(item._id, item.size)}
-                          style={{
-                            width: 36, height: 36, background: "none", border: "none",
-                            cursor: item.quantity <= 1 ? "not-allowed" : "pointer",
-                            color: item.quantity <= 1 ? "#fbbf24" : "#c9487c",
-                            fontSize: "1.1rem", fontWeight: 700,
-                            fontFamily: "'Inter', sans-serif",
-                          }}
-                        >−</button>
-                        <span style={{ width: 28, textAlign: "center", color: "#831843", fontSize: "0.9rem", fontWeight: 600 }}>
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => incrementQuantity(item._id, item.size)}
-                          style={{
-                            width: 36, height: 36, background: "none", border: "none",
-                            cursor: "pointer", color: "#c9487c",
-                            fontSize: "1.1rem", fontWeight: 700,
-                            fontFamily: "'Inter', sans-serif",
-                          }}
-                        >+</button>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${item.name} from bag`}
+                            onClick={() => removeFromCart(item._id, item.size)}
+                            className="w-10 h-10 rounded-full bg-red-50 text-red-700 hover:bg-red-100 flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-
-                      {/* Remove */}
-                      <button
-                        onClick={() => removeFromCart(item._id, item.size)}
-                        style={{
-                          background: "#fef2f2", border: "none", borderRadius: 10,
-                          width: 36, height: 36, display: "flex", alignItems: "center",
-                          justifyContent: "center", cursor: "pointer", flexShrink: 0,
-                          color: "#ef4444", transition: "background 0.2s",
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#fee2e2"}
-                        onMouseLeave={e => e.currentTarget.style.background = "#fef2f2"}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
 
-          {/* ── Order Summary ── */}
-          <div style={{ position: "sticky", top: 100 }}>
-            <div style={{
-              background: "#fff", borderRadius: 28,
-              border: "1px solid #fce7f3",
-              boxShadow: "0 12px 48px rgba(201,72,124,0.12)",
-              overflow: "hidden",
-            }}>
-              <div style={{
-                background: "linear-gradient(135deg, #1a0010, #3d0030)",
-                padding: "20px 28px",
-              }}>
-                <p style={{
-                  fontFamily: "'Playfair Display', serif",
-                  color: "#fff", fontSize: "1.1rem",
-                }}>Order Summary</p>
+          {/* Order Summary */}
+          <div className="lg:sticky lg:top-28 rk-surface-card overflow-hidden">
+            <div className="bg-[#38131E] px-6 py-4 text-[#F7F1E5]">
+              <h2 className="font-serif text-xl">Order Summary</h2>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <CartTotal />
+
+              {/* Coupon */}
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/70 font-semibold mb-2.5">
+                  Promo Code
+                </p>
+                {discountPercentage > 0 ? (
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm">
+                    <span className="text-emerald-800 font-medium">
+                      Coupon {activeCoupon ? `(${activeCoupon}) ` : ""}Applied ({discountPercentage}% off)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="text-xs font-semibold text-red-700 hover:underline cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                    <input
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      placeholder="Enter promo code"
+                      aria-label="Promo code"
+                      className="flex-1 min-h-[44px] px-4 py-2 rounded-xl border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={applyingCoupon}
+                      className="min-h-[44px] px-5 rounded-xl bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {applyingCoupon ? "…" : "Apply"}
+                    </button>
+                  </form>
+                )}
               </div>
 
-              <div style={{ padding: "28px" }}>
-                <CartTotal />
+              <EditorialButton
+                variant="primary"
+                disabled={cart.length === 0}
+                onClick={() => navigate("/place-order")}
+                className="w-full"
+              >
+                Proceed to Checkout →
+              </EditorialButton>
 
-                {/* Coupon */}
-                <div style={{ marginTop: 24 }}>
-                  <p style={{ color: "#9d174d", fontSize: "0.82rem", fontWeight: 600, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Promo Code
-                  </p>
-                  {discountPercentage > 0 ? (
-                    <div style={{
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                      background: "#f0fdf4", borderRadius: 12, padding: "12px 16px",
-                      border: "1px solid #bbf7d0",
-                    }}>
-                      <p style={{ color: "#15803d", fontSize: "0.85rem", fontWeight: 600 }}>✓ Coupon Applied!</p>
-                      <button onClick={removeCoupon} style={{
-                        color: "#dc2626", fontSize: "0.78rem", fontWeight: 700,
-                        background: "none", border: "none", cursor: "pointer",
-                        fontFamily: "'Inter', sans-serif",
-                      }}>Remove</button>
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <input
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="Enter code"
-                        style={{
-                          flex: 1, padding: "12px 16px",
-                          borderRadius: 12, border: "1.5px solid #fce7f3",
-                          fontSize: "0.88rem", color: "#831843", outline: "none",
-                          background: "#fff9fb",
-                          fontFamily: "'Inter', sans-serif",
-                        }}
-                        onFocus={e => e.target.style.borderColor = "#c9487c"}
-                        onBlur={e => e.target.style.borderColor = "#fce7f3"}
-                      />
-                      <button onClick={handleApplyCoupon} style={{
-                        background: "linear-gradient(135deg, #c9487c, #7a1045)",
-                        color: "#fff", padding: "12px 18px", borderRadius: 12,
-                        border: "none", cursor: "pointer", fontWeight: 600,
-                        fontSize: "0.82rem", flexShrink: 0,
-                        fontFamily: "'Inter', sans-serif",
-                      }}>Apply</button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Checkout btn */}
-                <button
-                  disabled={cart.length === 0}
-                  onClick={() => navigate("/place-order")}
-                  style={{
-                    width: "100%", marginTop: 24, padding: "16px",
-                    borderRadius: 50, border: "none",
-                    background: cart.length === 0
-                      ? "#e5e7eb"
-                      : "linear-gradient(135deg, #c9487c, #7a1045)",
-                    color: cart.length === 0 ? "#9ca3af" : "#fff",
-                    fontWeight: 700, fontSize: "0.95rem",
-                    cursor: cart.length === 0 ? "not-allowed" : "pointer",
-                    boxShadow: cart.length === 0 ? "none" : "0 8px 28px rgba(201,72,124,0.4)",
-                    transition: "transform 0.2s",
-                    fontFamily: "'Inter', sans-serif",
-                    letterSpacing: "0.04em",
-                  }}
-                  onMouseEnter={e => { if (cart.length > 0) e.currentTarget.style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = ""; }}
-                >
-                  Proceed to Checkout →
-                </button>
-
-                {/* Trust badges */}
-                <div style={{
-                  display: "flex", justifyContent: "center", gap: 20,
-                  marginTop: 20, flexWrap: "wrap",
-                }}>
-                  {[
-                    { icon: <ShieldCheck size={13} />, text: "Secure Payment" },
-                    { icon: <RotateCcw size={13} />, text: "Easy Returns" },
-                  ].map((badge, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, color: "#9d174d", fontSize: "0.72rem" }}>
-                      {badge.icon}
-                      <span>{badge.text}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="flex items-center justify-center gap-6 text-xs text-[#38131E]/70 pt-1">
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#D4AF63]" /> Secure Payment
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <RotateCcw className="w-4 h-4 text-[#D4AF63]" /> 7-Day Returns
+                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
     </div>
   );
 };

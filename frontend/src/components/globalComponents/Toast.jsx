@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import useStore from '../../store/store';
+import React, { useEffect } from "react";
+import useStore from "../../store/store";
+
 const Toast = () => {
   const { toast, hideToast } = useStore();
 
@@ -10,15 +11,26 @@ const Toast = () => {
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [toast, hideToast]);
 
+  if (!toast.message) return null;
+
+  const isError = toast.type === "error";
+
   return (
-    toast.message && (
-        <div className={`fixed bottom-10 right-10 z-50 px-6 py-3 rounded shadow-lg text-white transition-all duration-500 ${toast.type === 'error' ? 'bg-red-600' : 'bg-black'}`}>
-            {toast.message}
-        </div>
-    )
-  )
-}
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-6 right-6 z-[110] max-w-sm px-5 py-3.5 rounded-2xl shadow-xl border text-sm font-medium transition-all duration-300 ${
+        isError
+          ? "bg-[#2B0E17] text-[#F7F1E5] border-[#D4AF63]"
+          : "bg-[#38131E] text-[#F7F1E5] border-[#D4AF63]/60"
+      }`}
+    >
+      {toast.message}
+    </div>
+  );
+};
 
 export default Toast;

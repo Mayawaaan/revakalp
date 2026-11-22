@@ -27,3 +27,8 @@ dist-ssr
 .env.local
 .env.development.local
 .env.test.local
+
+# Archives & brand kit source
+*.zip
+frontend.zip
+Revakalp_Official_Brand_Antigravity_Kit/

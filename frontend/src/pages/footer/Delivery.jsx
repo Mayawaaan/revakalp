@@ -1,134 +1,108 @@
 import React from "react";
+import { Package, Truck, Lock, MapPin } from "lucide-react";
 import PageHero from "../../components/globalComponents/PageHero";
 
-const bodyText = { color: "#9d174d", fontSize: "0.92rem", lineHeight: 1.85 };
-const listStyle = { color: "#9d174d", fontSize: "0.88rem", lineHeight: 1.85, paddingLeft: 20, marginTop: 10 };
-
 const Delivery = () => (
-  <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff9fb" }}>
-
+  <div className="bg-[#F7F1E5] text-[#1A1718]">
     <PageHero
       label="Shipping"
       title="Delivery & Shipping"
-      subtitle="Thoughtfully packed. Carefully delivered. Every Revakalp saree reaches you with the respect it deserves."
+      subtitle="Carefully packed and delivered across India from our Indore retail store."
     />
 
-    {/* Stats row */}
-    <div style={{ background: "linear-gradient(135deg, #1a0010, #3d0030)", padding: "48px 32px" }}>
-      <div style={{
-        maxWidth: 900, margin: "0 auto",
-        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24,
-        textAlign: "center",
-      }}>
+    <div className="bg-[#2B0E17] py-10 px-4 sm:px-6 border-b border-[#D4AF63]/25">
+      <div className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { value: "3–5", label: "Days Dispatch", icon: "📦" },
-          { value: "Pan-India", label: "Delivery", icon: "🚚" },
-          { value: "100%", label: "Secure Packaging", icon: "🔒" },
-          { value: "24/7", label: "Order Tracking", icon: "📍" },
-        ].map((s, i) => (
-          <div key={i} style={{
-            background: "rgba(255,255,255,0.07)",
-            borderRadius: 20, padding: "28px 16px",
-            border: "1px solid rgba(249,168,212,0.15)",
-          }}>
-            <div style={{ fontSize: "1.8rem", marginBottom: 10 }}>{s.icon}</div>
-            <p style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "1.4rem", fontWeight: 700, color: "#fbbf24", lineHeight: 1,
-            }}>{s.value}</p>
-            <p style={{ color: "#fce7f3", fontSize: "0.78rem", marginTop: 6, opacity: 0.8 }}>{s.label}</p>
-          </div>
-        ))}
+          { value: "3–5", label: "Days Dispatch", icon: Package },
+          { value: "Pan-India", label: "Delivery", icon: Truck },
+          { value: "Secure", label: "Protective Packaging", icon: Lock },
+          { value: "Live", label: "Order Tracking", icon: MapPin },
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <div
+              key={s.label}
+              className="rounded-2xl bg-[#38131E]/85 border border-[#D4AF63]/35 p-5 text-center"
+            >
+              <Icon className="w-6 h-6 text-[#F1D889] mx-auto mb-2" />
+              <p className="font-serif text-xl sm:text-2xl font-semibold text-[#F1D889]">
+                {s.value}
+              </p>
+              <p className="text-xs text-[#F7F1E5]/75 mt-1">{s.label}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
 
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "80px 32px 100px" }}>
-      <div style={{
-        background: "#fff", borderRadius: 28,
-        border: "1px solid #fce7f3",
-        boxShadow: "0 8px 40px rgba(201,72,124,0.08)",
-        padding: "52px 56px",
-      }}>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <div className="rk-surface-card p-6 sm:p-10 md:p-12 divide-y divide-[#38131E]/10">
         {[
           {
-            icon: "✦",
             title: "Our Delivery Promise",
             content: (
-              <ul style={listStyle}>
-                <li>Secure packaging for delicate handwoven textiles</li>
+              <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
+                <li>Protective packaging for delicate apparel and textiles</li>
                 <li>Reliable Pan-India delivery partners</li>
-                <li>Order tracking shared after dispatch</li>
-                <li>Quality inspection before every shipment</li>
+                <li>Order tracking updates available in your account</li>
+                <li>Quality inspection prior to dispatch</li>
               </ul>
             ),
           },
           {
-            icon: "✦",
             title: "Dispatch Timeline",
             content: (
-              <p style={bodyText}>
-                Orders are typically dispatched within <strong style={{ color: "#c9487c" }}>3–5 business days</strong>.
-                As our sarees are handcrafted, timelines may vary slightly based on availability
-                and destination. You will receive a tracking number by email once dispatched.
+              <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+                Orders are typically dispatched within{" "}
+                <strong className="text-[#38131E]">3–5 business days</strong>.
+                Timelines may vary slightly depending on destination and order volume.
+                You will receive tracking updates once your order is dispatched.
               </p>
             ),
           },
           {
-            icon: "✦",
-            title: "Handloom & Artisan Assurance",
+            title: "Sourcing & Preparation",
             content: (
-              <p style={bodyText}>
-                Revakalp specializes in authentic handloom sarees sourced directly from artisan
-                communities. We take extra care to ensure each piece is properly folded, wrapped
-                in tissue, and boxed before shipping.
+              <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+                Revakalp curates sarees, lehengas, menswear, and contemporary tees from
+                trusted suppliers and regional weavers. Each piece is checked, folded,
+                and boxed before shipping.
               </p>
             ),
           },
           {
-            icon: "✦",
             title: "Care During Transit",
             content: (
-              <p style={bodyText}>
-                Each saree is packed using breathable, fabric-safe materials to protect it from
-                moisture, dust, and transit stress. Lehengas are individually bagged and boxed
-                with care.
+              <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+                Every parcel is packed using breathable, fabric-safe materials to protect
+                garments from moisture, dust, and transit handling.
               </p>
             ),
           },
           {
-            icon: "✦",
             title: "Need Help?",
             content: (
-              <p style={bodyText}>
-                For delivery assistance, bulk retail orders, or tracking queries, contact us at{" "}
-                <a href="mailto:contact@revakalp.com" style={{ color: "#c9487c", fontWeight: 600 }}>
+              <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+                For delivery assistance or tracking queries, contact us at{" "}
+                <a
+                  href="mailto:contact@revakalp.com"
+                  className="text-[#38131E] font-semibold underline"
+                >
                   contact@revakalp.com
                 </a>{" "}
-                or WhatsApp us at <strong style={{ color: "#c9487c" }}>+91 91096-76562</strong>.
+                or call/WhatsApp{" "}
+                <strong className="text-[#38131E]">+91 91096-76562</strong>.
               </p>
             ),
           },
-        ].map((item, i, arr) => (
-          <div key={i} style={{
-            display: "grid", gridTemplateColumns: "24px 1fr", gap: 20,
-            paddingBottom: i < arr.length - 1 ? 36 : 0,
-            marginBottom: i < arr.length - 1 ? 36 : 0,
-            borderBottom: i < arr.length - 1 ? "1px solid #fce7f3" : "none",
-          }}>
-            <span style={{ color: "#c9487c", fontSize: "0.8rem", fontWeight: 700, marginTop: 6 }}>{item.icon}</span>
-            <div>
-              <h3 style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "1.15rem", color: "#831843", marginBottom: 12,
-              }}>{item.title}</h3>
-              {item.content}
-            </div>
+        ].map((item) => (
+          <div key={item.title} className="py-6 first:pt-0 last:pb-0">
+            <h2 className="font-serif text-2xl text-[#38131E] mb-3">{item.title}</h2>
+            {item.content}
           </div>
         ))}
       </div>
     </div>
-
-    <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
   </div>
 );
 

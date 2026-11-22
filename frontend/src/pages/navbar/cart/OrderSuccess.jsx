@@ -1,29 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import EditorialButton from "../../../components/ui/EditorialButton";
 
 const OrderSuccess = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
-      <CheckCircle className="text-green-500 w-24 h-24 mb-6" />
-      <h1 className="text-3xl md:text-4xl font-serif text-gray-800 mb-4">Order Placed Successfully!</h1>
-      <p className="text-gray-600 mb-8 max-w-md">
-        Thank you for shopping with Revakalp. Your order has been successfully placed and is being processed. 
-        You can track the status of your order in your account.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link 
-          to="/orders" 
-          className="bg-[#c9487c] text-white px-8 py-3 rounded-md hover:bg-pink-800 transition-colors shadow-sm font-semibold"
-        >
-          VIEW ORDERS
-        </Link>
-        <Link 
-          to="/shop" 
-          className="bg-white text-[#c9487c] border border-[#c9487c] px-8 py-3 rounded-md hover:bg-pink-50 transition-colors shadow-sm font-semibold"
-        >
-          CONTINUE SHOPPING
-        </Link>
+    <div className="min-h-[75vh] bg-[#F7F1E5] flex flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="rk-surface-card p-8 sm:p-14 max-w-lg w-full">
+        <div className="w-16 h-16 rounded-full bg-[#38131E] text-[#F1D889] flex items-center justify-center mx-auto mb-6 border border-[#D4AF63]">
+          <CheckCircle className="w-8 h-8" />
+        </div>
+        <p className="text-[11px] uppercase tracking-[0.26em] text-[#38131E]/65 mb-2">
+          Order Confirmed
+        </p>
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#38131E] mb-4">
+          Order Placed Successfully
+        </h1>
+        <p className="text-sm text-[#1A1718]/75 mb-8 leading-relaxed">
+          Thank you for shopping with Revakalp. Your order has been recorded and can be
+          tracked anytime from your account.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <EditorialButton to="/orders" variant="primary">
+            View Orders
+          </EditorialButton>
+          <EditorialButton to="/shop" variant="secondary">
+            Continue Shopping
+          </EditorialButton>
+        </div>
       </div>
     </div>
   );

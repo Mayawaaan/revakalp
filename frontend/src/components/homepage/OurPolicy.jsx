@@ -1,72 +1,67 @@
 import React from "react";
-import { Truck, RefreshCw, ShieldCheck } from "lucide-react";
+import { Truck, RefreshCw, ShieldCheck, Store } from "lucide-react";
+import useStore from "../../store/store";
 
 const OurPolicy = () => {
+  const settings = useStore((s) => s.settings);
+  const threshold = settings?.freeShippingThreshold;
+  const currency = settings?.currencySymbol || "₹";
+
+  const cards = [
+    {
+      icon: Truck,
+      title: "Pan-India Delivery",
+      desc:
+        Number.isFinite(Number(threshold)) && Number(threshold) > 0
+          ? `Free delivery in Indore and on orders above ${currency}${Number(threshold).toLocaleString("en-IN")}.`
+          : "Carefully packed and shipped across India from Indore.",
+    },
+    {
+      icon: RefreshCw,
+      title: "7-Day Returns",
+      desc: "Return or exchange eligible within 7 days of delivery with continuous unboxing video.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Secure Checkout",
+      desc: "Protected server-verified online payments and Cash on Delivery where enabled.",
+    },
+    {
+      icon: Store,
+      title: "Indore Retail Store",
+      desc: "Curated ethnic wear & everyday apparel, backed by our physical store in Indore.",
+    },
+  ];
+
   return (
-    <section className="relative bg-gradient-to-br from-[#fffafc] via-[#fff1f4] to-[#ffe6ee] py-28 overflow-hidden">
-
-      {/* Soft background glow */}
-      <div className="absolute -top-32 left-20 w-[420px] h-[420px] bg-pink-200 rounded-full blur-3xl opacity-40"></div>
-      <div className="absolute -bottom-40 right-20 w-[520px] h-[520px] bg-rose-300 rounded-full blur-3xl opacity-30"></div>
-
-      <div className="relative max-w-7xl mx-auto px-8">
-
-        {/* Section header */}
-        <div className="text-center mb-20 max-w-3xl mx-auto">
-          <p className="uppercase tracking-[0.35em] text-xs text-pink-600 mb-4">
-            Our Promise
-          </p>
-          <h2 className="font-serif text-4xl md:text-5xl text-pink-900">
-            Shopping with Confidence
-          </h2>
-          <p className="mt-6 text-pink-700 text-lg leading-relaxed">
-            Every Revakalp experience is designed to be effortless, secure,
-            and reassuring — from the moment you browse to the day your saree
-            arrives.
-          </p>
+    <section
+      aria-label="Store Service Highlights"
+      className="py-12 sm:py-16 bg-[#F7F1E5] border-b border-[#38131E]/10"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {cards.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.title}
+                className="p-6 rounded-2xl bg-white/90 border border-[#38131E]/12 flex items-start gap-4"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#38131E]/8 border border-[#D4AF63]/40 flex items-center justify-center shrink-0">
+                  <Icon className="w-5 h-5 text-[#38131E]" strokeWidth={1.6} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg text-[#38131E] leading-snug">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-[#1A1718]/70 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Policy Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12">
-
-          {/* Shipping */}
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-10 text-center shadow-xl hover:shadow-2xl transition">
-            <Truck className="mx-auto h-12 w-12 text-[#c9487c]" />
-            <h3 className="font-serif text-2xl text-pink-900 mt-6">
-              Complimentary Shipping
-            </h3>
-            <p className="text-pink-700 mt-3 leading-relaxed">
-              Enjoy free delivery in Indore, and on all orders above ₹5000 elsewhere — carefully packed
-              and delivered with care.
-            </p>
-          </div>
-
-          {/* Returns */}
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-10 text-center shadow-xl hover:shadow-2xl transition">
-            <RefreshCw className="mx-auto h-12 w-12 text-[#c9487c]" />
-            <h3 className="font-serif text-2xl text-pink-900 mt-6">
-              Easy Returns
-            </h3>
-            <p className="text-pink-700 mt-3 leading-relaxed">
-              Thoughtful 7-day return policy to ensure you shop with complete
-              peace of mind.
-            </p>
-          </div>
-
-          {/* Payments */}
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-10 text-center shadow-xl hover:shadow-2xl transition">
-            <ShieldCheck className="mx-auto h-12 w-12 text-[#c9487c]" />
-            <h3 className="font-serif text-2xl text-pink-900 mt-6">
-              Secure Payments
-            </h3>
-            <p className="text-pink-700 mt-3 leading-relaxed">
-              Every transaction is protected with industry-standard security,
-              ensuring your information stays safe.
-            </p>
-          </div>
-
-        </div>
-
       </div>
     </section>
   );

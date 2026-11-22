@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import useStore from "../../store/store";
+import BrandMark from "../../components/brand/BrandMark";
+import EditorialButton from "../../components/ui/EditorialButton";
 
 const Login = () => {
-  const { handleLogin, user } = useAuth(); // Get handleLogin and user from useAuth
+  const { handleLogin } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const onChangeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,39 +21,47 @@ const Login = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    const success = await handleLogin(formData.email, formData.password);
-    if (success) {
-      if (user && user.role === 'admin') {
-        navigate("/admin"); // Redirect admin to admin dashboard
-      } else {
-        navigate("/"); // Redirect regular users to home page
+    setSubmitting(true);
+    try {
+      const success = await handleLogin(formData.email, formData.password);
+      if (success) {
+        const loggedInUser = useStore.getState().user;
+        if (loggedInUser && loggedInUser.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#fff1f4] to-[#fff8fa] px-4 py-8">
+    <div className="min-h-[82vh] flex items-center justify-center bg-[#F7F1E5] px-4 py-12">
       <form
         onSubmit={onSubmitHandler}
-        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-pink-100 px-10 py-12"
+        className="rk-surface-card w-full max-w-md p-8 sm:p-10 space-y-6"
       >
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-[#9c2756]">
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <BrandMark variant="headerLight" className="h-7 w-auto" />
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#38131E]">
             Welcome Back
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Sign in to continue shopping handcrafted sarees
+          <p className="text-sm text-[#1A1718]/70">
+            Sign in to access your bag, wishlist, and order history.
           </p>
         </div>
 
-        {/* Form Fields */}
         <div className="space-y-4">
           <div className="relative">
             <input
               type="email"
               name="email"
               id="email"
+              autoComplete="email"
               value={formData.email}
               onChange={onChangeHandler}
               className="input-floating peer"
@@ -65,6 +77,7 @@ const Login = () => {
               type="password"
               name="password"
               id="password"
+              autoComplete="current-password"
               value={formData.password}
               onChange={onChangeHandler}
               className="input-floating peer"
@@ -76,29 +89,29 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-between items-center mt-6 text-sm text-gray-500">
+        <div className="flex justify-between items-center text-xs sm:text-sm">
           <Link
             to="/forgot-password"
-            className="cursor-pointer hover:text-[#c9487c] transition-colors"
+            className="text-[#38131E]/75 hover:text-[#38131E] underline-offset-4 hover:underline"
           >
             Forgot password?
           </Link>
           <Link
             to="/signup"
-            className="cursor-pointer font-medium text-[#9c2756] hover:text-[#c9487c] transition-colors"
+            className="font-semibold text-[#38131E] hover:underline"
           >
             Create account
           </Link>
         </div>
 
-        {/* Submit */}
-        <button
+        <EditorialButton
           type="submit"
-          className="mt-8 w-full bg-[#c9487c] text-white font-medium py-3.5 rounded-full text-sm tracking-wide hover:bg-[#9c2756] shadow-lg transition-colors"
+          variant="primary"
+          disabled={submitting}
+          className="w-full"
         >
-          Sign In
-        </button>
+          {submitting ? "Signing In…" : "Sign In"}
+        </EditorialButton>
       </form>
     </div>
   );

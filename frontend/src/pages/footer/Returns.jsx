@@ -1,149 +1,91 @@
 import React from "react";
+import { Clock } from "lucide-react";
 import PageHero from "../../components/globalComponents/PageHero";
-import { Link } from "react-router-dom";
-
-const bodyText = { color: "#9d174d", fontSize: "0.92rem", lineHeight: 1.85 };
-const listStyle = { color: "#9d174d", fontSize: "0.88rem", lineHeight: 1.85, paddingLeft: 20, marginTop: 10 };
+import EditorialButton from "../../components/ui/EditorialButton";
 
 const Returns = () => (
-  <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff9fb" }}>
-
+  <div className="bg-[#F7F1E5] text-[#1A1718]">
     <PageHero
       label="Customer Care"
       title="Returns & Exchanges"
-      subtitle="We want you to love every Revakalp purchase. If something isn't quite right, we're here to help — simply, fairly, and transparently."
+      subtitle="Clear, transparent return and exchange terms for your Revakalp orders."
     />
 
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "80px 32px 100px" }}>
-
-      {/* Quick eligibility banner */}
-      <div style={{
-        background: "linear-gradient(135deg, #fce7f3, #fff1f4)",
-        borderRadius: 20, padding: "24px 32px",
-        border: "1.5px solid #fbbf2440",
-        display: "flex", alignItems: "center", gap: 20, marginBottom: 48,
-      }}>
-        <span style={{ fontSize: "2rem", flexShrink: 0 }}>⏱️</span>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-8">
+      <div className="rk-surface-card p-6 flex items-center gap-4 border-[#D4AF63]/60">
+        <div className="w-12 h-12 rounded-full bg-[#38131E] text-[#F1D889] flex items-center justify-center shrink-0">
+          <Clock className="w-5 h-5" />
+        </div>
         <div>
-          <p style={{ color: "#831843", fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>
-            7-Day Return Window
-          </p>
-          <p style={{ color: "#9d174d", fontSize: "0.88rem" }}>
-            Return or exchange requests must be raised within 7 days of delivery.
+          <p className="font-serif text-xl text-[#38131E]">7-Day Return Window</p>
+          <p className="text-sm text-[#1A1718]/75">
+            Return or exchange requests must be raised within 7 days of delivery with a
+            clear, continuous unboxing video.
           </p>
         </div>
       </div>
 
-      <div style={{
-        background: "#fff", borderRadius: 28,
-        border: "1px solid #fce7f3",
-        boxShadow: "0 8px 40px rgba(201,72,124,0.08)",
-        padding: "52px 56px",
-      }}>
-        {[
-          {
-            title: "Return Eligibility",
-            content: (
-              <>
-                <p style={bodyText}>You may request a return or exchange within <strong style={{ color: "#c9487c" }}>7 days</strong> of delivery, provided the product:</p>
-                <ul style={listStyle}>
-                  <li>Is unused, unwashed, and unaltered</li>
-                  <li>Has original tags and packaging intact</li>
-                  <li>Is free from damage, stains, or odors</li>
-                </ul>
-              </>
-            ),
-          },
-          {
-            title: "Non-Returnable Items",
-            content: (
-              <>
-                <p style={bodyText}>Due to the nature of our products, the following are not eligible for return or exchange:</p>
-                <ul style={listStyle}>
-                  <li>Customized or stitched garments</li>
-                  <li>Clearance or sale items</li>
-                  <li>Products marked as "Final Sale"</li>
-                </ul>
-              </>
-            ),
-          },
-          {
-            title: "How to Initiate a Return",
-            content: (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 4 }}>
-                {[
-                  { step: "1", text: "Email us at contact@revakalp.com with your order ID and reason for return." },
-                  { step: "2", text: "Our team will review your request within 24–48 hours and confirm eligibility." },
-                  { step: "3", text: "Once approved, we'll guide you through the pickup or self-shipping process." },
-                ].map((s) => (
-                  <div key={s.step} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                      background: "linear-gradient(135deg, #c9487c, #7a1045)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "#fff", fontSize: "0.75rem", fontWeight: 700, marginTop: 2,
-                    }}>{s.step}</div>
-                    <p style={bodyText}>{s.text}</p>
-                  </div>
-                ))}
-              </div>
-            ),
-          },
-          {
-            title: "Refunds",
-            content: (
-              <p style={bodyText}>
-                After we receive and inspect the returned product, refunds (if applicable) will be
-                processed within <strong style={{ color: "#c9487c" }}>7–10 business days</strong> to
-                your original payment method.
-              </p>
-            ),
-          },
-          {
-            title: "Exchanges",
-            content: (
-              <p style={bodyText}>
-                Exchanges are subject to product availability. If the desired item is unavailable,
-                you may opt for store credit or a full refund.
-              </p>
-            ),
-          },
-        ].map((item, i, arr) => (
-          <div key={i} style={{
-            paddingBottom: i < arr.length - 1 ? 36 : 0,
-            marginBottom: i < arr.length - 1 ? 36 : 0,
-            borderBottom: i < arr.length - 1 ? "1px solid #fce7f3" : "none",
-          }}>
-            <h3 style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "1.15rem", color: "#831843", marginBottom: 14,
-            }}>{item.title}</h3>
-            {item.content}
-          </div>
-        ))}
-
-        {/* Bottom contact */}
-        <div style={{
-          background: "linear-gradient(135deg, #fce7f3, #fff1f4)",
-          borderRadius: 16, padding: "28px 32px", textAlign: "center", marginTop: 36,
-        }}>
-          <p style={{ color: "#9d174d", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: 16 }}>
-            Questions about a return? We're here to help.
+      <div className="rk-surface-card p-6 sm:p-10 md:p-12 divide-y divide-[#38131E]/10">
+        <div className="pb-6">
+          <h2 className="font-serif text-2xl text-[#38131E] mb-3">Return Eligibility</h2>
+          <p className="text-sm text-[#1A1718]/80 mb-2">
+            You may request a return or exchange within{" "}
+            <strong className="text-[#38131E]">7 days</strong> of delivery, provided the product:
           </p>
-          <Link to="/contact" style={{
-            background: "linear-gradient(135deg, #c9487c, #7a1045)",
-            color: "#fff", padding: "11px 32px", borderRadius: 50,
-            textDecoration: "none", fontSize: "0.88rem", fontWeight: 600,
-            display: "inline-block",
-            boxShadow: "0 4px 16px rgba(201,72,124,0.3)",
-          }}>
-            Contact Us
-          </Link>
+          <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
+            <li>Is unused, unwashed, and unaltered</li>
+            <li>Has original tags and packaging intact</li>
+            <li>Is free from damage, stains, or odors</li>
+            <li>Is accompanied by a continuous, unedited unboxing video</li>
+          </ul>
+        </div>
+
+        <div className="py-6">
+          <h2 className="font-serif text-2xl text-[#38131E] mb-3">Non-Returnable Items</h2>
+          <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
+            <li>Customized or stitched garments</li>
+            <li>Clearance or sale items</li>
+            <li>Products marked as &ldquo;Final Sale&rdquo;</li>
+          </ul>
+        </div>
+
+        <div className="py-6">
+          <h2 className="font-serif text-2xl text-[#38131E] mb-4">How to Initiate a Return</h2>
+          <div className="space-y-3">
+            {[
+              "Email us at contact@revakalp.com with your order ID, reason for return, and continuous unboxing video.",
+              "Our team will review your request within 24–48 hours and confirm eligibility.",
+              "Once approved, we will guide you through pickup or return shipping.",
+            ].map((stepText, idx) => (
+              <div key={idx} className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#38131E] text-[#F1D889] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <p className="text-sm text-[#1A1718]/80 leading-relaxed">{stepText}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="py-6">
+          <h2 className="font-serif text-2xl text-[#38131E] mb-2">Refunds &amp; Exchanges</h2>
+          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+            After we receive and inspect the returned product, eligible refunds are processed
+            within <strong className="text-[#38131E]">7–10 business days</strong> to your
+            original payment method. Exchanges are subject to product availability.
+          </p>
+        </div>
+
+        <div className="pt-6 text-center">
+          <p className="text-sm text-[#1A1718]/75 mb-4">
+            Need help with a return or exchange?
+          </p>
+          <EditorialButton to="/contact" variant="primary">
+            Contact Support
+          </EditorialButton>
         </div>
       </div>
     </div>
-
-    <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
   </div>
 );
 

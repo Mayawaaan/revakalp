@@ -171,21 +171,21 @@ const ManageProducts = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-pink-500 mb-1 font-medium">Catalog</p>
-          <h1 className="text-3xl font-serif text-pink-900">Products</h1>
-          <p className="text-pink-600 text-sm mt-1">Manage your catalog and inventory</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-[#7A6A6E] mb-1 font-medium">Catalog</p>
+          <h1 className="text-3xl font-serif text-[#38131E]">Products</h1>
+          <p className="text-[#5C4E52] text-sm mt-1">Manage your catalog and inventory</p>
         </div>
 
         <div className="flex gap-2 mt-4 md:mt-0">
           <button
             onClick={openCreate}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#c9487c] to-[#9d2a52] hover:from-[#b53f6c] hover:to-[#7b1c3e] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg shadow-pink-200 transition-all duration-200"
+            className="flex items-center gap-2 bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-5 py-2.5 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200"
           >
             <Plus size={15} /> Add Product
           </button>
           <button
             onClick={deleteAllProducts}
-            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
+            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200"
           >
             <Trash2 size={15} /> Delete All
           </button>
@@ -193,23 +193,23 @@ const ManageProducts = () => {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white/70 backdrop-blur-xl border border-pink-100 rounded-2xl overflow-x-auto shadow-sm">
+      <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl overflow-x-auto shadow-sm">
         <div className="hidden md:block">
           <table className="w-full text-sm">
-            <thead className="bg-pink-50/80 border-b border-pink-100">
+            <thead className="bg-[#F7F1E5]/70 border-b border-[#38131E]/12">
               <tr>
-                <th className="p-4 text-left text-xs uppercase tracking-wider text-pink-500 font-semibold">Product</th>
-                <th className="p-3 text-xs uppercase tracking-wider text-pink-500 font-semibold">Price</th>
-                <th className="p-4 text-xs uppercase tracking-wider text-pink-500 font-semibold">Category</th>
-                <th className="p-4 text-xs uppercase tracking-wider text-pink-500 font-semibold">Sizes</th>
-                <th className="p-4 text-xs uppercase tracking-wider text-pink-500 font-semibold">Status</th>
-                <th className="p-4 text-right text-xs uppercase tracking-wider text-pink-500 font-semibold">Actions</th>
+                <th className="p-4 text-left text-xs uppercase tracking-wider text-[#38131E] font-semibold">Product</th>
+                <th className="p-3 text-xs uppercase tracking-wider text-[#38131E] font-semibold">Price</th>
+                <th className="p-4 text-xs uppercase tracking-wider text-[#38131E] font-semibold">Category</th>
+                <th className="p-4 text-xs uppercase tracking-wider text-[#38131E] font-semibold">Sizes</th>
+                <th className="p-4 text-xs uppercase tracking-wider text-[#38131E] font-semibold">Status</th>
+                <th className="p-4 text-right text-xs uppercase tracking-wider text-[#38131E] font-semibold">Actions</th>
               </tr>
             </thead>
 
             <tbody>
               {adminProducts.map((p) => (
-                <tr key={p._id} className="border-t border-pink-50 hover:bg-pink-50/50 transition-colors">
+                <tr key={p._id} className="border-t border-[#38131E]/10 hover:bg-[#F7F1E5]/40 transition-colors">
                   <td className="p-4 flex gap-3">
                     {p.image?.[0] ? (
                       <img
@@ -218,13 +218,13 @@ const ManageProducts = () => {
                         className="w-12 h-12 object-cover rounded-xl shadow-sm"
                       />
                     ) : (
-                      <div className="w-12 h-12 bg-pink-50 flex items-center justify-center rounded-xl border border-pink-100">
-                        <ImageIcon size={16} className="text-pink-300" />
+                      <div className="w-12 h-12 bg-[#F7F1E5] flex items-center justify-center rounded-xl border border-[#38131E]/15">
+                        <ImageIcon size={16} className="text-[#7A6A6E]" />
                       </div>
                     )}
                     <div>
-                      <p className="font-medium text-pink-900">{p.name}</p>
-                      <p className="text-xs text-pink-400">
+                      <p className="font-medium text-[#1A1718]">{p.name}</p>
+                      <p className="text-xs text-[#7A6A6E]">
                         {p.type} · {p.gender}
                       </p>
                     </div>
@@ -234,15 +234,15 @@ const ManageProducts = () => {
                     {
                     Math.round(p.discountedPrice) ? (
                       <div>
-                        <span className="text-red-500">₹{Math.round(p.discountedPrice)}</span>
-                        <span className="ml-2 text-gray-400 line-through text-xs">₹{p.price}</span>
+                        <span className="text-[#38131E]">₹{Math.round(p.discountedPrice)}</span>
+                        <span className="ml-2 text-[#7A6A6E] line-through text-xs">₹{p.price}</span>
                       </div>
                     ) : (
-                      <span className="text-pink-900">₹{p.price}</span>
+                      <span className="text-[#1A1718]">₹{p.price}</span>
                     )}
                   </td>
 
-                  <td className="p-4 text-pink-700 text-sm">
+                  <td className="p-4 text-[#5C4E52] text-sm">
                     {p.category} / {p.subCategory}
                   </td>
 
@@ -252,23 +252,23 @@ const ManageProducts = () => {
                         p.sizes.map((s) => (
                           <span
                             key={s}
-                            className="mr-1 px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full"
+                            className="mr-1 px-2 py-0.5 bg-[#F7F1E5] border border-[#38131E]/15 text-[#38131E] text-xs rounded-full"
                           >
                             {s}
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-pink-300">—</span>
+                        <span className="text-xs text-[#7A6A6E]">—</span>
                       )
                     ) : (
-                      <span className="text-xs text-pink-300 italic">No sizes</span>
+                      <span className="text-xs text-[#7A6A6E] italic">No sizes</span>
                     )}
                   </td>
 
                   <td className="p-4">
                     {p.bestseller && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-1 rounded-full">
-                        <Star size={12} /> Bestseller
+                      <span className="inline-flex items-center gap-1 text-xs bg-[#F7F1E5] text-[#38131E] border border-[#D4AF63]/50 px-2 py-1 rounded-full">
+                        <Star size={12} className="text-[#9A7A3A]" /> Bestseller
                       </span>
                     )}
                   </td>
@@ -277,13 +277,13 @@ const ManageProducts = () => {
                     <button
                       type="button"
                       onClick={() => openEdit(p)}
-                      className="text-pink-500 hover:text-pink-800 transition"
+                      className="text-[#38131E] hover:text-[#9A7A3A] transition"
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => removeProduct(p._id)}
-                      className="text-red-400 hover:text-red-600 transition"
+                      className="text-red-600 hover:text-red-700 transition"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -295,7 +295,7 @@ const ManageProducts = () => {
         </div>
         <div className="md:hidden">
           {adminProducts.map((p) => (
-            <div key={p._id} className="border-t border-pink-50 p-4">
+            <div key={p._id} className="border-t border-[#38131E]/10 p-4">
               <div className="flex gap-4">
                 {p.image?.[0] ? (
                   <img
@@ -304,42 +304,42 @@ const ManageProducts = () => {
                     className="w-16 h-16 object-cover rounded-xl"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-pink-50 flex items-center justify-center rounded-xl">
-                    <ImageIcon size={24} className="text-pink-300" />
+                  <div className="w-16 h-16 bg-[#F7F1E5] flex items-center justify-center rounded-xl border border-[#38131E]/15">
+                    <ImageIcon size={24} className="text-[#7A6A6E]" />
                   </div>
                 )}
                 <div className="flex-1">
-                  <p className="font-medium text-pink-900">{p.name}</p>
-                  <p className="text-xs text-pink-400">
+                  <p className="font-medium text-[#1A1718]">{p.name}</p>
+                  <p className="text-xs text-[#7A6A6E]">
                     {p.type} · {p.gender}
                   </p>
                   <div className="mt-2">
                     {
                     Math.round(p.discountedPrice) ? (
                       <div>
-                        <span className="text-red-500 font-semibold">₹{Math.round(p.discountedPrice)}</span>
-                        <span className="ml-2 text-gray-400 line-through text-xs">₹{p.price}</span>
+                        <span className="text-[#38131E] font-semibold">₹{Math.round(p.discountedPrice)}</span>
+                        <span className="ml-2 text-[#7A6A6E] line-through text-xs">₹{p.price}</span>
                       </div>
                     ) : (
-                      <span className="font-semibold text-pink-900">₹{p.price}</span>
+                      <span className="font-semibold text-[#1A1718]">₹{p.price}</span>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <button onClick={() => openEdit(p)} className="text-pink-500 hover:text-pink-800 transition">
+                  <button onClick={() => openEdit(p)} className="text-[#38131E] hover:text-[#9A7A3A] transition">
                     <Edit2 size={16} />
                   </button>
-                  <button onClick={() => removeProduct(p._id)} className="text-red-400 hover:text-red-600 transition">
+                  <button onClick={() => removeProduct(p._id)} className="text-red-600 hover:text-red-700 transition">
                     <Trash2 size={16} />
                   </button>
                 </div>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                <span className="font-semibold text-pink-700">Sizes:</span>
+                <span className="font-semibold text-[#38131E]">Sizes:</span>
                 {p.sizes?.map((s) => (
                   <span
                     key={s}
-                    className="mr-1 px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full"
+                    className="mr-1 px-2 py-0.5 bg-[#F7F1E5] border border-[#38131E]/15 text-[#38131E] text-xs rounded-full"
                   >
                     {s}
                   </span>
@@ -347,8 +347,8 @@ const ManageProducts = () => {
               </div>
               <div className="mt-2">
                 {p.bestseller && (
-                  <span className="inline-flex items-center gap-1 text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-1 rounded-full">
-                    <Star size={12} /> Bestseller
+                  <span className="inline-flex items-center gap-1 text-xs bg-[#F7F1E5] text-[#38131E] border border-[#D4AF63]/50 px-2 py-1 rounded-full">
+                    <Star size={12} className="text-[#9A7A3A]" /> Bestseller
                   </span>
                 )}
               </div>
@@ -359,16 +359,16 @@ const ManageProducts = () => {
 
       {/* MODAL */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl w-full max-w-3xl max-h-full overflow-y-auto p-6 relative shadow-2xl border border-pink-100">
+        <div className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-full overflow-y-auto p-6 relative shadow-2xl border border-[#38131E]/15">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-pink-400 hover:text-pink-700 transition"
+              className="absolute top-4 right-4 text-[#7A6A6E] hover:text-[#38131E] transition"
             >
               <X size={18} />
             </button>
 
-            <h2 className="font-serif text-xl text-pink-900 mb-5">
+            <h2 className="font-serif text-xl text-[#38131E] mb-5">
               {editing ? "Edit Product" : "Add Product"}
             </h2>
 
@@ -383,7 +383,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, name: e.target.value })
                 }
-                className="md:col-span-2 border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="md:col-span-2 border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <textarea
@@ -393,7 +393,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="md:col-span-2 border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="md:col-span-2 border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -403,7 +403,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, price: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -413,7 +413,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, discount: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -423,7 +423,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, stock: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -432,7 +432,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, category: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -441,7 +441,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, subCategory: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <input
@@ -450,7 +450,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, type: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               <select
@@ -458,7 +458,7 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, gender: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2.5 rounded-xl text-sm text-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2.5 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
               >
                 <option>Women</option>
                 <option>Men</option>
@@ -471,11 +471,11 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, state: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
               {/* hasSizes toggle */}
-              <label className="md:col-span-2 flex items-center gap-3 p-3 border border-pink-100 rounded-xl bg-pink-50/50 cursor-pointer select-none">
+              <label className="md:col-span-2 flex items-center gap-3 p-3 border border-[#38131E]/15 rounded-xl bg-[#F7F1E5]/60 cursor-pointer select-none">
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -491,7 +491,7 @@ const ManageProducts = () => {
                   />
                   <div
                     className={`w-10 h-5 rounded-full transition-colors ${
-                      form.hasSizes ? "bg-[#c9487c]" : "bg-gray-300"
+                      form.hasSizes ? "bg-[#38131E]" : "bg-[#38131E]/20"
                     }`}
                   />
                   <div
@@ -501,10 +501,10 @@ const ManageProducts = () => {
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-pink-900">
+                  <p className="text-sm font-medium text-[#1A1718]">
                     {form.hasSizes ? "Sizes Enabled" : "Sizes Disabled"}
                   </p>
-                  <p className="text-xs text-pink-500">
+                  <p className="text-xs text-[#5C4E52]">
                     {form.hasSizes
                       ? "Customers must pick a size before adding to cart"
                       : "This product has no size variants"}
@@ -526,7 +526,7 @@ const ManageProducts = () => {
                         .filter(Boolean),
                     })
                   }
-                  className="md:col-span-2 border border-pink-200 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                  className="md:col-span-2 border border-[#38131E]/20 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4AF63] text-sm text-[#1A1718]"
                 />
               )}
 
@@ -538,10 +538,10 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setForm({ ...form, print: e.target.value })
                 }
-                className="border border-pink-200 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300"
+                className="border border-[#38131E]/20 px-3 py-2 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60"
               />
 
-              <label className="flex items-center gap-2 text-sm text-pink-800">
+              <label className="flex items-center gap-2 text-sm text-[#1A1718]">
                 <input
                   type="checkbox"
                   checked={form.bestseller}
@@ -551,12 +551,12 @@ const ManageProducts = () => {
                       bestseller: e.target.checked,
                     })
                   }
-                  className="accent-[#c9487c]"
+                  className="accent-[#38131E]"
                 />
                 Bestseller
               </label>
 
-              <label className="flex items-center gap-2 text-sm text-pink-800">
+              <label className="flex items-center gap-2 text-sm text-[#1A1718]">
                 <input
                   type="checkbox"
                   checked={form.exclusivity}
@@ -566,7 +566,7 @@ const ManageProducts = () => {
                       exclusivity: e.target.checked,
                     })
                   }
-                  className="accent-[#c9487c]"
+                  className="accent-[#38131E]"
                 />
                 Exclusive
               </label>
@@ -578,16 +578,16 @@ const ManageProducts = () => {
                 onChange={(e) =>
                   setImages(Array.from(e.target.files))
                 }
-                className="md:col-span-2 text-sm text-pink-700"
+                className="md:col-span-2 text-sm text-[#38131E]"
               />
 
               <div className="md:col-span-2 flex justify-end gap-3">
-                <button type="button" onClick={closeModal} className="text-sm text-pink-500 hover:text-pink-800 transition px-4 py-2">
+                <button type="button" onClick={closeModal} className="text-sm text-[#5C4E52] hover:text-[#38131E] transition px-4 py-2">
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-[#c9487c] to-[#9d2a52] hover:from-[#b53f6c] hover:to-[#7b1c3e] text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg shadow-pink-200 transition-all duration-200"
+                  className="bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200"
                 >
                   {editing ? "Update Product" : "Create Product"}
                 </button>

@@ -1,5 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 let lenisInstance = null;
 
@@ -10,35 +14,72 @@ let lenisInstance = null;
 export const getLenis = () => lenisInstance;
 
 /**
- * Initializes Lenis smooth scroll and keeps it running via rAF.
- * Call this once at the App root level.
+ * Initializes Lenis as the sole smooth-scroll driver and synchronizes
+ * it with GSAP's ticker and ScrollTrigger. Honors prefers-reduced-motion.
  */
 const useLenis = () => {
-  const rafRef = useRef(null);
-
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-    });
+    if (typeof window === "undefined") return undefined;
 
-    lenisInstance = lenis;
+    const mq = window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)")
+      : null;
 
-    const raf = (time) => {
-      lenis.raf(time);
-      rafRef.current = requestAnimationFrame(raf);
+    let tickerFn = null;
+    let currentLenis = null;
+
+    const teardown = () => {
+      if (tickerFn) {
+        gsap.ticker.remove(tickerFn);
+        tickerFn = null;
+      }
+      if (currentLenis) {
+        currentLenis.off("scroll", ScrollTrigger.update);
+        currentLenis.destroy();
+        currentLenis = null;
+      }
+      lenisInstance = null;
     };
 
-    rafRef.current = requestAnimationFrame(raf);
+    const setup = () => {
+      teardown();
+      if (mq?.matches) {
+        // Under reduced motion, keep native instant browser scrolling
+        ScrollTrigger.refresh();
+        return;
+      }
+
+      const lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.6,
+        infinite: false,
+      });
+
+      currentLenis = lenis;
+      lenisInstance = lenis;
+
+      lenis.on("scroll", ScrollTrigger.update);
+
+      tickerFn = (time) => {
+        lenis.raf(time * 1000);
+      };
+
+      gsap.ticker.add(tickerFn);
+      gsap.ticker.lagSmoothing(0);
+      ScrollTrigger.refresh();
+    };
+
+    setup();
+
+    const handleChange = () => setup();
+    mq?.addEventListener("change", handleChange);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
-      lenis.destroy();
-      lenisInstance = null;
+      mq?.removeEventListener("change", handleChange);
+      teardown();
     };
   }, []);
 };

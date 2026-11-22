@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "../../utils/axiosInstance";
+import React, { useCallback, useEffect, useState } from "react";
 import { User, Trash2, Users, Loader2 } from "lucide-react";
+import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
 
 const UserManagement = () => {
@@ -8,9 +8,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { fetchUsers(); }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get("/api/admin/users");
@@ -20,7 +18,11 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleRoleChange = async (userId, role) => {
     try {
@@ -45,32 +47,34 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-8">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-pink-500 mb-1 font-medium">People</p>
-          <h1 className="text-3xl font-serif text-pink-900">User Management</h1>
-          <p className="text-pink-600 text-sm mt-1">Manage users and admin access</p>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1 font-semibold">
+            People
+          </p>
+          <h1 className="text-3xl font-serif text-[#38131E]">User Management</h1>
+          <p className="text-[#1A1718]/70 text-sm mt-1">
+            Manage users and admin access
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-gradient-to-r from-[#c9487c] to-[#9d2a52] text-white px-5 py-2.5 rounded-full text-sm shadow-lg shadow-pink-200">
+        <div className="flex items-center gap-2 bg-[#38131E] text-[#F1D889] px-5 py-2.5 rounded-full text-sm border border-[#D4AF63]/40">
           <Users size={15} />
           {users.length} Users
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white/70 backdrop-blur-xl border border-pink-100 rounded-2xl overflow-hidden shadow-sm">
-        {/* Desktop */}
-        <div className="hidden md:block">
-          <table className="min-w-full divide-y divide-pink-50">
-            <thead className="bg-pink-50/80">
+      <div className="bg-white border border-[#38131E]/12 rounded-2xl overflow-hidden shadow-xs">
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full divide-y divide-[#38131E]/10">
+            <thead className="bg-[#F7F1E5]/70">
               <tr>
                 {["User", "Email", "Role", "Actions"].map((h, i) => (
                   <th
                     key={h}
-                    className={`px-6 py-4 text-xs uppercase tracking-wider text-pink-500 font-semibold ${i === 3 ? "text-right" : "text-left"}`}
+                    className={`px-6 py-4 text-[11px] uppercase tracking-wider text-[#38131E]/70 font-semibold ${
+                      i === 3 ? "text-right" : "text-left"
+                    }`}
                   >
                     {h}
                   </th>
@@ -78,27 +82,26 @@ const UserManagement = () => {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-pink-50">
+            <tbody className="divide-y divide-[#38131E]/8">
               {users.map((user) => (
-                <tr key={user._id} className="hover:bg-pink-50/40 transition-colors">
-
+                <tr key={user._id} className="hover:bg-[#F7F1E5]/40 transition-colors">
                   <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-pink-100 flex items-center justify-center">
-                      <User size={15} className="text-[#c9487c]" />
+                    <div className="w-9 h-9 rounded-full bg-[#38131E]/10 flex items-center justify-center">
+                      <User size={15} className="text-[#38131E]" />
                     </div>
-                    <span className="font-medium text-pink-900">{user.fullName}</span>
+                    <span className="font-medium text-[#38131E]">{user.fullName}</span>
                   </td>
 
-                  <td className="px-6 py-4 text-sm text-pink-600">{user.email}</td>
+                  <td className="px-6 py-4 text-sm text-[#1A1718]/75">{user.email}</td>
 
                   <td className="px-6 py-4">
                     <select
                       value={user.role}
                       onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                      className={`text-sm rounded-full px-3 py-1 border focus:outline-none focus:ring-2 focus:ring-pink-300 ${
+                      className={`text-sm rounded-full px-3 py-1 border focus:outline-none focus:ring-2 focus:ring-[#D4AF63] ${
                         user.role === "admin"
-                          ? "border-[#c9487c] text-[#c9487c] bg-pink-50"
-                          : "border-pink-200 text-pink-700 bg-white"
+                          ? "border-[#38131E] text-[#38131E] bg-[#F7F1E5]"
+                          : "border-[#38131E]/20 text-[#1A1718] bg-white"
                       }`}
                     >
                       <option value="user">User</option>
@@ -108,8 +111,9 @@ const UserManagement = () => {
 
                   <td className="px-6 py-4 text-right">
                     <button
+                      type="button"
                       onClick={() => handleDeleteUser(user._id)}
-                      className="inline-flex items-center gap-1 text-red-400 hover:text-red-600 text-sm transition-colors"
+                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-sm transition-colors cursor-pointer"
                     >
                       <Trash2 size={14} /> Delete
                     </button>
@@ -119,7 +123,7 @@ const UserManagement = () => {
 
               {!users.length && !loading && (
                 <tr>
-                  <td colSpan="4" className="text-center py-10 text-pink-400">
+                  <td colSpan="4" className="text-center py-10 text-[#1A1718]/50">
                     No users found
                   </td>
                 </tr>
@@ -128,21 +132,24 @@ const UserManagement = () => {
           </table>
         </div>
 
-        {/* Mobile */}
-        <div className="md:hidden">
+        <div className="md:hidden divide-y divide-[#38131E]/10">
           {users.map((user) => (
-            <div key={user._id} className="border-t border-pink-50 p-4">
+            <div key={user._id} className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-pink-100 flex items-center justify-center">
-                    <User size={15} className="text-[#c9487c]" />
+                  <div className="w-9 h-9 rounded-full bg-[#38131E]/10 flex items-center justify-center">
+                    <User size={15} className="text-[#38131E]" />
                   </div>
                   <div>
-                    <p className="font-medium text-pink-900">{user.fullName}</p>
-                    <p className="text-sm text-pink-500">{user.email}</p>
+                    <p className="font-medium text-[#38131E]">{user.fullName}</p>
+                    <p className="text-sm text-[#1A1718]/65">{user.email}</p>
                   </div>
                 </div>
-                <button onClick={() => handleDeleteUser(user._id)} className="text-red-400 hover:text-red-600 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteUser(user._id)}
+                  className="text-red-600 hover:text-red-800"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -150,11 +157,7 @@ const UserManagement = () => {
                 <select
                   value={user.role}
                   onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                  className={`w-full text-sm rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-pink-300 ${
-                    user.role === "admin"
-                      ? "border-[#c9487c] text-[#c9487c] bg-pink-50"
-                      : "border-pink-200 text-pink-700"
-                  }`}
+                  className="w-full text-sm rounded-xl px-3 py-2 border border-[#38131E]/20 bg-white text-[#38131E]"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
@@ -165,7 +168,7 @@ const UserManagement = () => {
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center py-10 text-pink-400 gap-2">
+          <div className="flex items-center justify-center py-10 text-[#38131E] gap-2">
             <Loader2 size={18} className="animate-spin" /> Loading users…
           </div>
         )}

@@ -1,0 +1,548 @@
+[
+  {
+    "file": "frontend/src/components/globalComponents/AdminProtectedRoute.jsx",
+    "line": 10,
+    "type": "to",
+    "dest": "/login",
+    "raw": "return <Navigate to=\"/login\" replace />;"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/AdminProtectedRoute.jsx",
+    "line": 15,
+    "type": "to",
+    "dest": "/",
+    "raw": "return <Navigate to=\"/\" replace />; // Or a specific /unauthorized page"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Breadcrums.jsx",
+    "line": 10,
+    "type": "to",
+    "dest": "/",
+    "raw": "<Link to='/' className='hover:text-black'>HOME</Link>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Breadcrums.jsx",
+    "line": 14,
+    "type": "to",
+    "dest": "/collections",
+    "raw": "<Link to='/collections' className='hover:text-black'>COLLECTIONS</Link>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 12,
+    "type": "to",
+    "dest": "/",
+    "raw": "<Link to='/' className='text-3xl font-serif text-pink-700'>Revakalp <span className='text-sm text-pink-800 align-top'>&trade;</span></Link>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 17,
+    "type": "href",
+    "dest": "https://www.facebook.com/people/Revakalp/61587307439316/",
+    "raw": "<a href=\"https://www.facebook.com/people/Revakalp/61587307439316/\" target=\"_blank\" rel=\"noopener noreferrer\" className='text-pink-600 hover:text-pink-800 transition'>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 20,
+    "type": "href",
+    "dest": "https://www.instagram.com/revakalp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+    "raw": "<a href=\"https://www.instagram.com/revakalp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==\" target=\"_blank\" rel=\"noopener noreferrer\" className='text-pink-600 hover:text-pink-800 transition'>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 30,
+    "type": "to",
+    "dest": "/about",
+    "raw": "<li><Link to=\"/about\" className='hover:text-pink-800 transition'>About Us</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 31,
+    "type": "to",
+    "dest": "/contact",
+    "raw": "<li><Link to=\"/contact\" className='hover:text-pink-800 transition'>Contact Us</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 32,
+    "type": "to",
+    "dest": "/delivery-information",
+    "raw": "<li><Link to=\"/delivery-information\" className='hover:text-pink-800 transition'>Delivery Information</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 33,
+    "type": "to",
+    "dest": "/faq",
+    "raw": "<li><Link to=\"/faq\" className='hover:text-pink-800 transition'>FAQ</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 41,
+    "type": "to",
+    "dest": "/privacy-policy",
+    "raw": "<li><Link to=\"/privacy-policy\" className='hover:text-pink-800 transition'>Privacy Policy</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 42,
+    "type": "to",
+    "dest": "/terms-conditions",
+    "raw": "<li><Link to=\"/terms-conditions\" className='hover:text-pink-800 transition'>Terms & Conditions</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 43,
+    "type": "to",
+    "dest": "/returns-exchanges",
+    "raw": "<li><Link to=\"/returns-exchanges\" className='hover:text-pink-800 transition'>Returns & Exchanges</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 51,
+    "type": "to",
+    "dest": "/my-profile",
+    "raw": "<li><Link to=\"/my-profile\" className='hover:text-pink-800 transition'>My Profile</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 52,
+    "type": "to",
+    "dest": "/wishlist",
+    "raw": "<li><Link to=\"/wishlist\" className='hover:text-pink-800 transition'>Wishlist</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 53,
+    "type": "to",
+    "dest": "/cart",
+    "raw": "<li><Link to=\"/cart\" className='hover:text-pink-800 transition'>View Cart</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 54,
+    "type": "to",
+    "dest": "/orders",
+    "raw": "<li><Link to=\"/orders\" className='hover:text-pink-800 transition'>My Orders</Link></li>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Footer.jsx",
+    "line": 60,
+    "type": "href",
+    "dest": "https://www.zsyio.com",
+    "raw": "<p className='text-pink-500 text-sm'>© {new Date().getFullYear()} Revakalp. All Rights Reserved. <br /> Designed and Developed by <a className='font-bold text-pink-600 underline italic' href=\"https://www.zsyio.com\">ZSYIO</a></p>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 38,
+    "type": "to",
+    "dest": "/",
+    "raw": "<Link to=\"/\" className=\"flex items-center gap-3\">"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 83,
+    "type": "navigate",
+    "dest": "/shop",
+    "raw": "navigate(\"/shop\");"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 91,
+    "type": "to",
+    "dest": "/wishlist",
+    "raw": "<NavLink to=\"/wishlist\" className=\"relative\">"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 101,
+    "type": "to",
+    "dest": "/cart",
+    "raw": "<NavLink to=\"/cart\" className=\"relative\">"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 127,
+    "type": "to",
+    "dest": "/my-profile",
+    "raw": "to=\"/my-profile\""
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 136,
+    "type": "to",
+    "dest": "/admin",
+    "raw": "to=\"/admin\""
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 158,
+    "type": "navigate",
+    "dest": "/login",
+    "raw": "onClick={() => navigate(\"/login\")}"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 204,
+    "type": "navigate",
+    "dest": "/shop",
+    "raw": "navigate(\"/shop\");"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 231,
+    "type": "to",
+    "dest": "/my-profile",
+    "raw": "<Link to=\"/my-profile\" onClick={() => setVisible(false)} className=\"block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100\">My Profile</Link>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/Navbar.jsx",
+    "line": 233,
+    "type": "to",
+    "dest": "/admin",
+    "raw": "<Link to=\"/admin\" onClick={() => setVisible(false)} className=\"block w-full text-center mt-2  bg-white text-[#9c2756] py-3 rounded-full shadow-md border border-pink-100\">Dashboard</Link>"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/ProtectedRoute.jsx",
+    "line": 9,
+    "type": "to",
+    "dest": "/login",
+    "raw": "return <Navigate to=\"/login\" replace />;"
+  },
+  {
+    "file": "frontend/src/components/globalComponents/ProtectedRoute.jsx",
+    "line": 13,
+    "type": "to",
+    "dest": "/",
+    "raw": "return <Navigate to=\"/\" replace />; // Redirect to home or an unauthorized page"
+  },
+  {
+    "file": "frontend/src/components/homepage/Landing.jsx",
+    "line": 53,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "to=\"/shop\""
+  },
+  {
+    "file": "frontend/src/components/homepage/Landing.jsx",
+    "line": 60,
+    "type": "to",
+    "dest": "/about",
+    "raw": "to=\"/about\""
+  },
+  {
+    "file": "frontend/src/components/homepage/NewsletterBox.jsx",
+    "line": 40,
+    "type": "href",
+    "dest": "https://chat.whatsapp.com/BofeilrtYMs3XaTWIG1PJN",
+    "raw": "href=\"https://chat.whatsapp.com/BofeilrtYMs3XaTWIG1PJN\""
+  },
+  {
+    "file": "frontend/src/components/reviews/Reviews.jsx",
+    "line": 67,
+    "type": "to",
+    "dest": "/login",
+    "raw": "to=\"/login\""
+  },
+  {
+    "file": "frontend/src/pages/about/About.jsx",
+    "line": 121,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "<Link to=\"/shop\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/about/About.jsx",
+    "line": 134,
+    "type": "href",
+    "dest": "#story",
+    "raw": "<a href=\"#story\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/about/About.jsx",
+    "line": 471,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "<Link to=\"/shop\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/about/About.jsx",
+    "line": 662,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "<Link to=\"/shop\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/about/About.jsx",
+    "line": 674,
+    "type": "to",
+    "dest": "/contact",
+    "raw": "<Link to=\"/contact\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/contact/Admin.jsx",
+    "line": 17,
+    "type": "to",
+    "dest": "/admin/products",
+    "raw": "<Link to=\"/admin/products\" className=\"group block bg-white/70 backdrop-blur-xl p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-500 text-center\">"
+  },
+  {
+    "file": "frontend/src/pages/contact/Admin.jsx",
+    "line": 28,
+    "type": "to",
+    "dest": "/admin/orders",
+    "raw": "<Link to=\"/admin/orders\" className=\"group block bg-white/70 backdrop-blur-xl p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-500 text-center\">"
+  },
+  {
+    "file": "frontend/src/pages/contact/Admin.jsx",
+    "line": 39,
+    "type": "to",
+    "dest": "/admin/users",
+    "raw": "<Link to=\"/admin/users\" className=\"group block bg-white/70 backdrop-blur-xl p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-500 text-center\">"
+  },
+  {
+    "file": "frontend/src/pages/footer/Delivery.jsx",
+    "line": 104,
+    "type": "href",
+    "dest": "mailto:contact@revakalp.com",
+    "raw": "<a href=\"mailto:contact@revakalp.com\" style={{ color: \"#c9487c\", fontWeight: 600 }}>"
+  },
+  {
+    "file": "frontend/src/pages/footer/FAQ.jsx",
+    "line": 127,
+    "type": "to",
+    "dest": "/contact",
+    "raw": "<Link to=\"/contact\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/footer/PrivacyPolicy.jsx",
+    "line": 129,
+    "type": "href",
+    "dest": "mailto:contact@revakalp.com",
+    "raw": "<a href=\"mailto:contact@revakalp.com\" style={{ color: \"#c9487c\", fontWeight: 600 }}>"
+  },
+  {
+    "file": "frontend/src/pages/footer/Returns.jsx",
+    "line": 133,
+    "type": "to",
+    "dest": "/contact",
+    "raw": "<Link to=\"/contact\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/footer/Terms.jsx",
+    "line": 123,
+    "type": "href",
+    "dest": "mailto:contact@revakalp.com",
+    "raw": "<a href=\"mailto:contact@revakalp.com\" style={{ color: \"#c9487c\", fontWeight: 600 }}>"
+  },
+  {
+    "file": "frontend/src/pages/login/ForgotPassword.jsx",
+    "line": 24,
+    "type": "navigate",
+    "dest": "/reset-password",
+    "raw": "navigate(\"/reset-password\");"
+  },
+  {
+    "file": "frontend/src/pages/login/ForgotPassword.jsx",
+    "line": 67,
+    "type": "to",
+    "dest": "/login",
+    "raw": "<Link to=\"/login\" className=\"cursor-pointer font-medium text-[#9c2756] hover:text-[#c9487c] transition-colors\">"
+  },
+  {
+    "file": "frontend/src/pages/login/Login.jsx",
+    "line": 23,
+    "type": "navigate",
+    "dest": "/admin",
+    "raw": "navigate(\"/admin\"); // Redirect admin to admin dashboard"
+  },
+  {
+    "file": "frontend/src/pages/login/Login.jsx",
+    "line": 25,
+    "type": "navigate",
+    "dest": "/",
+    "raw": "navigate(\"/\"); // Redirect regular users to home page"
+  },
+  {
+    "file": "frontend/src/pages/login/Login.jsx",
+    "line": 82,
+    "type": "to",
+    "dest": "/forgot-password",
+    "raw": "to=\"/forgot-password\""
+  },
+  {
+    "file": "frontend/src/pages/login/Login.jsx",
+    "line": 88,
+    "type": "to",
+    "dest": "/signup",
+    "raw": "to=\"/signup\""
+  },
+  {
+    "file": "frontend/src/pages/login/ResetPassword.jsx",
+    "line": 24,
+    "type": "navigate",
+    "dest": "/forgot-password",
+    "raw": "navigate(\"/forgot-password\");"
+  },
+  {
+    "file": "frontend/src/pages/login/ResetPassword.jsx",
+    "line": 54,
+    "type": "navigate",
+    "dest": "/login",
+    "raw": "navigate(\"/login\");"
+  },
+  {
+    "file": "frontend/src/pages/login/Signup.jsx",
+    "line": 27,
+    "type": "navigate",
+    "dest": "/",
+    "raw": "navigate(\"/\");"
+  },
+  {
+    "file": "frontend/src/pages/login/Signup.jsx",
+    "line": 99,
+    "type": "to",
+    "dest": "/login",
+    "raw": "to=\"/login\""
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/Cart.jsx",
+    "line": 73,
+    "type": "navigate",
+    "dest": "/shop",
+    "raw": "<button onClick={() => navigate(\"/shop\")} style={{"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/Cart.jsx",
+    "line": 97,
+    "type": "navigate",
+    "dest": "/shop",
+    "raw": "<button onClick={() => navigate(\"/shop\")} style={{"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/Cart.jsx",
+    "line": 281,
+    "type": "navigate",
+    "dest": "/place-order",
+    "raw": "onClick={() => navigate(\"/place-order\")}"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/OrderSuccess.jsx",
+    "line": 16,
+    "type": "to",
+    "dest": "/orders",
+    "raw": "to=\"/orders\""
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/OrderSuccess.jsx",
+    "line": 22,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "to=\"/shop\""
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/PlaceOrder.jsx",
+    "line": 138,
+    "type": "navigate",
+    "dest": "/orders",
+    "raw": "navigate(\"/orders\");"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/PlaceOrder.jsx",
+    "line": 205,
+    "type": "navigate",
+    "dest": "/orders",
+    "raw": "// //     navigate(\"/orders\");"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/PlaceOrder.jsx",
+    "line": 229,
+    "type": "navigate",
+    "dest": "/orders",
+    "raw": "//     navigate(\"/orders\");"
+  },
+  {
+    "file": "frontend/src/pages/navbar/cart/PlaceOrder.jsx",
+    "line": 278,
+    "type": "navigate",
+    "dest": "/orders",
+    "raw": "navigate(\"/orders\");"
+  },
+  {
+    "file": "frontend/src/pages/navbar/Wishlist.jsx",
+    "line": 68,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "<Link to=\"/shop\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/navbar/Wishlist.jsx",
+    "line": 94,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "<Link to=\"/shop\" style={{"
+  },
+  {
+    "file": "frontend/src/pages/NotFound.jsx",
+    "line": 13,
+    "type": "to",
+    "dest": "/",
+    "raw": "to=\"/\""
+  },
+  {
+    "file": "frontend/src/pages/shop/ProductDetailsPage.jsx",
+    "line": 92,
+    "type": "navigate",
+    "dest": "/cart",
+    "raw": "navigate(\"/cart\");"
+  },
+  {
+    "file": "frontend/src/pages/shop/ProductDetailsPage.jsx",
+    "line": 104,
+    "type": "navigate",
+    "dest": "/place-order",
+    "raw": "navigate(\"/place-order\");"
+  },
+  {
+    "file": "frontend/src/pages/shop/SubCategoryPage.jsx",
+    "line": 36,
+    "type": "to",
+    "dest": "/shop/saree/all",
+    "raw": "return <Navigate to=\"/shop/saree/all\" replace />;"
+  },
+  {
+    "file": "frontend/src/pages/shop/SubCategoryPage.jsx",
+    "line": 60,
+    "type": "to",
+    "dest": "/shop",
+    "raw": "to=\"/shop\""
+  },
+  {
+    "file": "frontend/src/pages/tracking/Orders.jsx",
+    "line": 69,
+    "type": "navigate",
+    "dest": "/shop",
+    "raw": "<button onClick={() => navigate(\"/shop\")} style={{"
+  },
+  {
+    "file": "frontend/src/pages/tracking/Orders.jsx",
+    "line": 221,
+    "type": "navigate",
+    "dest": "/track/${order._id}",
+    "raw": "<button onClick={() => navigate(`/track/${order._id}`)} style={{"
+  },
+  {
+    "file": "frontend/src/pages/tracking/Orders.jsx",
+    "line": 252,
+    "type": "navigate",
+    "dest": "/cart",
+    "raw": "try { await reorderItems(order._id); navigate(\"/cart\"); }"
+  },
+  {
+    "file": "frontend/src/pages/tracking/TrackOrder.jsx",
+    "line": 94,
+    "type": "navigate",
+    "dest": "/orders",
+    "raw": "onClick={() => navigate('/orders')}"
+  }
+]

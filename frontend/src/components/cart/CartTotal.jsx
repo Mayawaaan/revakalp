@@ -1,7 +1,6 @@
 import React from "react";
-import useStore from "../../store/store";
-import Title from "../globalComponents/Title";
 import { AlertCircle } from "lucide-react";
+import useStore from "../../store/store";
 
 const CartTotal = ({ productError, city }) => {
   const {
@@ -10,14 +9,14 @@ const CartTotal = ({ productError, city }) => {
     getCartItemsDiscount,
     getCartTotal,
     discountPercentage,
-    settings, // Get settings from the store
+    settings,
   } = useStore();
 
   const {
-    currencySymbol,
-    freeShippingThreshold,
-    deliveryFee: DELIVERY_FEE,
-  } = settings;
+    currencySymbol = "₹",
+    freeShippingThreshold = 500,
+    deliveryFee: DELIVERY_FEE = 50,
+  } = settings || {};
 
   const subtotal = getCartSubtotal();
   const itemsDiscount = getCartItemsDiscount();
@@ -25,139 +24,127 @@ const CartTotal = ({ productError, city }) => {
 
   // Delivery fee logic (Free delivery for Indore or if threshold met)
   const isIndore = city?.toLowerCase().trim() === "indore";
-  const deliveryFee = (total >= freeShippingThreshold || isIndore) ? 0 : DELIVERY_FEE;
+  const deliveryFee =
+    total >= freeShippingThreshold || isIndore ? 0 : DELIVERY_FEE;
 
   // Coupon discount amount
   const subtotalAfterItemDiscounts = subtotal - itemsDiscount;
   const couponDiscountAmount = Math.floor(
     (subtotalAfterItemDiscounts * discountPercentage) / 100
   );
-  const totalAfterCouponDiscount = subtotalAfterItemDiscounts - couponDiscountAmount;
-
-
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-5 text-[#1A1718]">
       {/* CART ITEMS */}
-      <div className="text-2xl">
-        <Title text1="CART" text2="ITEMS" />
-      </div>
+      <div>
+        <h3 className="font-serif text-xl text-[#38131E] mb-3">Bag Summary</h3>
+        <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+          {cart.map((item) => {
+            const hasDiscount =
+              item.discountedPrice && item.discountedPrice < item.price;
+            const unitPrice = hasDiscount ? item.discountedPrice : item.price;
+            const img = Array.isArray(item.image) ? item.image[0] : item.image;
 
-      <div className="flex flex-col gap-4 mt-4">
-        {cart.map((item) => {
-          const hasDiscount =
-            item.discountedPrice && item.discountedPrice < item.price;
-          const price = hasDiscount ? item.discountedPrice : item.price;
-
-          return (
-            <div
-              key={`${item._id}-${item.size}`}
-              className={`flex justify-between items-center p-2 rounded-lg ${
-                productError === item._id
-                  ? "bg-red-100 border border-red-500"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <img
-                  src={Array.isArray(item.image) ? item.image[0] : item.image}
-
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded-md"
-                />
-
-                <div>
-                  <p className="font-semibold">{item.name}</p>
-                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+            return (
+              <div
+                key={`${item._id}-${item.size}`}
+                className={`flex justify-between items-center gap-3 p-2.5 rounded-xl border ${
+                  productError === item._id
+                    ? "bg-red-50 border-red-400"
+                    : "bg-[#F7F1E5]/50 border-[#38131E]/10"
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  {img && (
+                    <img
+                      src={img}
+                      alt={item.name}
+                      className="w-12 h-14 object-cover rounded-lg shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[#38131E] truncate">
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-[#1A1718]/65">
+                      {item.size && item.size !== "NO_SIZE" ? `${item.size} · ` : ""}
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col items-end">
-                {hasDiscount && (
-                  <p className="text-xs line-through text-gray-500">
+                <div className="text-right shrink-0">
+                  {hasDiscount && (
+                    <p className="text-[11px] line-through text-[#1A1718]/45">
+                      {currencySymbol}
+                      {(item.price * item.quantity).toLocaleString("en-IN")}
+                    </p>
+                  )}
+                  <p className="text-sm font-semibold text-[#38131E]">
                     {currencySymbol}
-                    {item.price * item.quantity}.00
+                    {(unitPrice * item.quantity).toLocaleString("en-IN")}
                   </p>
-                )}
-                <p>
-                  {currencySymbol}
-                  {price * item.quantity}.00
-                </p>
-              </div>
-
-              {productError === item._id && (
-                <div className="flex items-center gap-2 text-red-600">
-                  <AlertCircle size={16} />
-                  <p className="text-xs">Item unavailable</p>
                 </div>
-              )}
-            </div>
-          );
-        })}
+
+                {productError === item._id && (
+                  <div className="flex items-center gap-1 text-red-700 text-xs shrink-0">
+                    <AlertCircle size={14} />
+                    <span>Unavailable</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* CART TOTALS */}
-      <div className="text-2xl mt-8">
-        <Title text1="CART" text2="TOTALS" />
-      </div>
-
-      <div className="flex flex-col gap-2 mt-2 text-sm">
+      <div className="space-y-3 pt-4 border-t border-[#38131E]/15 text-sm">
         <div className="flex justify-between">
-          <p>Subtotal</p>
-          <p>
+          <span className="text-[#1A1718]/75">Subtotal</span>
+          <span className="font-medium text-[#38131E]">
             {currencySymbol}
-            {subtotal}.00
-          </p>
+            {subtotal.toLocaleString("en-IN")}.00
+          </span>
         </div>
 
-        <hr />
-
         {itemsDiscount > 0 && (
-          <>
-            <div className="flex justify-between text-green-600">
-              <p>Product Discount</p>
-              <p>
-                - {currencySymbol}
-                {itemsDiscount}.00
-              </p>
-            </div>
-            <hr />
-          </>
+          <div className="flex justify-between text-emerald-700">
+            <span>Product Discount</span>
+            <span>
+              − {currencySymbol}
+              {itemsDiscount.toLocaleString("en-IN")}.00
+            </span>
+          </div>
         )}
 
         {discountPercentage > 0 && (
-          <>
-            <div className="flex justify-between text-green-600">
-              <p>Coupon Discount ({discountPercentage}%)</p>
-              <p>
-                - {currencySymbol}
-                {couponDiscountAmount}.00
-              </p>
-            </div>
-            <hr />
-          </>
+          <div className="flex justify-between text-emerald-700">
+            <span>Coupon Discount ({discountPercentage}%)</span>
+            <span>
+              − {currencySymbol}
+              {couponDiscountAmount.toLocaleString("en-IN")}.00
+            </span>
+          </div>
         )}
 
         <div className="flex justify-between">
-          <p>Shipping Fee</p>
-          <p>
+          <span className="text-[#1A1718]/75">Shipping Fee</span>
+          <span>
             {deliveryFee === 0 ? (
-              <span className="text-green-600">Free</span>
+              <span className="text-emerald-700 font-medium">Free</span>
             ) : (
               `${currencySymbol}${deliveryFee}.00`
             )}
-          </p>
+          </span>
         </div>
 
-        <hr />
-
-        <div className="flex justify-between font-semibold text-lg">
-          <p>Total</p>
-          <p>
+        <div className="flex justify-between items-baseline pt-3 border-t border-[#38131E]/15 text-base sm:text-lg font-semibold text-[#38131E]">
+          <span>Estimated Total</span>
+          <span>
             {currencySymbol}
-            {total + deliveryFee}.00
-
-          </p>
+            {(total + deliveryFee).toLocaleString("en-IN")}.00
+          </span>
         </div>
       </div>
     </div>

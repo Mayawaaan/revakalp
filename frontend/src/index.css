@@ -1,23 +1,126 @@
+@import "./styles/revakalp-brand-tokens.css";
 @import "tailwindcss";
+@source not "./links_report.json";
+@source not "./pages/shop/SareeTypesPage.jsx";
+
+@theme inline {
+  --color-brand-burgundy: var(--revakalp-burgundy);
+  --color-brand-burgundy-deep: var(--revakalp-burgundy-deep);
+  --color-brand-gold: var(--revakalp-gold);
+  --color-brand-gold-highlight: var(--revakalp-gold-highlight);
+  --color-brand-ivory: var(--revakalp-ivory);
+  --color-brand-ink: var(--revakalp-ink);
+  --font-brand-heading: var(--revakalp-heading-font);
+  --font-brand-body: var(--revakalp-body-font);
+  --font-serif: var(--revakalp-heading-font);
+  --font-sans: var(--revakalp-body-font);
+}
+
+@layer base {
+  html {
+    background-color: var(--revakalp-ivory);
+    color: var(--revakalp-ink);
+    font-family: var(--revakalp-body-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--revakalp-ivory);
+    color: var(--revakalp-ink);
+    font-family: var(--revakalp-body-font);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: var(--revakalp-heading-font);
+  }
+
+  ::selection {
+    background-color: var(--revakalp-burgundy);
+    color: var(--revakalp-ivory);
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--revakalp-gold);
+    outline-offset: 2px;
+  }
+}
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Shared form controls (official brand palette) */
 .input-floating {
-  @apply w-full h-14 px-4 py-4 rounded-xl 
-         bg-gray-50 border border-gray-200 
-         text-sm text-gray-800 
-         focus:outline-dotted focus:ring-2 focus:ring-pink-300 
-         focus:border-pink-400 transition;
+  @apply w-full h-14 px-4 pt-5 pb-2 rounded-xl
+         bg-white border border-[#38131E]/20
+         text-sm text-[#1A1718]
+         focus:outline-none focus:ring-2 focus:ring-[#D4AF63]
+         focus:border-[#38131E] transition;
 }
 
 .label-floating {
-  @apply absolute left-4 top-4 text-sm text-gray-400 
-         pointer-events-none transition-all
-         peer-focus:-top-5 peer-focus:text-xs peer-focus:text-pink-500
-         peer-valid:-top-3 peer-valid:text-xs;
+  @apply absolute left-4 top-4 text-sm text-[#1A1718]/60
+         pointer-events-none transition-all duration-200
+         peer-focus:top-1.5 peer-focus:text-[11px] peer-focus:text-[#38131E] peer-focus:font-medium
+         peer-valid:top-1.5 peer-valid:text-[11px] peer-valid:text-[#38131E]/80;
+}
+
+/* Shared editorial button primitives */
+.rk-btn-primary {
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
+         bg-[#38131E] text-[#F7F1E5] text-xs sm:text-sm font-medium tracking-[0.14em] uppercase
+         border border-[#38131E] transition-all duration-300
+         hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-lg
+         disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+}
+
+.rk-btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
+         bg-[#F7F1E5] text-[#38131E] text-xs sm:text-sm font-medium tracking-[0.14em] uppercase
+         border border-[#38131E]/35 transition-all duration-300
+         hover:bg-[#38131E] hover:text-[#F7F1E5] hover:border-[#38131E]
+         disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+}
+
+.rk-btn-gold {
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
+         bg-[#D4AF63] text-[#2B0E17] text-xs sm:text-sm font-semibold tracking-[0.14em] uppercase
+         border border-[#D4AF63] transition-all duration-300
+         hover:bg-[#F1D889] hover:border-[#F1D889]
+         disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+}
+
+.rk-surface-card {
+  @apply bg-white/90 border border-[#38131E]/12 rounded-2xl shadow-sm;
+}
+
+.rk-chip {
+  @apply inline-flex items-center gap-1.5 min-h-[36px] px-3.5 py-1.5 rounded-full
+         text-xs font-medium border border-[#38131E]/20 bg-white text-[#38131E]
+         hover:border-[#38131E] transition-colors cursor-pointer;
+}
+
+.rk-chip-active {
+  @apply bg-[#38131E] text-[#F7F1E5] border-[#38131E];
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,168 +1,155 @@
-import React, { useState, useEffect } from "react";
-import Title from "../../components/globalComponents/Title";
+import React, { useMemo, useState } from "react";
 import { ChevronRight, MapPin, Briefcase } from "lucide-react";
+import PageHero from "../../components/globalComponents/PageHero";
+import EditorialButton from "../../components/ui/EditorialButton";
+
+const JOBS = [
+  {
+    id: 1,
+    title: "Senior Full Stack Developer",
+    location: "New York",
+    department: "Engineering",
+    locationType: "Remote / New York",
+    description:
+      "We are looking for an experienced Full Stack Developer to build scalable and elegant web applications.",
+  },
+  {
+    id: 2,
+    title: "UI/UX Designer",
+    location: "London",
+    department: "Design",
+    locationType: "London, UK",
+    description:
+      "Join our design team to create intuitive and visually engaging user experiences.",
+  },
+  {
+    id: 3,
+    title: "Digital Marketing Manager",
+    location: "Remote",
+    department: "Marketing",
+    locationType: "Remote",
+    description:
+      "Lead our digital campaigns, brand growth and online acquisition strategy.",
+  },
+];
 
 const ExploreJobs = () => {
-  const [jobs] = useState([
-    {
-      id: 1,
-      title: "Senior Full Stack Developer",
-      location: "New York",
-      department: "Engineering",
-      locationType: "Remote / New York",
-      description:
-        "We are looking for an experienced Full Stack Developer to build scalable and elegant web applications."
-    },
-    {
-      id: 2,
-      title: "UI/UX Designer",
-      location: "London",
-      department: "Design",
-      locationType: "London, UK",
-      description:
-        "Join our design team to create intuitive and visually engaging user experiences."
-    },
-    {
-      id: 3,
-      title: "Digital Marketing Manager",
-      location: "Remote",
-      department: "Marketing",
-      locationType: "Remote",
-      description:
-        "Lead our digital campaigns, brand growth and online acquisition strategy."
-    }
-  ]);
-
-  const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [showFilter, setShowFilter] = useState(false);
   const [locationFilter, setLocationFilter] = useState([]);
   const [departmentFilter, setDepartmentFilter] = useState([]);
 
   const toggle = (value, state, setState) => {
-    state.includes(value)
-      ? setState(state.filter((v) => v !== value))
-      : setState([...state, value]);
+    setState(state.includes(value) ? state.filter((v) => v !== value) : [...state, value]);
   };
 
-  const applyFilter = () => {
-    let data = [...jobs];
-    if (locationFilter.length)
-      data = data.filter((j) => locationFilter.includes(j.location));
-    if (departmentFilter.length)
-      data = data.filter((j) => departmentFilter.includes(j.department));
-    setFilteredJobs(data);
-  };
-
-  useEffect(() => {
-    applyFilter();
+  const filteredJobs = useMemo(() => {
+    return JOBS.filter((j) => {
+      if (locationFilter.length && !locationFilter.includes(j.location)) return false;
+      if (departmentFilter.length && !departmentFilter.includes(j.department)) return false;
+      return true;
+    });
   }, [locationFilter, departmentFilter]);
 
   return (
-    <section className="bg-[#fffafc] min-h-screen pt-24 pb-24">
-      <div className="max-w-7xl mx-auto px-8">
+    <div className="bg-[#F7F1E5] min-h-screen">
+      <PageHero
+        label="Careers"
+        title="Explore Open Roles"
+        subtitle="Join the team supporting Revakalp's retail and online storefront."
+      />
 
-        <div className="text-center mb-16">
-          <Title text1="EXPLORE" text2="JOBS" />
-          <p className="text-pink-700 mt-4">
-            Join Revakalp and help build India’s most loved textile brand.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-12">
-
-          {/* Filters */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl sticky top-28 h-fit">
-            <div
-              className="flex items-center justify-between cursor-pointer"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8">
+          <aside className="rk-surface-card p-6 h-fit md:sticky md:top-28">
+            <button
+              type="button"
               onClick={() => setShowFilter(!showFilter)}
+              className="w-full flex items-center justify-between text-left cursor-pointer"
             >
-              <h3 className="font-serif text-lg text-pink-900">Filters</h3>
+              <h2 className="font-serif text-xl text-[#38131E]">Filters</h2>
               <ChevronRight
-                className={`md:hidden transition ${
+                className={`md:hidden text-[#38131E] transition-transform ${
                   showFilter ? "rotate-90" : ""
                 }`}
               />
-            </div>
+            </button>
 
-            <div className={`mt-6 space-y-8 ${showFilter ? "" : "hidden md:block"}`}>
-
-              {/* Location */}
+            <div className={`mt-5 space-y-6 ${showFilter ? "block" : "hidden md:block"}`}>
               <div>
-                <p className="text-sm font-medium text-pink-700 mb-3">Location</p>
-                {["New York", "London", "Remote"].map((loc) => (
-                  <label key={loc} className="flex gap-3 text-sm text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={locationFilter.includes(loc)}
-                      onChange={() => toggle(loc, locationFilter, setLocationFilter)}
-                      className="accent-pink-600"
-                    />
-                    {loc}
-                  </label>
-                ))}
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/65 font-semibold mb-3">
+                  Location
+                </p>
+                <div className="space-y-2">
+                  {["New York", "London", "Remote"].map((loc) => (
+                    <label key={loc} className="flex items-center gap-2.5 text-sm text-[#1A1718]/85 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={locationFilter.includes(loc)}
+                        onChange={() => toggle(loc, locationFilter, setLocationFilter)}
+                        className="w-4 h-4 accent-[#38131E]"
+                      />
+                      <span>{loc}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
-              {/* Department */}
               <div>
-                <p className="text-sm font-medium text-pink-700 mb-3">Department</p>
-                {["Engineering", "Design", "Marketing"].map((dep) => (
-                  <label key={dep} className="flex gap-3 text-sm text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={departmentFilter.includes(dep)}
-                      onChange={() =>
-                        toggle(dep, departmentFilter, setDepartmentFilter)
-                      }
-                      className="accent-pink-600"
-                    />
-                    {dep}
-                  </label>
-                ))}
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/65 font-semibold mb-3">
+                  Department
+                </p>
+                <div className="space-y-2">
+                  {["Engineering", "Design", "Marketing"].map((dep) => (
+                    <label key={dep} className="flex items-center gap-2.5 text-sm text-[#1A1718]/85 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={departmentFilter.includes(dep)}
+                        onChange={() => toggle(dep, departmentFilter, setDepartmentFilter)}
+                        className="w-4 h-4 accent-[#38131E]"
+                      />
+                      <span>{dep}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </aside>
 
-          {/* Jobs */}
-          <div className="space-y-8">
-            <p className="text-sm text-pink-700">
-              Showing {filteredJobs.length} open positions
+          <div className="space-y-5">
+            <p className="text-sm text-[#38131E]/80 font-medium">
+              Showing {filteredJobs.length} open position{filteredJobs.length === 1 ? "" : "s"}
             </p>
 
             {filteredJobs.map((job) => (
-              <div
-                key={job.id}
-                className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition"
-              >
-                <div className="flex justify-between items-start gap-6">
+              <article key={job.id} className="rk-surface-card p-6 sm:p-8 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-serif text-pink-900">
-                      {job.title}
-                    </h3>
-                    <div className="flex gap-6 text-sm text-pink-700 mt-2">
-                      <span className="flex items-center gap-1">
+                    <h3 className="font-serif text-2xl text-[#38131E]">{job.title}</h3>
+                    <div className="flex flex-wrap gap-4 text-xs text-[#38131E]/75 mt-1.5">
+                      <span className="inline-flex items-center gap-1">
                         <MapPin size={14} /> {job.locationType}
                       </span>
-                      <span className="flex items-center gap-1">
+                      <span className="inline-flex items-center gap-1">
                         <Briefcase size={14} /> {job.department}
                       </span>
                     </div>
                   </div>
-
-                  <button className="bg-pink-700 text-white px-6 py-2 rounded-full">
-                    Apply
-                  </button>
+                  <EditorialButton
+                    href={`mailto:contact@revakalp.com?subject=${encodeURIComponent(
+                      `Application: ${job.title}`
+                    )}`}
+                    variant="primary"
+                  >
+                    Apply via Email
+                  </EditorialButton>
                 </div>
-
-                <p className="text-gray-600 mt-6 leading-relaxed">
-                  {job.description}
-                </p>
-              </div>
+                <p className="text-sm text-[#1A1718]/75 leading-relaxed">{job.description}</p>
+              </article>
             ))}
           </div>
-
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

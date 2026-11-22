@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -93,10 +93,14 @@ const podFragmentShader = `
 `;
 
 // Futuristic pod made of layered geometry
-const Pod = ({ position = [0, 0, 0], scale = 1, color = '#2b2b2b', accentColor = '#f2f2f2', glowColor = '#00eaff' }) => {
+const Pod = ({ position = [0, 0, 0], scale = 1, color = '#2b2b2b', accentColor = '#f2f2f2', glowColor = '#00eaff', active = true }) => {
     const groupRef = useRef();
     const shaderMatRef = useRef();
     const metalMap = useMemo(() => createBrushedMetalTexture(), []);
+
+    useEffect(() => () => {
+        metalMap?.dispose();
+    }, [metalMap]);
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },
@@ -105,9 +109,8 @@ const Pod = ({ position = [0, 0, 0], scale = 1, color = '#2b2b2b', accentColor =
     }), [color, glowColor]);
 
     useFrame((state) => {
-        if (shaderMatRef.current) {
-            shaderMatRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-        }
+        if (!active || !shaderMatRef.current) return;
+        shaderMatRef.current.uniforms.uTime.value = state.clock.elapsedTime;
     });
 
     return (

@@ -1,58 +1,47 @@
 import React from "react";
+import { MessageCircle } from "lucide-react";
 
 const NewsletterBox = () => {
   return (
     <section
-      className="relative isolate overflow-hidden py-36"
-      style={{
-        WebkitMaskImage:
-          "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 12%, black 30%, black 70%, rgba(0,0,0,0.6) 88%, transparent 100%)",
-        maskImage:
-          "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 12%, black 30%, black 70%, rgba(0,0,0,0.6) 88%, transparent 100%)",
-      }}
+      aria-label="Community & Return Notice"
+      className="py-16 sm:py-24 bg-[#F7F1E5] border-t border-[#38131E]/10"
     >
-      {/* Soft ambient wash */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff4f8] to-transparent" />
+      <div className="max-w-3xl mx-auto px-5 sm:px-8 text-center">
+        <div className="inline-flex items-center gap-3 mb-4">
+          <span className="h-px w-6 bg-[#D4AF63]" aria-hidden="true" />
+          <p className="text-[11px] tracking-[0.28em] uppercase text-[#38131E]/75 font-medium">
+            Stay Connected
+          </p>
+          <span className="h-px w-6 bg-[#D4AF63]" aria-hidden="true" />
+        </div>
 
-      {/* Diffused glows (pushed downward) */}
-      <div className="absolute top-1/3 left-1/4 w-[560px] h-[560px] bg-rose-200/35 rounded-full blur-[160px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-[620px] h-[620px] bg-pink-300/30 rounded-full blur-[180px]" />
-
-      {/* Content */}
-      <div className="relative mx-auto max-w-3xl px-6 text-center">
-
-        <p className="mb-6 text-xs tracking-[0.3em] uppercase text-pink-500">
-          Stay Connected
-        </p>
-
-        <h2 className="font-serif text-4xl md:text-5xl text-pink-900 leading-tight">
+        <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#38131E] leading-tight">
           Join Revakalp on WhatsApp
         </h2>
 
-        <p className="mt-6 text-lg text-pink-700/90 leading-relaxed">
-          Get instant updates on new collections, quiet launches, and exclusive stories directly on your WhatsApp.
+        <p className="mt-4 text-sm sm:text-base text-[#1A1718]/75 leading-relaxed max-w-xl mx-auto">
+          Receive direct updates on fresh retail arrivals, festive edits, and
+          collection availability through our official WhatsApp community.
         </p>
 
-        {/* Floating form */}
-        <div className="mt-16">
-          <div className="mx-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl bg-white/65 backdrop-blur-2xl px-4 py-4 shadow-[0_40px_90px_-35px_rgba(200,72,124,0.35)] ring-1 ring-pink-200/40">
-            <a
-              href="https://chat.whatsapp.com/BofeilrtYMs3XaTWIG1PJN"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full text-center rounded-xl bg-gradient-to-br from-[#c9487c] to-[#a83261] px-8 py-3 text-white font-medium shadow-lg hover:shadow-xl transition-all"
-            >
-              Join Now
-            </a>
-          </div>
+        <div className="mt-8 flex justify-center">
+          <a
+            href="https://chat.whatsapp.com/BofeilrtYMs3XaTWIG1PJN"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rk-btn-primary"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Join WhatsApp Community</span>
+          </a>
         </div>
 
-        <p className="mt-10 text-xs text-pink-600/80">
-          No spam. Only thoughtful updates and timeless inspiration.
-        </p>
-
-        <p className="mt-5 text-[10px] text-gray-500 max-w-2xl mx-auto leading-relaxed">
-          <span className="font-semibold text-gray-600">Important Return Policy:</span> A clear, continuous unboxing video is mandatory for all return or replacement requests. This video serves as definitive proof of the product&apos;s condition upon arrival. Please note that still images are insufficient for claim processing. By proceeding with your purchase, you acknowledge these terms; claims lacking video evidence will not be entertained.
+        <p className="mt-8 text-xs text-[#1A1718]/65 max-w-2xl mx-auto leading-relaxed bg-white/80 border border-[#38131E]/10 rounded-2xl p-4">
+          <span className="font-semibold text-[#38131E]">Important Return Policy:</span>{" "}
+          A clear, continuous unboxing video is mandatory for all return or replacement requests.
+          This video serves as definitive proof of the product&apos;s condition upon arrival. Still
+          images are insufficient for claim processing.
         </p>
       </div>
     </section>

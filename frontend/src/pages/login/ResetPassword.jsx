@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
+import BrandMark from "../../components/brand/BrandMark";
+import EditorialButton from "../../components/ui/EditorialButton";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -13,12 +15,10 @@ const ResetPassword = () => {
     password: "",
     confirmPassword: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  // ✅ FIX: load email safely
   useEffect(() => {
     const storedEmail = localStorage.getItem("resetEmail");
-    console.log("Loaded email:", storedEmail);
-
     if (!storedEmail) {
       showToast("Please enter email first", "error");
       navigate("/forgot-password");
@@ -33,12 +33,12 @@ const ResetPassword = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
     if (form.password !== form.confirmPassword) {
       showToast("Passwords do not match", "error");
       return;
     }
 
+    setSubmitting(true);
     try {
       const response = await axios.post("/api/auth/verify-otp-reset", {
         email,
@@ -46,35 +46,37 @@ const ResetPassword = () => {
       });
 
       showToast(response.data.message, "success");
-
-      // ✅ cleanup
       localStorage.removeItem("resetEmail");
 
       setTimeout(() => {
         navigate("/login");
-      }, 1500);
-
+      }, 1200);
     } catch (error) {
-      showToast(error.response?.data?.message || "Error", "error");
+      showToast(error.response?.data?.message || "Password reset failed", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-[#fff1f4] to-[#fff8fa] px-4 py-8">
+    <div className="min-h-[80vh] flex items-center justify-center bg-[#F7F1E5] px-4 py-12">
       <form
         onSubmit={onSubmitHandler}
-        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-pink-100 px-10 py-12"
+        className="rk-surface-card w-full max-w-md p-8 sm:p-10 space-y-6"
       >
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-[#9c2756]">
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <BrandMark variant="headerLight" className="h-7 w-auto" />
+          </div>
+          <h1 className="font-serif text-3xl text-[#38131E]">
             Reset Password
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Verify OTP and enter your new password
+          <p className="text-sm text-[#1A1718]/70">
+            Verify the OTP sent to your email and set your new password.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="relative">
             <input
               type="text"
@@ -86,7 +88,7 @@ const ResetPassword = () => {
               required
             />
             <label htmlFor="otp" className="label-floating">
-              Enter 6-digit OTP
+              6-Digit OTP
             </label>
           </div>
 
@@ -95,6 +97,7 @@ const ResetPassword = () => {
               type="password"
               name="password"
               id="password"
+              minLength={6}
               value={form.password}
               onChange={handleChange}
               className="input-floating peer"
@@ -110,6 +113,7 @@ const ResetPassword = () => {
               type="password"
               name="confirmPassword"
               id="confirmPassword"
+              minLength={6}
               value={form.confirmPassword}
               onChange={handleChange}
               className="input-floating peer"
@@ -121,9 +125,14 @@ const ResetPassword = () => {
           </div>
         </div>
 
-        <button className="mt-8 w-full bg-[#c9487c] text-white font-medium py-3.5 rounded-full text-sm tracking-wide hover:bg-[#9c2756] shadow-lg transition-colors">
-          Reset Password
-        </button>
+        <EditorialButton
+          type="submit"
+          variant="primary"
+          disabled={submitting}
+          className="w-full"
+        >
+          {submitting ? "Updating…" : "Reset Password"}
+        </EditorialButton>
       </form>
     </div>
   );

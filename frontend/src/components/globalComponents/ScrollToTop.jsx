@@ -1,21 +1,27 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { getLenis } from '../../hooks/useLenis'
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getLenis } from "../../hooks/useLenis";
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const lenis = getLenis()
+    const lenis = getLenis();
     if (lenis) {
-      lenis.scrollTo(0, { immediate: true })
+      lenis.scrollTo(0, { immediate: true });
     } else {
-      window.scrollTo(0, 0)
+      window.scrollTo(0, 0);
     }
-  }, [pathname])
 
-  return null
-}
+    const frame = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
 
-export default ScrollToTop
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
+  return null;
+};
+
+export default ScrollToTop;

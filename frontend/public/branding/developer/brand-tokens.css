@@ -1,0 +1,14 @@
+/* REVAKALP website branding — aesthetic direction */
+:root {
+  --revakalp-burgundy: #38131E;
+  --revakalp-burgundy-deep: #2B0E17;
+  --revakalp-gold: #D4AF63;
+  --revakalp-gold-highlight: #F1D889;
+  --revakalp-ivory: #F7F1E5;
+  --revakalp-ink: #1A1718;
+  --revakalp-body-font: 'Inter', Arial, sans-serif;
+  --revakalp-heading-font: 'EB Garamond', Georgia, serif;
+}
+/* Logo usage: retain aspect ratio; never stretch */
+.revakalp-logo {display: block; width: min(100%, 280px); height: auto; object-fit: contain;}
+.revakalp-logo--hero {width: min(100%, 540px);}

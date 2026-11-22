@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import Title from "../../../components/globalComponents/Title";
-import CartTotal from "../../../components/cart/CartTotal";
 import { useNavigate } from "react-router-dom";
+import { Loader2, Banknote } from "lucide-react";
 import useStore from "../../../store/store";
-import { Loader2 } from "lucide-react";
+import CartTotal from "../../../components/cart/CartTotal";
+import PageHero from "../../../components/globalComponents/PageHero";
+import EditorialButton from "../../../components/ui/EditorialButton";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => {
-      resolve(true);
-    };
-    script.onerror = () => {
-      resolve(false);
-    };
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
     document.body.appendChild(script);
   });
 };
@@ -22,21 +23,19 @@ const loadRazorpayScript = () => {
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
   const navigate = useNavigate();
-const {
-  showToast,
-  cart,
-  placeOrder,
-  settings,
-  applyCoupon,
-  removeCoupon,
-  couponCode,
-  getCartTotal,
 
-  // ✅ ADD THESE
-  createRazorpayOrder,
-  verifyRazorpayPayment,
-} = useStore();
-
+  const {
+    showToast,
+    cart,
+    placeOrder,
+    settings,
+    applyCoupon,
+    removeCoupon,
+    couponCode,
+    getCartTotal,
+    createRazorpayOrder,
+    verifyRazorpayPayment,
+  } = useStore();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -46,7 +45,7 @@ const {
     city: "",
     state: "",
     zipcode: "",
-    country: "",
+    country: "India",
     phone: "",
   });
 
@@ -60,12 +59,12 @@ const {
   };
 
   const handleApplyCoupon = async () => {
-    if (!couponInput) {
+    if (!couponInput.trim()) {
       showToast("Please enter a coupon code.", "error");
       return;
     }
     try {
-      await applyCoupon(couponInput);
+      await applyCoupon(couponInput.trim());
       showToast("Coupon applied successfully!", "success");
       setCouponInput("");
     } catch (error) {
@@ -86,9 +85,10 @@ const {
     loadRazorpayScript();
   }, []);
 
-  const onSubmitHandler = async () => {
+  const onSubmitHandler = async (e) => {
+    e?.preventDefault();
     setProductError(null);
-    // Validate required fields
+
     if (
       !formData.firstName ||
       !formData.lastName ||
@@ -161,369 +161,341 @@ const {
           return;
         }
 
-const order = await createRazorpayOrder({
-  amount: getCartTotal(),
-  currency: "INR",
-});
+        const order = await createRazorpayOrder({
+          amount: getCartTotal(),
+          currency: "INR",
+        });
 
+        const options = {
+          key: settings?.razorpayKey || import.meta.env.VITE_RAZORPAY_KEY,
+          amount: order.amount,
+          currency: order.currency,
+          order_id: order.id,
+          name: settings?.storeName || "REVAKALP",
+          method:
+            method === "upi"
+              ? { upi: true }
+              : { card: true, netbanking: true },
+          modal: {
+            ondismiss: () => setPlacing(false),
+          },
+          handler: async (response) => {
+            try {
+              setPlacing(true);
+              const data = await verifyRazorpayPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              });
 
-// const options = {
-//   key: settings?.razorpayKey || import.meta.env.VITE_RAZORPAY_KEY,
-//   amount: order.amount,
-//   currency: order.currency,
-//   order_id: order.id,
-//   name: "REVAKALP",
+              if (!data.success) {
+                showToast("Payment verification failed", "error");
+                return;
+              }
 
-//   method: {
-//   upi: method === "upi",
-//   card: method === "razorpay",
-//   netbanking: method === "razorpay",
-//   wallet: false,
-//   paylater: false,
-// },
+              await placeOrder({
+                ...orderDetails,
+                paymentId: response.razorpay_payment_id,
+                paymentMethod: method,
+              });
 
+              showToast("Order placed successfully!", "success");
+              navigate("/orders");
+            } catch (err) {
+              showToast(
+                err?.message || "Payment verification or order placement failed",
+                "error"
+              );
+            } finally {
+              setPlacing(false);
+            }
+          },
+          prefill: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            contact: formData.phone,
+          },
+        };
 
-// //   handler: async (response) => {
-// //     const data = await verifyRazorpayPayment({
-// //   razorpay_order_id: response.razorpay_order_id,
-// //   razorpay_payment_id: response.razorpay_payment_id,
-// //   razorpay_signature: response.razorpay_signature,
-// // });
-
-// // if (!data.success) {
-// //   showToast("Payment verification failed", "error");
-// //   return;
-// // }
-
-
-// //     await placeOrder({
-// //       ...orderDetails,
-// //       paymentId: response.razorpay_payment_id,
-// //     });
-
-// //     showToast("Order placed successfully!", "success");
-// //     navigate("/orders");
-// //   },
-// handler: async (response) => {
-//   try {
-//     setPlacing(true); // ✅ ADD HERE (after payment success)
-
-//     const data = await verifyRazorpayPayment({
-//       razorpay_order_id: response.razorpay_order_id,
-//       razorpay_payment_id: response.razorpay_payment_id,
-//       razorpay_signature: response.razorpay_signature,
-//     });
-
-//     if (!data.success) {
-//       showToast("Payment verification failed", "error");
-//       setPlacing(false);
-//       return;
-//     }
-
-//     await placeOrder({
-//       ...orderDetails,
-//       paymentId: response.razorpay_payment_id,
-//     });
-
-//     showToast("Order placed successfully!", "success");
-//     navigate("/orders");
-//   } catch (err) {
-//     showToast("Failed to place order after payment", "error");
-//   } finally {
-//     setPlacing(false); // ✅ STOP loader
-//   }
-// },
-
-//   prefill: {
-//     name: `${formData.firstName} ${formData.lastName}`,
-//     email: formData.email,
-//     contact: formData.phone,
-//   },
-// };
-const options = {
-  key: settings?.razorpayKey || import.meta.env.VITE_RAZORPAY_KEY,
-  amount: order.amount,
-  currency: order.currency,
-  order_id: order.id,
-  name: settings.storeName,
-
-  method:
-    method === "upi"
-      ? { upi: true }
-      : { card: true, netbanking: true },
-
-  handler: async (response) => {
-    try {
-      setPlacing(true);
-
-      const data = await verifyRazorpayPayment({
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-      });
-
-      if (!data.success) {
-        showToast("Payment verification failed", "error");
-        setPlacing(false);
-        return;
-      }
-
-      await placeOrder({
-        ...orderDetails,
-        paymentId: response.razorpay_payment_id,
-        paymentMethod: method, // "upi" or "razorpay"
-      });
-
-      showToast("Order placed successfully!", "success");
-      navigate("/orders");
-    } finally {
-      setPlacing(false);
-    }
-  },
-
-  prefill: {
-    name: `${formData.firstName} ${formData.lastName}`,
-    email: formData.email,
-    contact: formData.phone,
-  },
-};
-
-const paymentObject = new window.Razorpay(options);
-paymentObject.open();
-
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
       } catch (error) {
         console.error("Razorpay Error:", error);
         showToast("Something went wrong with Razorpay. Please try again.", "error");
-      } finally {
         setPlacing(false);
       }
     }
   };
 
   return (
-    <section className="bg-[#FFF1F4] min-h-screen pt-16">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
+    <div className="bg-[#F7F1E5] min-h-screen">
+      <PageHero
+        label="Checkout"
+        title="Delivery & Payment"
+        subtitle="Complete your shipping details and choose a verified payment option."
+      />
+
+      <form
+        onSubmit={onSubmitHandler}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+      >
         {/* Delivery Form */}
-              <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10">
-  <Title text1={"DELIVERY"} text2={"INFORMATION"} />
+        <div className="lg:col-span-7 rk-surface-card p-6 sm:p-10 space-y-6">
+          <div className="pb-4 border-b border-[#38131E]/10">
+            <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
+              Step 1
+            </p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#38131E]">
+              Delivery Information
+            </h2>
+          </div>
 
-  <div className="mt-12 space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="relative">
+              <input
+                id="firstName"
+                onChange={onChangeHandler}
+                name="firstName"
+                value={formData.firstName}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="firstName" className="label-floating">
+                First Name *
+              </label>
+            </div>
 
-    {/* Name */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="firstName"
-          value={formData.firstName}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">First Name</label>
-      </div>
+            <div className="relative">
+              <input
+                id="lastName"
+                onChange={onChangeHandler}
+                name="lastName"
+                value={formData.lastName}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="lastName" className="label-floating">
+                Last Name *
+              </label>
+            </div>
+          </div>
 
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="lastName"
-          value={formData.lastName}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">Last Name</label>
-      </div>
-    </div>
+          <div className="relative">
+            <input
+              id="email"
+              type="email"
+              onChange={onChangeHandler}
+              name="email"
+              value={formData.email}
+              required
+              className="peer input-floating"
+            />
+            <label htmlFor="email" className="label-floating">
+              Email Address *
+            </label>
+          </div>
 
-    {/* Email */}
-    <div className="relative">
-      <input
-        onChange={onChangeHandler}
-        name="email"
-        value={formData.email}
-        required
-        className="peer input-floating"
-      />
-      <label className="label-floating">Email Address</label>
-    </div>
+          <div className="relative">
+            <input
+              id="street"
+              onChange={onChangeHandler}
+              name="street"
+              value={formData.street}
+              required
+              className="peer input-floating"
+            />
+            <label htmlFor="street" className="label-floating">
+              Street Address *
+            </label>
+          </div>
 
-    {/* Street */}
-    <div className="relative">
-      <input
-        onChange={onChangeHandler}
-        name="street"
-        value={formData.street}
-        required
-        className="peer input-floating"
-      />
-      <label className="label-floating">Street Address</label>
-    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="relative">
+              <input
+                id="city"
+                onChange={onChangeHandler}
+                name="city"
+                value={formData.city}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="city" className="label-floating">
+                City *
+              </label>
+            </div>
 
-    {/* City / State */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="city"
-          value={formData.city}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">City</label>
-      </div>
+            <div className="relative">
+              <input
+                id="state"
+                onChange={onChangeHandler}
+                name="state"
+                value={formData.state}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="state" className="label-floating">
+                State *
+              </label>
+            </div>
+          </div>
 
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="state"
-          value={formData.state}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">State</label>
-      </div>
-    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="relative">
+              <input
+                id="zipcode"
+                onChange={onChangeHandler}
+                name="zipcode"
+                value={formData.zipcode}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="zipcode" className="label-floating">
+                PIN / Zip Code *
+              </label>
+            </div>
 
-    {/* Zip / Country */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="zipcode"
-          value={formData.zipcode}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">Zip Code</label>
-      </div>
+            <div className="relative">
+              <input
+                id="country"
+                onChange={onChangeHandler}
+                name="country"
+                value={formData.country}
+                required
+                className="peer input-floating"
+              />
+              <label htmlFor="country" className="label-floating">
+                Country *
+              </label>
+            </div>
+          </div>
 
-      <div className="relative">
-        <input
-          onChange={onChangeHandler}
-          name="country"
-          value={formData.country}
-          required
-          className="peer input-floating"
-        />
-        <label className="label-floating">Country</label>
-      </div>
-    </div>
-
-    {/* Phone */}
-    <div className="relative">
-      <input
-        onChange={onChangeHandler}
-        name="phone"
-        value={formData.phone}
-        required
-        className="peer input-floating"
-      />
-      <label className="label-floating">Phone Number</label>
-    </div>
-
-  </div>
-</div>
+          <div className="relative">
+            <input
+              id="phone"
+              type="tel"
+              onChange={onChangeHandler}
+              name="phone"
+              value={formData.phone}
+              required
+              className="peer input-floating"
+            />
+            <label htmlFor="phone" className="label-floating">
+              Phone Number *
+            </label>
+          </div>
+        </div>
 
         {/* Summary & Payment */}
-        <div className="space-y-10">
-          <div className="bg-white rounded-3xl shadow-lg p-8">
+        <div className="lg:col-span-5 space-y-6">
+          <div className="rk-surface-card p-6 sm:p-8 space-y-6">
             {/* Coupon Section */}
-            <div className="mb-6">
-              <Title text1={"COUPON"} text2={"DISCOUNT"} />
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#38131E]/65 font-semibold mb-3">
+                Coupon Discount
+              </p>
               {!couponCode ? (
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     placeholder="Enter coupon code"
-                    className="input flex-grow"
+                    aria-label="Coupon code"
+                    className="flex-1 min-h-[44px] px-4 py-2 rounded-xl border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
                   />
                   <button
+                    type="button"
                     onClick={handleApplyCoupon}
-                    className="py-2 px-4 bg-gradient-to-r from-[#c9487c] to-[#9c2756] text-white rounded-lg shadow-md hover:scale-105 transition"
+                    className="min-h-[44px] px-5 rounded-xl bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer"
                   >
                     Apply
                   </button>
                 </div>
               ) : (
-                <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg flex justify-between items-center">
-                  <p className="text-green-700 font-semibold">
-                    Coupon Applied:{" "}
-                    <span className="font-bold">{couponCode}</span>
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex justify-between items-center text-sm">
+                  <p className="text-emerald-800 font-medium">
+                    Applied: <span className="font-bold">{couponCode}</span>
                   </p>
                   <button
+                    type="button"
                     onClick={handleRemoveCoupon}
-                    className="text-red-500 hover:text-red-700 font-semibold"
+                    className="text-red-700 hover:underline text-xs font-semibold cursor-pointer"
                   >
                     Remove
                   </button>
                 </div>
               )}
             </div>
+
             <CartTotal productError={productError} city={formData.city} />
           </div>
 
-          <div className="bg-white rounded-3xl shadow-lg p-8">
-            <Title text1={"PAYMENT"} text2={"METHOD"} />
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-              {[
-                { key: "cod", label: "Cash on Delivery" },
-                {
-                  key: "razorpay",
-                  label: "Razorpay",
-                  img: "./razorpay.svg",
-                },
-                {
-    key: "upi",
-    label: "UPI",
-    img: "./upi.png", // optional
-  },
-              ].map((item) => (
-                <div
-                  key={item.key}
-                  onClick={() => setMethod(item.key)}
-                  className={`border rounded-xl p-4 flex items-center justify-center cursor-pointer transition ${
-                    method === item.key
-                      ? "border-[#c9487c] bg-[#FFF1F4]"
-                      : "border-gray-200"
-                  }`}
-                >
-                  {item.img ? (
-                    <img src={item.img} className="h-10" />
-                  ) : (
-                    <p className="text-pink-700 font-medium">
-                      Cash on Delivery
-                    </p>
-                  )}
-                </div>
-              ))}
+          <div className="rk-surface-card p-6 sm:p-8 space-y-5">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
+                Step 2
+              </p>
+              <h2 className="font-serif text-2xl text-[#38131E]">
+                Payment Method
+              </h2>
             </div>
 
-            <button
-              onClick={onSubmitHandler}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" role="radiogroup" aria-label="Payment method">
+              {[
+                { key: "cod", label: "Cash on Delivery" },
+                { key: "razorpay", label: "Razorpay", img: "/razorpay.svg" },
+                { key: "upi", label: "UPI", img: "/upi.png" },
+              ].map((item) => {
+                const selected = method === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setMethod(item.key)}
+                    className={`min-h-[58px] rounded-2xl border p-3 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                      selected
+                        ? "border-[#38131E] bg-[#38131E]/6 ring-2 ring-[#D4AF63]/60"
+                        : "border-[#38131E]/15 bg-white hover:border-[#38131E]/40"
+                    }`}
+                  >
+                    {item.img ? (
+                      <img src={item.img} alt={item.label} className="h-7 object-contain" />
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#38131E]">
+                        <Banknote className="w-4 h-4" /> COD
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <EditorialButton
+              type="submit"
+              variant="primary"
               disabled={placing || !cart || cart.length === 0}
-              className="w-full mt-10 py-4 bg-gradient-to-r from-[#c9487c] to-[#9c2756] text-white rounded-full text-lg shadow-xl hover:scale-[1.02] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full"
             >
               {placing ? (
                 <>
-                  <Loader2 size={20} className="animate-spin" />
-                  Placing Order...
+                  <Loader2 size={18} className="animate-spin" />
+                  <span>Processing…</span>
                 </>
               ) : (
                 "Place Order"
               )}
-            </button>
+            </EditorialButton>
 
-            <p className="text-center text-sm text-pink-600 mt-4">
-              Secure checkout • Easy returns • Trusted payments
+            <p className="text-center text-xs text-[#1A1718]/65">
+              Totals and payment verification are confirmed by our server.
             </p>
           </div>
         </div>
-      </div>
-    </section>
+      </form>
+    </div>
   );
 };
 
 export default PlaceOrder;
-

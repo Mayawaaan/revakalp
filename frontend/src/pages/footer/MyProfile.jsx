@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Upload, Edit, Save, X, Shield, Mail, User, Lock } from "lucide-react";
 import useStore from "../../store/store";
 import useAuth from "../../hooks/useAuth";
-import { Upload, Edit, Save, X, Shield, Mail, User } from "lucide-react";
+import PageHero from "../../components/globalComponents/PageHero";
+import EditorialButton from "../../components/ui/EditorialButton";
 
 const MyProfile = () => {
   const { user } = useStore();
@@ -10,54 +12,48 @@ const MyProfile = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [fullName, setFullName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (user) setFullName(user.fullName);
+    if (user) setFullName(user.fullName || "");
   }, [user]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setProfilePic(file);
+    const file = e.target.files?.[0];
+    if (file) setProfilePic(file);
   };
 
   const handleUpdate = async () => {
-    await handleUpdateProfile({ fullName, profilePic });
-    setProfilePic(null);
-    setIsEditing(false);
+    setSaving(true);
+    try {
+      await handleUpdateProfile({ fullName, profilePic });
+      setProfilePic(null);
+      setIsEditing(false);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setFullName(user.fullName);
+    setFullName(user?.fullName || "");
     setProfilePic(null);
     setIsEditing(false);
   };
 
-  /* ── Not logged in ── */
   if (!user) {
     return (
-      <div style={{
-        minHeight: "100vh", background: "#fff9fb",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: "'Inter', sans-serif",
-      }}>
-        <div style={{
-          background: "#fff", borderRadius: 28, padding: "56px 48px",
-          textAlign: "center", maxWidth: 420,
-          boxShadow: "0 12px 48px rgba(201,72,124,0.12)",
-          border: "1px solid #fce7f3",
-        }}>
-          <div style={{ fontSize: "3rem", marginBottom: 20 }}>🔒</div>
-          <h1 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "1.8rem", color: "#831843", marginBottom: 12,
-          }}>Sign In Required</h1>
-          <p style={{ color: "#9d174d", fontSize: "0.9rem", lineHeight: 1.7 }}>
+      <div className="min-h-[75vh] bg-[#F7F1E5] flex items-center justify-center px-4 py-12">
+        <div className="rk-surface-card p-10 text-center max-w-md w-full space-y-4">
+          <div className="w-14 h-14 rounded-full bg-[#38131E]/10 flex items-center justify-center mx-auto text-[#38131E]">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h1 className="font-serif text-3xl text-[#38131E]">Sign In Required</h1>
+          <p className="text-sm text-[#1A1718]/70">
             Please sign in to view and manage your profile.
           </p>
+          <EditorialButton to="/login">Go to Sign In</EditorialButton>
         </div>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
       </div>
     );
   }
@@ -67,191 +63,110 @@ const MyProfile = () => {
     : user.profilePic || null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fff9fb", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-[#F7F1E5]">
+      <PageHero
+        label="Account"
+        title="My Profile"
+        subtitle="Manage your personal information and account preferences."
+      />
 
-      {/* ── Dark Hero Banner ── */}
-      <div style={{
-        background: "linear-gradient(135deg, #1a0010 0%, #3d0030 45%, #7a1045 80%, #c9487c 100%)",
-        padding: "80px 32px 120px", position: "relative", overflow: "hidden",
-      }}>
-        <div style={{
-          position: "absolute", top: "-20%", left: "-5%",
-          width: 400, height: 400, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(201,72,124,0.3) 0%, transparent 70%)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "-20%", right: "-5%",
-          width: 300, height: 300, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%)",
-        }} />
-        <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontSize: 11, color: "#f9a8d4", marginBottom: 14 }}>
-            Account
-          </p>
-          <h1 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "clamp(2rem, 4vw, 3rem)", color: "#fff",
-          }}>My Profile</h1>
-        </div>
-      </div>
-
-      {/* ── Profile Card (overlapping hero) ── */}
-      <div style={{ maxWidth: 760, margin: "-72px auto 80px", padding: "0 24px", position: "relative", zIndex: 10 }}>
-        <div style={{
-          background: "#fff", borderRadius: 32,
-          boxShadow: "0 24px 80px rgba(201,72,124,0.18)",
-          border: "1px solid #fce7f3", overflow: "hidden",
-        }}>
-
-          {/* Avatar section */}
-          <div style={{
-            background: "linear-gradient(135deg, #fce7f3, #fff1f4)",
-            padding: "48px 40px 36px",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
-            borderBottom: "1px solid #fce7f3",
-          }}>
-            <div
-              style={{
-                width: 110, height: 110, borderRadius: "50%", overflow: "hidden",
-                cursor: isEditing ? "pointer" : "default",
-                boxShadow: "0 0 0 4px #fff, 0 0 0 7px #c9487c44",
-                position: "relative", flexShrink: 0,
-              }}
-              onClick={() => isEditing && fileInputRef.current.click()}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-10 pb-16 relative z-10">
+        <div className="rk-surface-card overflow-hidden">
+          <div className="bg-[#38131E]/5 px-6 sm:px-10 py-10 flex flex-col items-center gap-4 border-b border-[#38131E]/10">
+            <button
+              type="button"
+              disabled={!isEditing}
+              onClick={() => isEditing && fileInputRef.current?.click()}
+              aria-label={isEditing ? "Upload new profile picture" : "Profile picture"}
+              className={`relative w-24 h-24 rounded-full overflow-hidden border-4 border-white ring-2 ring-[#D4AF63]/60 ${
+                isEditing ? "cursor-pointer" : "cursor-default"
+              }`}
             >
               {avatarSrc ? (
-                <img src={avatarSrc} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div style={{
-                  width: "100%", height: "100%",
-                  background: "linear-gradient(135deg, #c9487c, #7a1045)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "2.5rem", color: "#fff",
-                  fontFamily: "'Playfair Display', serif",
-                }}>
-                  {user.fullName?.charAt(0).toUpperCase()}
+                <div className="w-full h-full bg-[#38131E] text-[#F1D889] flex items-center justify-center font-serif text-3xl">
+                  {user.fullName?.charAt(0)?.toUpperCase()}
                 </div>
               )}
               {isEditing && (
-                <div style={{
-                  position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "#fff",
-                }}>
-                  <Upload size={22} />
-                </div>
+                <span className="absolute inset-0 bg-[#1A1718]/50 flex items-center justify-center text-white">
+                  <Upload size={20} />
+                </span>
               )}
-            </div>
+            </button>
 
-            <div style={{ textAlign: "center" }}>
+            <div className="text-center">
               {isEditing ? (
                 <input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: "1.6rem", color: "#831843",
-                    background: "transparent",
-                    border: "none", borderBottom: "2px solid #c9487c",
-                    outline: "none", textAlign: "center",
-                    width: 260,
-                  }}
+                  aria-label="Full Name"
+                  className="font-serif text-2xl text-[#38131E] bg-white border-b-2 border-[#38131E] px-3 py-1 text-center focus:outline-none rounded-t-lg"
                 />
               ) : (
-                <h2 style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: "1.8rem", color: "#831843",
-                }}>{user.fullName}</h2>
+                <h2 className="font-serif text-2xl sm:text-3xl text-[#38131E]">
+                  {user.fullName}
+                </h2>
               )}
-              <p style={{
-                color: "#c9487c", fontSize: "0.78rem", fontWeight: 600,
-                textTransform: "uppercase", letterSpacing: "0.12em", marginTop: 6,
-              }}>Revakalp Member</p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/65 font-semibold mt-1">
+                Revakalp Member
+              </p>
             </div>
           </div>
 
-          {/* Info rows */}
-          <div style={{ padding: "36px 40px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 36 }}>
-              {[
-                { icon: <User size={16} />, label: "Full Name", value: user.fullName },
-                { icon: <Mail size={16} />, label: "Email Address", value: user.email },
-              ].map((field, i) => (
-                <div key={i} style={{
-                  background: "#fff9fb", borderRadius: 16, padding: "20px 22px",
-                  border: "1px solid #fce7f3",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, color: "#c9487c" }}>
-                    {field.icon}
-                    <span style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                      {field.label}
-                    </span>
-                  </div>
-                  <p style={{ color: "#831843", fontSize: "0.95rem", fontWeight: 500 }}>{field.value}</p>
-                </div>
-              ))}
+          <div className="p-6 sm:p-10 space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-[#F7F1E5]/70 border border-[#38131E]/10">
+                <p className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#38131E]/65 font-semibold mb-1.5">
+                  <User size={14} /> Full Name
+                </p>
+                <p className="text-sm font-medium text-[#38131E]">{user.fullName}</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#F7F1E5]/70 border border-[#38131E]/10">
+                <p className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#38131E]/65 font-semibold mb-1.5">
+                  <Mail size={14} /> Email Address
+                </p>
+                <p className="text-sm font-medium text-[#38131E] break-all">{user.email}</p>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <div className="flex flex-wrap justify-center gap-3">
               {isEditing ? (
                 <>
-                  <button onClick={handleUpdate} style={{
-                    display: "flex", alignItems: "center", gap: 8,
-                    background: "linear-gradient(135deg, #c9487c, #7a1045)",
-                    color: "#fff", padding: "12px 28px", borderRadius: 50,
-                    border: "none", cursor: "pointer", fontWeight: 600,
-                    fontSize: "0.88rem", boxShadow: "0 4px 16px rgba(201,72,124,0.35)",
-                    transition: "transform 0.2s",
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-                    onMouseLeave={e => e.currentTarget.style.transform = ""}
+                  <EditorialButton
+                    variant="primary"
+                    disabled={saving}
+                    onClick={handleUpdate}
                   >
-                    <Save size={16} /> Save Changes
-                  </button>
-                  <button onClick={handleCancel} style={{
-                    display: "flex", alignItems: "center", gap: 8,
-                    background: "#f3f4f6", color: "#374151",
-                    padding: "12px 28px", borderRadius: 50,
-                    border: "none", cursor: "pointer", fontWeight: 500,
-                    fontSize: "0.88rem", fontFamily: "'Inter', sans-serif",
-                  }}>
-                    <X size={16} /> Cancel
-                  </button>
+                    <Save size={15} /> {saving ? "Saving…" : "Save Changes"}
+                  </EditorialButton>
+                  <EditorialButton variant="secondary" onClick={handleCancel}>
+                    <X size={15} /> Cancel
+                  </EditorialButton>
                 </>
               ) : (
-                <button onClick={() => setIsEditing(true)} style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  background: "#fce7f3", color: "#831843",
-                  padding: "12px 28px", borderRadius: 50,
-                  border: "1.5px solid #fbbf2440", cursor: "pointer",
-                  fontWeight: 600, fontSize: "0.88rem",
-                  transition: "background 0.2s",
-                  fontFamily: "'Inter', sans-serif",
-                }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#fbcfe8"}
-                  onMouseLeave={e => e.currentTarget.style.background = "#fce7f3"}
-                >
-                  <Edit size={16} /> Edit Profile
-                </button>
+                <EditorialButton variant="secondary" onClick={() => setIsEditing(true)}>
+                  <Edit size={15} /> Edit Profile
+                </EditorialButton>
               )}
             </div>
 
-            {/* Security note */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10, justifyContent: "center",
-              marginTop: 24, color: "#9d174d", fontSize: "0.8rem",
-            }}>
-              <Shield size={14} />
-              <span>Your information is securely stored and never shared without consent.</span>
+            <div className="flex items-center justify-center gap-2 text-xs text-[#1A1718]/65">
+              <Shield size={14} className="text-[#38131E]" />
+              <span>Your information is securely stored and used solely for order fulfillment.</span>
             </div>
           </div>
         </div>
       </div>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: "none" }} accept="image/*" />
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');`}</style>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+      />
     </div>
   );
 };
