@@ -1,21 +1,28 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import useStore from '../../store/store'; // Corrected import to use the global store
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import useStore from "../../store/store";
 
 const AdminProtectedRoute = () => {
-  const user = useStore((state) => state.user); // Corrected access to user from the auth slice
+  const user = useStore((state) => state.user);
+  const authReady = useStore((state) => state.authReady);
+  const location = useLocation();
+
+  if (!authReady) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center bg-[#F7F1E5] text-[#38131E] text-xs uppercase tracking-[0.22em]">
+        Verifying administrator access…
+      </div>
+    );
+  }
 
   if (!user) {
-    // If no user is logged in, redirect to login page
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (user.role !== 'admin') {
-    // If user is logged in but not an admin, redirect to home or an unauthorized page
-    return <Navigate to="/" replace />; // Or a specific /unauthorized page
+  if (user.role !== "admin") {
+    return <Navigate to="/" replace />;
   }
 
-  // If user is an admin, render the child routes
   return <Outlet />;
 };
 

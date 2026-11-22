@@ -3,10 +3,10 @@ import Landing from "../../components/homepage/Landing";
 import OurPolicy from "../../components/homepage/OurPolicy";
 import CategoryExpressions from "../../components/home/CategoryExpressions";
 import TrendingProducts from "../../components/home/TrendingProducts";
-import SareeStory from "../../components/home/SareeStory";
+import IndoWesternFeature from "../../components/home/IndoWesternFeature";
 import TextileExperience from "../../components/home/TextileExperience";
-import PrintedTeesFeature from "../../components/home/PrintedTeesFeature";
 import OccasionEdit from "../../components/home/OccasionEdit";
+import PrintedTeesFeature from "../../components/home/PrintedTeesFeature";
 import StoreStory from "../../components/home/StoreStory";
 import NewsletterBox from "../../components/homepage/NewsletterBox";
 import useReducedMotion from "../../components/motion/useReducedMotion";
@@ -24,10 +24,10 @@ const Home = () => {
       <OurPolicy />
       <CategoryExpressions />
       <TrendingProducts />
-      <SareeStory />
+      <IndoWesternFeature />
       <TextileExperience />
-      <PrintedTeesFeature />
       <OccasionEdit />
+      <PrintedTeesFeature />
       <StoreStory />
       <NewsletterBox />
     </div>

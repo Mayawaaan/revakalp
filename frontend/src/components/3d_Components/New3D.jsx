@@ -12,6 +12,48 @@ import Pod from "./Pod";
 import ProceduralEthnicWear from "./ProceduralEthnicWear";
 import { WEAVE_PALETTES } from "./glslMaterials";
 
+/** Architectural gold zari filigree halo framing the couture centerpiece */
+const ArchitecturalArchHalo = ({ active = true }) => {
+  const ringRef = useRef();
+  const innerRef = useRef();
+
+  useFrame((state) => {
+    if (!active) return;
+    const t = state.clock.elapsedTime;
+    if (ringRef.current) {
+      ringRef.current.rotation.z = Math.sin(t * 0.25) * 0.08;
+    }
+    if (innerRef.current) {
+      innerRef.current.rotation.z = -Math.cos(t * 0.2) * 0.1;
+    }
+  });
+
+  return (
+    <group position={[0, 0.2, -1.65]}>
+      <mesh ref={ringRef}>
+        <torusGeometry args={[2.55, 0.012, 12, 96]} />
+        <meshStandardMaterial
+          color="#D4AF63"
+          metalness={0.85}
+          roughness={0.28}
+          transparent
+          opacity={0.52}
+        />
+      </mesh>
+      <mesh ref={innerRef}>
+        <torusGeometry args={[2.28, 0.006, 10, 96]} />
+        <meshStandardMaterial
+          color="#F1D889"
+          metalness={0.75}
+          roughness={0.35}
+          transparent
+          opacity={0.32}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 /** Instanced gold/ivory motes — 1 draw call */
 const WindDust = ({ count = 56, active = true }) => {
   const meshRef = useRef();
@@ -129,6 +171,8 @@ const Scene = ({ hovered, active, offsetRight, paletteKey, breezeBoost }) => (
 
     <Environment preset="studio" background={false} />
 
+    <ArchitecturalArchHalo active={active} />
+
     <group position={[0, 0, 0]}>
       <ContactShadows
         position={[0, -2.5, 0]}
@@ -239,7 +283,7 @@ const New3D = ({ offsetRight = false, onReady, paused = false }) => {
         </Suspense>
       </Canvas>
 
-      {/* Interactive Weave Palette & Breeze Controls */}
+      {/* Architectural Weave Palette & Breeze Controls */}
       <div
         role="toolbar"
         aria-label="3D Couture Weave and Breeze Controls"
@@ -253,15 +297,15 @@ const New3D = ({ offsetRight = false, onReady, paused = false }) => {
               type="button"
               onClick={() => setPaletteKey(key)}
               aria-pressed={selected}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] border backdrop-blur-xs transition-colors cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-[10px] uppercase tracking-[0.16em] border backdrop-blur-xs transition-colors cursor-pointer ${
                 selected
                   ? "bg-[#F7F1E5] text-[#2B0E17] border-[#F1D889] font-semibold"
-                  : "bg-[#2B0E17]/75 text-[#F1D889]/90 border-[#D4AF63]/40 hover:bg-[#38131E]"
+                  : "bg-[#2B0E17]/82 text-[#F1D889]/90 border-[#D4AF63]/40 hover:bg-[#38131E]"
               }`}
             >
               <span
                 aria-hidden="true"
-                className="w-2.5 h-2.5 rounded-full border border-[#D4AF63]/60 shrink-0"
+                className="w-2.5 h-2.5 rounded-[1px] border border-[#D4AF63]/60 shrink-0"
                 style={{ backgroundColor: palette.base }}
               />
               <span>{palette.label}</span>
@@ -273,10 +317,10 @@ const New3D = ({ offsetRight = false, onReady, paused = false }) => {
           type="button"
           onClick={() => setBreezeBoost((prev) => !prev)}
           aria-pressed={breezeBoost}
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] border backdrop-blur-xs transition-colors cursor-pointer ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-[10px] uppercase tracking-[0.16em] border backdrop-blur-xs transition-colors cursor-pointer ${
             breezeBoost
               ? "bg-[#D4AF63] text-[#2B0E17] border-[#F1D889] font-semibold"
-              : "bg-[#2B0E17]/75 text-[#F1D889]/90 border-[#D4AF63]/40 hover:bg-[#38131E]"
+              : "bg-[#2B0E17]/82 text-[#F1D889]/90 border-[#D4AF63]/40 hover:bg-[#38131E]"
           }`}
         >
           <Wind className="w-3 h-3" />

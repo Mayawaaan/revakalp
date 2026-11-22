@@ -49,12 +49,19 @@ const useAuth = () => {
   // ✅ SIGNUP (FIXED)
   // =========================
   const handleSignup = useCallback(
-    async (fullName, email, password, profilePic) => {
+    async (fullName, email, password, profilePic, options = {}) => {
       try {
         const formData = new FormData();
         formData.append("fullName", fullName);
         formData.append("email", email);
         formData.append("password", password);
+
+        if (options.consentAccepted !== undefined) {
+          formData.append("consentAccepted", String(Boolean(options.consentAccepted)));
+        }
+        if (options.consentVersion) {
+          formData.append("consentVersion", options.consentVersion);
+        }
 
         if (profilePic) {
           formData.append("profilePic", profilePic);

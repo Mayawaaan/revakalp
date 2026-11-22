@@ -21,17 +21,16 @@ const ImageManagement = () => {
     if (!file) { showToast("Please select an image first", "error"); return; }
     setLoading(true); setImageUrl(""); setCopied(false);
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "YOUR_UPLOAD_PRESET");
+    formData.append("image", file);
     try {
-      const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
-        formData
-      );
+      const res = await axios.post("/api/admin/media/upload", formData);
       setImageUrl(res.data.secure_url);
-      showToast("Image uploaded successfully", "success");
-    } catch { showToast("Image upload failed", "error"); }
-    finally { setLoading(false); }
+      showToast("Image uploaded securely via server media library", "success");
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Image upload failed", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const copyToClipboard = () => {

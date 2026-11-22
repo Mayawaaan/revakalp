@@ -8,49 +8,125 @@ export const STOREFRONT_CATEGORIES = [
   {
     id: "saree",
     label: "Sarees",
-    subtitle: "Drapes across regions & occasions",
+    subtitle: "Silks, cottons, and festive drapes",
     route: "/shop/saree",
     allRoute: "/shop/saree/all",
     aliases: ["saree", "sarees"],
     fallbackArt: "/campaign/category-sarees.png",
+    section: "featured",
+    emptySection: false,
   },
   {
     id: "lehenga",
     label: "Lehengas",
-    subtitle: "Festive & bridal silhouettes",
+    subtitle: "Bridal and celebration styles",
     route: "/shop/lehenga/all",
     allRoute: "/shop/lehenga/all",
     aliases: ["lehenga", "lehengas", "lengha", "lenghas", "bridal lehenga"],
     fallbackArt: "/campaign/category-lehengas.png",
+    section: "featured",
+    emptySection: false,
   },
   {
-    id: "kurta",
-    label: "Kurta Pajama",
-    subtitle: "Tailored everyday & festive kurtas",
-    route: "/shop/kurta",
-    allRoute: "/shop/kurta/all",
-    aliases: ["kurta", "kurtas", "kurta pajama", "kurta-pajama"],
-    fallbackArt: "/campaign/category-kurta-pajama.png",
-  },
-  {
-    id: "jodhpuri",
-    label: "Jodhpuri",
-    subtitle: "Structured bandhgala ensembles",
-    route: "/shop/jodhpuri/all",
-    allRoute: "/shop/jodhpuri/all",
-    aliases: ["jodhpuri", "bandhgala", "indo-western"],
-    fallbackArt: "/campaign/category-jodhpuri.png",
+    id: "indo-western",
+    label: "Indo-Western",
+    subtitle: "Modern silhouettes with festive craft",
+    route: "/shop/indo-western/all",
+    allRoute: "/shop/indo-western/all",
+    aliases: [
+      "indo-western",
+      "indo western",
+      "indowestern",
+      "fusion",
+      "drape skirt",
+      "indo western gown",
+      "cape set",
+      "co-ord",
+    ],
+    fallbackArt: "/campaign/category-lehengas.png",
+    section: "featured",
+    emptySection: false,
   },
   {
     id: "printed-tees",
     label: "Printed Tees",
-    subtitle: "Contemporary graphic statements",
+    subtitle: "Relaxed graphic tees for everyday wear",
     route: "/shop/printed-tees/all",
     allRoute: "/shop/printed-tees/all",
-    aliases: ["printed-tees", "printed tee", "printed tees", "tee", "tees", "t-shirt", "tshirt", "t-shirts"],
+    aliases: [
+      "printed-tees",
+      "printed tee",
+      "printed tees",
+      "tee",
+      "tees",
+      "t-shirt",
+      "tshirt",
+      "t-shirts",
+    ],
     fallbackArt: "/campaign/category-printed-tees.png",
+    section: "featured",
+    emptySection: false,
+  },
+  {
+    id: "suit",
+    label: "Suits",
+    subtitle: "Men's tailored suits — coming soon",
+    route: "/shop/suit/all",
+    allRoute: "/shop/suit/all",
+    aliases: ["suit", "suits", "mens suit", "men suit"],
+    fallbackArt: "",
+    section: "men",
+    emptySection: true,
+  },
+  {
+    id: "kurta",
+    label: "Kurta Pajama",
+    subtitle: "Men's kurta pajama — coming soon",
+    route: "/shop/kurta/all",
+    allRoute: "/shop/kurta/all",
+    aliases: ["kurta", "kurtas", "kurta pajama", "kurta-pajama"],
+    fallbackArt: "",
+    section: "men",
+    emptySection: true,
+  },
+  {
+    id: "jodhpuri",
+    label: "Jodhpuri",
+    subtitle: "Men's bandhgala & Jodhpuri — coming soon",
+    route: "/shop/jodhpuri/all",
+    allRoute: "/shop/jodhpuri/all",
+    aliases: ["jodhpuri", "bandhgala"],
+    fallbackArt: "",
+    section: "men",
+    emptySection: true,
   },
 ];
+
+export const ACTIVE_STOREFRONT_CATEGORIES = STOREFRONT_CATEGORIES.filter(
+  (c) => !c.emptySection
+);
+
+export const MENS_STOREFRONT_CATEGORIES = STOREFRONT_CATEGORIES.filter(
+  (c) => c.section === "men"
+);
+
+export const MENS_EMPTY_CATEGORY_IDS = new Set(["suit", "kurta", "jodhpuri"]);
+
+const MENS_EMPTY_ALIASES = new Set([
+  "suit",
+  "suits",
+  "kurta",
+  "kurtas",
+  "kurta-pajama",
+  "jodhpuri",
+  "bandhgala",
+]);
+
+export const normalizeSlug = (value = "") =>
+  String(value).trim().toLowerCase().replace(/[\s_]+/g, "-");
+
+export const isEmptyMensCategory = (slug = "") =>
+  MENS_EMPTY_ALIASES.has(normalizeSlug(slug));
 
 export const REGIONAL_TEXTILE_EDITS = [
   {
@@ -109,38 +185,62 @@ export const OCCASION_EDITS = [
     label: "Wedding",
     subtitle: "Bridal & ceremony ensembles",
     route: "/shop/lehenga/all",
-    keywords: ["wedding", "bridal", "lehenga", "lengha", "paithani", "kanjivaram", "banarasi", "zardozi", "jodhpuri", "indo-western"],
+    keywords: [
+      "wedding",
+      "bridal",
+      "lehenga",
+      "lengha",
+      "paithani",
+      "kanjivaram",
+      "banarasi",
+      "zardozi",
+      "indo-western",
+      "indo western",
+      "fusion",
+    ],
   },
   {
     id: "festive",
     label: "Festive",
     subtitle: "Diwali, Navratri & family gatherings",
-    keywords: ["festive", "silk", "bandhej", "leheriya", "kurta", "suit", "anarkali", "maheshwari"],
+    route: "/shop/indo-western/all",
+    keywords: [
+      "festive",
+      "silk",
+      "bandhej",
+      "leheriya",
+      "anarkali",
+      "maheshwari",
+      "indo-western",
+      "indo western",
+      "fusion",
+    ],
   },
   {
     id: "everyday",
     label: "Everyday",
     subtitle: "Breathable cottons & printed tees",
+    route: "/shop/printed-tees/all",
     keywords: ["cotton", "everyday", "casual", "tee", "t-shirt", "printed", "linen", "tant"],
   },
   {
     id: "formal",
     label: "Formal",
     subtitle: "Structured drapes & tailored classics",
-    keywords: ["formal", "jodhpuri", "bandhgala", "organza", "chanderi", "straight", "kosa"],
+    route: "/shop/saree/all",
+    keywords: ["formal", "organza", "chanderi", "straight", "kosa"],
   },
 ];
-
-export const normalizeSlug = (value = "") =>
-  String(value).trim().toLowerCase().replace(/[\s_]+/g, "-");
 
 /**
  * Matches a product against a category slug/id across category, subCategory, type, and name
  * so both legacy `product.type === "Saree"` and model `product.category === "Saree"` work safely.
+ * Returns false immediately for the currently empty Men's section shelves.
  */
 export const matchesCategory = (product, categorySlug) => {
   if (!product) return false;
   if (!categorySlug || normalizeSlug(categorySlug) === "all") return true;
+  if (isEmptyMensCategory(categorySlug)) return false;
 
   const target = normalizeSlug(categorySlug);
   const entry = STOREFRONT_CATEGORIES.find(
@@ -194,6 +294,9 @@ export const getProductImage = (product, index = 0) => {
     : [];
   return list[index] || list[0] || "";
 };
+
+export const getAvailableStock = (product) =>
+  Math.max(0, (Number(product?.stock) || 0) - (Number(product?.reserved) || 0));
 
 export const getEffectivePrice = (product) => {
   const price = Number(product?.price) || 0;

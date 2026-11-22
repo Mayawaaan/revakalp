@@ -16,6 +16,13 @@
   --font-sans: var(--revakalp-body-font);
 }
 
+:root {
+  --revakalp-alabaster: #FBF7EE;
+  --revakalp-linen: #EFE6D5;
+  --revakalp-hairline: rgba(56, 19, 30, 0.14);
+  --revakalp-gold-hairline: rgba(212, 175, 99, 0.35);
+}
+
 @layer base {
   html {
     background-color: var(--revakalp-ivory);
@@ -62,12 +69,28 @@
   scrollbar-width: none;
 }
 
+/* Architectural subtle textures & dividers */
+.rk-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+.rk-hairline-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 99, 0.65) 50%, transparent 100%);
+}
+
+.rk-editorial-frame {
+  border: 1px solid var(--revakalp-hairline);
+  background-color: var(--revakalp-alabaster);
+  border-radius: 2px;
+}
+
 /* Shared form controls (official brand palette) */
 .input-floating {
-  @apply w-full h-14 px-4 pt-5 pb-2 rounded-xl
-         bg-white border border-[#38131E]/20
+  @apply w-full h-14 px-4 pt-5 pb-2 rounded-[2px]
+         bg-[#FBF7EE] border border-[#38131E]/22
          text-sm text-[#1A1718]
-         focus:outline-none focus:ring-2 focus:ring-[#D4AF63]
+         focus:outline-none focus:ring-1 focus:ring-[#D4AF63]
          focus:border-[#38131E] transition;
 }
 
@@ -78,43 +101,43 @@
          peer-valid:top-1.5 peer-valid:text-[11px] peer-valid:text-[#38131E]/80;
 }
 
-/* Shared editorial button primitives */
+/* Shared editorial architectural button primitives */
 .rk-btn-primary {
-  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
-         bg-[#38131E] text-[#F7F1E5] text-xs sm:text-sm font-medium tracking-[0.14em] uppercase
+  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
+         bg-[#38131E] text-[#F7F1E5] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase
          border border-[#38131E] transition-all duration-300
-         hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-lg
+         hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[0_12px_30px_-14px_rgba(43,14,23,0.7)]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
 .rk-btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
-         bg-[#F7F1E5] text-[#38131E] text-xs sm:text-sm font-medium tracking-[0.14em] uppercase
+  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
+         bg-transparent text-[#38131E] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase
          border border-[#38131E]/35 transition-all duration-300
          hover:bg-[#38131E] hover:text-[#F7F1E5] hover:border-[#38131E]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
 .rk-btn-gold {
-  @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full
-         bg-[#D4AF63] text-[#2B0E17] text-xs sm:text-sm font-semibold tracking-[0.14em] uppercase
+  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
+         bg-[#D4AF63] text-[#2B0E17] text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase
          border border-[#D4AF63] transition-all duration-300
          hover:bg-[#F1D889] hover:border-[#F1D889]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
 .rk-surface-card {
-  @apply bg-white/90 border border-[#38131E]/12 rounded-2xl shadow-sm;
+  @apply bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] shadow-[0_14px_40px_-28px_rgba(43,14,23,0.32)];
 }
 
 .rk-chip {
-  @apply inline-flex items-center gap-1.5 min-h-[36px] px-3.5 py-1.5 rounded-full
-         text-xs font-medium border border-[#38131E]/20 bg-white text-[#38131E]
-         hover:border-[#38131E] transition-colors cursor-pointer;
+  @apply inline-flex items-center gap-1.5 min-h-[38px] px-4 py-1.5 rounded-[2px]
+         text-[11px] uppercase tracking-[0.16em] font-medium border border-[#38131E]/22
+         bg-[#FBF7EE] text-[#38131E] hover:border-[#38131E] transition-colors cursor-pointer;
 }
 
 .rk-chip-active {
-  @apply bg-[#38131E] text-[#F7F1E5] border-[#38131E];
+  @apply bg-[#38131E] text-[#F1D889] border-[#38131E];
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,189 +1,227 @@
-import Cart from '../models/cart.model.js';
-import Product from '../models/product.model.js';
-import Coupon from '../models/coupon.model.js';
+import Cart from "../models/cart.model.js";
+import Product from "../models/product.model.js";
+import Coupon from "../models/coupon.model.js";
+import { getAvailableStock, releaseExpiredReservations } from "../services/inventory.service.js";
 
 export const getCart = async (req, res) => {
-  // console.log("Getting cart for user:", req.user._id);
   try {
     const userId = req.user._id;
-    let cart = await Cart.findOne({ userId }).populate('items.productId');
+    let cart = await Cart.findOne({ userId }).populate("items.productId");
     if (!cart) {
       cart = new Cart({ userId, items: [] });
       await cart.save();
     }
     res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching cart', error: error.message });
+    res.status(500).json({ message: "Error fetching cart", error: error.message });
   }
 };
 
 export const addToCart = async (req, res) => {
-  // console.log("Add to cart request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size } = req.body;
-    
+
     if (!productId) {
-      return res.status(400).json({ message: 'productId is required' });
+      return res.status(400).json({ message: "productId is required" });
     }
-    
+
+    await releaseExpiredReservations(productId);
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // If product has sizes enabled, size must be provided
     if (product.hasSizes && !size) {
-      return res.status(400).json({ message: 'size is required for this product' });
+      return res.status(400).json({ message: "size is required for this product" });
     }
 
-    const effectiveSize = product.hasSizes ? size : 'NO_SIZE';
-    // console.log("Product found:", product);
-    
+    const effectiveSize = product.hasSizes ? size : "NO_SIZE";
+    const available = getAvailableStock(product);
+
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId, items: [] });
     }
 
-    const existingItem = cart.items.find(item => item.productId.toString() === productId && item.size === effectiveSize);
+    const existingItem = cart.items.find(
+      (item) =>
+        item.productId.toString() === productId && item.size === effectiveSize
+    );
+    const nextQty = existingItem ? existingItem.quantity + 1 : 1;
+
+    if (nextQty > available) {
+      return res.status(409).json({
+        message:
+          available <= 0
+            ? "This piece is currently sold out or reserved in an active checkout."
+            : `Only ${available} unit${available === 1 ? "" : "s"} currently available.`,
+      });
+    }
+
     if (existingItem) {
-      existingItem.quantity += 1;
+      existingItem.quantity = nextQty;
     } else {
       cart.items.push({ productId, size: effectiveSize, quantity: 1 });
     }
 
     await cart.save();
-    await cart.populate('items.productId');
-    res.status(200).json(cart);
+    await cart.populate("items.productId");
+    return res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error adding to cart', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error adding to cart", error: error.message });
   }
 };
 
 export const updateCartItem = async (req, res) => {
-  // console.log("Update cart item request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size, quantity } = req.body;
 
     if (!productId || !size || quantity === undefined) {
-      return res.status(400).json({ message: 'productId, size and quantity are required' });
+      return res
+        .status(400)
+        .json({ message: "productId, size and quantity are required" });
     }
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      return res.status(404).json({ message: "Cart not found" });
     }
 
-    const item = cart.items.find(item => item.productId.toString() === productId && item.size === size);
+    const item = cart.items.find(
+      (i) => i.productId.toString() === productId && i.size === size
+    );
     if (!item) {
-      return res.status(404).json({ message: 'Item not found in cart' });
+      return res.status(404).json({ message: "Item not found in cart" });
     }
 
-    item.quantity = quantity;
     if (quantity <= 0) {
-      cart.items = cart.items.filter(item => !(item.productId.toString() === productId && item.size === size));
+      cart.items = cart.items.filter(
+        (i) => !(i.productId.toString() === productId && i.size === size)
+      );
+    } else {
+      await releaseExpiredReservations(productId);
+      const product = await Product.findById(productId);
+      const available = getAvailableStock(product);
+      if (quantity > available) {
+        return res.status(409).json({
+          message: `Only ${available} unit${available === 1 ? "" : "s"} currently available.`,
+        });
+      }
+      item.quantity = quantity;
     }
 
     await cart.save();
-    await cart.populate('items.productId');
-    res.status(200).json(cart);
+    await cart.populate("items.productId");
+    return res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating cart item', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error updating cart item", error: error.message });
   }
 };
 
 export const removeFromCart = async (req, res) => {
-  // console.log("Remove from cart request for user:", req.user._id, "with body:", req.body);
   try {
     const userId = req.user._id;
     const { productId, size } = req.body;
 
     if (!productId || !size) {
-      return res.status(400).json({ message: 'productId and size are required' });
+      return res.status(400).json({ message: "productId and size are required" });
     }
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      return res.status(404).json({ message: "Cart not found" });
     }
 
-    cart.items = cart.items.filter(item => !(item.productId.toString() === productId && item.size === size));
+    cart.items = cart.items.filter(
+      (item) => !(item.productId.toString() === productId && item.size === size)
+    );
     await cart.save();
-    await cart.populate('items.productId');
-    res.status(200).json(cart);
+    await cart.populate("items.productId");
+    return res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error removing from cart', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error removing from cart", error: error.message });
   }
 };
 
 export const clearCart = async (req, res) => {
-  // console.log("Clear cart request for user:", req.user._id);
   try {
     const userId = req.user._id;
     const cart = await Cart.findOneAndUpdate(
       { userId },
-      { items: [], couponCode: '', discountPercentage: 0 },
+      { items: [], couponCode: "", discountPercentage: 0 },
       { new: true }
     );
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error clearing cart', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error clearing cart", error: error.message });
   }
 };
 
 export const applyCoupon = async (req, res) => {
-    // console.log("Apply coupon request for user:", req.user._id, "with body:", req.body);
-    try {
-        const userId = req.user._id;
-        const { code } = req.body;
+  try {
+    const userId = req.user._id;
+    const normalizedCode = String(req.body?.code || "").trim().toUpperCase();
 
-        const coupon = await Coupon.findOne({ code });
-
-        if (!coupon) {
-            return res.status(404).json({ message: 'Coupon not found' });
-        }
-
-        if (!coupon.isActive) {
-            return res.status(400).json({ message: 'Coupon is not active' });
-        }
-
-        if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-            return res.status(400).json({ message: 'Coupon has expired' });
-        }
-
-        if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
-            return res.status(400).json({ message: 'Coupon has reached its usage limit' });
-        }
-
-        const cart = await Cart.findOneAndUpdate(
-            { userId },
-            { couponCode: code, discountPercentage: coupon.discountPercentage },
-            { new: true }
-        ).populate('items.productId');
-
-        coupon.usedCount += 1;
-        await coupon.save();
-
-        res.status(200).json(cart);
-    } catch (error) {
-        res.status(500).json({ message: 'Error applying coupon', error: error.message });
+    if (!normalizedCode) {
+      return res.status(400).json({ message: "Coupon code is required" });
     }
+
+    const coupon = await Coupon.findOne({ code: normalizedCode });
+
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    if (!coupon.isActive) {
+      return res.status(400).json({ message: "Coupon is not active" });
+    }
+
+    if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+      return res.status(400).json({ message: "Coupon has expired" });
+    }
+
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      return res.status(400).json({ message: "Coupon has reached its usage limit" });
+    }
+
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { couponCode: normalizedCode, discountPercentage: coupon.discountPercentage },
+      { new: true }
+    ).populate("items.productId");
+
+    // Coupon usage increments only when checkout finalizes an actual order
+    return res.status(200).json(cart);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error applying coupon", error: error.message });
+  }
 };
 
 export const removeCoupon = async (req, res) => {
-  // console.log("Remove coupon request for user:", req.user._id);
   try {
     const userId = req.user._id;
     const cart = await Cart.findOneAndUpdate(
       { userId },
-      { couponCode: '', discountPercentage: 0 },
+      { couponCode: "", discountPercentage: 0 },
       { new: true }
-    ).populate('items.productId');
+    ).populate("items.productId");
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ message: 'Error removing coupon', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error removing coupon", error: error.message });
   }
 };
-

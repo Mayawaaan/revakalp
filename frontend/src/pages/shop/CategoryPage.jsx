@@ -8,27 +8,37 @@ import SectionHeading from "../../components/ui/SectionHeading";
 import EditorialButton from "../../components/ui/EditorialButton";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 import {
-  STOREFRONT_CATEGORIES,
+  ACTIVE_STOREFRONT_CATEGORIES,
+  MENS_STOREFRONT_CATEGORIES,
   matchesCategory,
   getProductImage,
+  getAvailableStock,
 } from "../../config/storefrontCategories";
+import { useSeoMeta } from "../../utils/seo";
 
 const CategoryPage = () => {
   const { collections, products, loading } = useStore();
+
+  useSeoMeta({
+    title: "Collections",
+    description:
+      "Browse curated Revakalp collections — Sarees, Lehengas, Indo-Western, and Printed Tees, plus our upcoming Men's section.",
+    canonicalPath: "/shop",
+  });
 
   return (
     <div className="bg-[#F7F1E5] min-h-screen">
       <PageHero
         label="Explore"
         title="Our Collections"
-        subtitle="Curated ethnic occasionwear and everyday apparel — discover collections available online and at our Indore retail store."
+        subtitle="Everything currently available at our Indore boutique and online."
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-16">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Breadcrums />
           <EditorialButton to="/shop/all/all" variant="secondary">
-            <span>Browse Full Catalog</span>
+            <span>See Everything</span>
             <ArrowRight className="w-4 h-4" />
           </EditorialButton>
         </div>
@@ -36,17 +46,17 @@ const CategoryPage = () => {
         {/* Storefront Core Categories */}
         <section aria-label="Shop by Category">
           <SectionHeading
-            eyebrow="Storefront Categories"
+            eyebrow="Browse"
             title="Shop by"
             accentWord="Category"
             align="left"
             className="mb-8"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-            {STOREFRONT_CATEGORIES.map((cat) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => {
               const matching = (products || []).filter(
-                (p) => Number(p?.stock) > 0 && matchesCategory(p, cat.id)
+                (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
               );
               const liveImg = matching.length > 0 ? getProductImage(matching[0]) : "";
               const imgSrc = liveImg || cat.fallbackArt;
@@ -55,24 +65,25 @@ const CategoryPage = () => {
                 <Link
                   key={cat.id}
                   to={cat.route}
-                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-white border border-[#38131E]/12 hover:border-[#D4AF63] shadow-xs hover:shadow-xl transition-all duration-500 flex items-end"
+                  className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
                 >
                   <img
                     src={imgSrc}
                     alt={liveImg ? cat.label : `${cat.label} illustrative artwork`}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/85 via-[#2B0E17]/20 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/90 via-[#2B0E17]/25 to-transparent"
                   />
-                  <div className="relative z-10 w-full p-5 flex items-end justify-between gap-2 text-[#F7F1E5]">
+                  <div className="relative z-10 w-full p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] mb-1">
                         {matching.length > 0 ? `${matching.length} available` : "Browse category"}
                       </p>
-                      <h3 className="font-serif text-2xl leading-tight">{cat.label}</h3>
+                      <h3 className="font-serif text-3xl leading-tight">{cat.label}</h3>
+                      <p className="text-xs text-[#F7F1E5]/75 mt-1">{cat.subtitle}</p>
                     </div>
                     <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -82,10 +93,63 @@ const CategoryPage = () => {
           </div>
         </section>
 
+        {/* Men's Section — Empty / Coming Soon */}
+        <section aria-label="Men's Section">
+          <SectionHeading
+            eyebrow="Men's Section"
+            title="Menswear"
+            accentWord="Coming Soon"
+            subtitle="Our Suits, Kurta Pajama, and Jodhpuri shelves are currently empty as we prepare upcoming menswear pieces."
+            align="left"
+            className="mb-8"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {MENS_STOREFRONT_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.id}
+                to={cat.route}
+                className="group rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/35 hover:border-[#F1D889] p-7 flex flex-col justify-between min-h-[180px] transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] font-medium">
+                    Coming Soon
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-[#F1D889] group-hover:translate-x-1 transition-transform" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-3xl leading-tight">{cat.label}</h3>
+                  <p className="text-xs text-[#F7F1E5]/70 mt-1.5">{cat.subtitle}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Heritage Gateway Strip */}
+        <section className="rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] p-7 sm:p-10 border border-[#D4AF63]/35 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <p className="text-[10px] uppercase tracking-[0.26em] text-[#F1D889]">
+              Indian Textile Guide
+            </p>
+            <h3 className="font-serif text-2xl sm:text-3xl">
+              Curious about Indian weaves?
+            </h3>
+            <p className="text-sm text-[#F7F1E5]/78 leading-relaxed">
+              Read the stories, motifs, and care tips behind Maheshwari, Kosa, Bandhani,
+              Kanjivaram, Paithani, and Pashmina.
+            </p>
+          </div>
+          <EditorialButton to="/heritage" variant="gold">
+            <span>Open Textile Guide</span>
+            <ArrowRight className="w-4 h-4" />
+          </EditorialButton>
+        </section>
+
         {/* Backend-Configured Collections */}
         <section aria-label="Curated Collections">
           <SectionHeading
-            eyebrow="From Our Catalog"
+            eyebrow="Special Edits"
             title="Curated"
             accentWord="Collections"
             align="left"
@@ -100,17 +164,17 @@ const CategoryPage = () => {
                 <Link
                   to={`/shop/${collection.id}`}
                   key={collection._id || collection.id}
-                  className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-white border border-[#38131E]/12 hover:border-[#D4AF63] shadow-xs hover:shadow-xl transition-all duration-500 flex items-end"
+                  className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
                 >
                   <img
                     src={collection.image}
                     alt={collection.name}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/85 via-[#2B0E17]/25 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/88 via-[#2B0E17]/25 to-transparent"
                   />
                   <div className="relative z-10 w-full p-5 flex items-end justify-between gap-3 text-[#F7F1E5]">
                     <div>

@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   LogOut,
+  Store,
+  Sparkles,
 } from "lucide-react";
 import useStore from "../../store/store";
 import useAuth from "../../hooks/useAuth";
@@ -21,8 +23,10 @@ import BrandMark from "../../components/brand/BrandMark";
 
 const navLinks = [
   { to: "/admin", end: true, icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/admin/inventory", icon: Store, label: "Inventory / POS" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },
+  { to: "/admin/cms", icon: Sparkles, label: "Content CMS" },
   { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/collections", icon: Layers, label: "Collections" },
   { to: "/admin/types", icon: List, label: "Types" },

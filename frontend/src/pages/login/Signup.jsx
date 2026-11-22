@@ -4,6 +4,8 @@ import useAuth from "../../hooks/useAuth";
 import BrandMark from "../../components/brand/BrandMark";
 import EditorialButton from "../../components/ui/EditorialButton";
 
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
 const Signup = () => {
   const { handleSignup } = useAuth();
   const navigate = useNavigate();
@@ -13,20 +15,44 @@ const Signup = () => {
     email: "",
     password: "",
   });
+  const [consentAccepted, setConsentAccepted] = useState(false);
+  const [validationError, setValidationError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const onChangeHandler = (e) => {
+    setValidationError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setValidationError("");
+
+    if (!PASSWORD_RULE.test(formData.password)) {
+      setValidationError(
+        "Password must be at least 8 characters and include at least one letter and one number."
+      );
+      return;
+    }
+
+    if (!consentAccepted) {
+      setValidationError(
+        "Please accept the Terms & Conditions and Privacy Policy to create your account."
+      );
+      return;
+    }
+
     setSubmitting(true);
     try {
       const success = await handleSignup(
         formData.fullName,
         formData.email,
-        formData.password
+        formData.password,
+        null,
+        {
+          consentAccepted: true,
+          consentVersion: "2025-dpdpa-v1",
+        }
       );
       if (success) {
         navigate("/");
@@ -53,6 +79,15 @@ const Signup = () => {
             Join Revakalp to save favorites and track your orders.
           </p>
         </div>
+
+        {validationError && (
+          <div
+            role="alert"
+            className="p-3 rounded-[2px] bg-[#38131E]/8 border border-[#38131E]/25 text-xs text-[#38131E] leading-relaxed"
+          >
+            {validationError}
+          </div>
+        )}
 
         <div className="space-y-4">
           <div className="relative">
@@ -93,17 +128,42 @@ const Signup = () => {
               name="password"
               id="password"
               autoComplete="new-password"
-              minLength={6}
+              minLength={8}
               value={formData.password}
               onChange={onChangeHandler}
               className="input-floating peer"
               required
             />
             <label htmlFor="password" className="label-floating">
-              Password (min 6 characters)
+              Password (min 8 chars, letters &amp; numbers)
             </label>
           </div>
         </div>
+
+        <label className="flex items-start gap-2.5 text-xs text-[#1A1718]/80 leading-relaxed cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consentAccepted}
+            onChange={(e) => {
+              setValidationError("");
+              setConsentAccepted(e.target.checked);
+            }}
+            required
+            className="mt-0.5 w-4 h-4 accent-[#38131E] shrink-0 cursor-pointer"
+          />
+          <span>
+            I agree to the{" "}
+            <Link to="/terms-conditions" className="text-[#38131E] font-semibold underline">
+              Terms &amp; Conditions
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy-policy" className="text-[#38131E] font-semibold underline">
+              Privacy Policy
+            </Link>
+            , and consent to Revakalp processing my personal details to manage my account
+            and orders.
+          </span>
+        </label>
 
         <div className="flex justify-end items-center text-xs sm:text-sm gap-2">
           <span className="text-[#1A1718]/65">Already have an account?</span>

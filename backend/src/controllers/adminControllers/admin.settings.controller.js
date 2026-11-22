@@ -14,15 +14,12 @@ export const getSettings = async (req, res) => {
 // Update settings
 export const updateSettings = async (req, res) => {
   try {
-    // Get or create settings document
     let settings = await Settings.findOne();
-    
+
     if (!settings) {
-      // Create default settings if none exist
       settings = await Settings.create({});
     }
 
-    // Update fields from request body
     const allowedFields = [
       "storeName",
       "supportEmail",
@@ -36,13 +33,19 @@ export const updateSettings = async (req, res) => {
       "upiEnabled",
       "stripeKey",
       "razorpayKey",
-      "stripeEnabled",
       "emailNotifications",
       "admin2FA",
       "maintenanceMode",
       "storeDescription",
       "phone",
       "address",
+      "legalEntityName",
+      "gstin",
+      "grievanceOfficerName",
+      "grievanceOfficerDesignation",
+      "grievanceOfficerEmail",
+      "grievanceOfficerPhone",
+      "countryOfOriginDefault",
     ];
 
     const updates = {};
@@ -52,7 +55,6 @@ export const updateSettings = async (req, res) => {
       }
     });
 
-    // Auto-set currency symbol based on currency
     if (updates.currency) {
       const symbolMap = {
         INR: "₹",
@@ -62,7 +64,6 @@ export const updateSettings = async (req, res) => {
       updates.currencySymbol = symbolMap[updates.currency] || "₹";
     }
 
-    // Update settings
     Object.assign(settings, updates);
     await settings.save();
 

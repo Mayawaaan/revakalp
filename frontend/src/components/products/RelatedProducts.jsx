@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import useStore from "../../store/store";
 import ProductItem from "./ProductItem";
 import SectionHeading from "../ui/SectionHeading";
+import { getAvailableStock } from "../../config/storefrontCategories";
 
 const RelatedProducts = ({ category, subCategory, currentId }) => {
   const products = useStore((state) => state.products);
@@ -12,7 +13,7 @@ const RelatedProducts = ({ category, subCategory, currentId }) => {
     if (!products?.length) return [];
     const inStock = products.filter(
       (item) =>
-        Number(item?.stock) > 0 && (item._id || item.id) !== currentId
+        getAvailableStock(item) > 0 && (item._id || item.id) !== currentId
     );
     const strict = inStock.filter(
       (item) =>
@@ -43,9 +44,9 @@ const RelatedProducts = ({ category, subCategory, currentId }) => {
     <section className="mt-16 sm:mt-24 pt-14 border-t border-[#38131E]/15">
       <div className="flex items-end justify-between gap-4 mb-10">
         <SectionHeading
-          eyebrow="Curated Pairing"
-          title="You May"
-          accentWord="Also Love"
+          eyebrow="More Like This"
+          title="You Might"
+          accentWord="Also Like"
           align="left"
         />
 
@@ -54,7 +55,7 @@ const RelatedProducts = ({ category, subCategory, currentId }) => {
             type="button"
             onClick={scrollLeft}
             aria-label="Scroll related products left"
-            className="w-10 h-10 rounded-full bg-white border border-[#38131E]/20 text-[#38131E] flex items-center justify-center hover:bg-[#38131E] hover:text-[#F7F1E5] transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/22 text-[#38131E] flex items-center justify-center hover:bg-[#38131E] hover:text-[#F7F1E5] transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -62,7 +63,7 @@ const RelatedProducts = ({ category, subCategory, currentId }) => {
             type="button"
             onClick={scrollRight}
             aria-label="Scroll related products right"
-            className="w-10 h-10 rounded-full bg-white border border-[#38131E]/20 text-[#38131E] flex items-center justify-center hover:bg-[#38131E] hover:text-[#F7F1E5] transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/22 text-[#38131E] flex items-center justify-center hover:bg-[#38131E] hover:text-[#F7F1E5] transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

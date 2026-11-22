@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Product from "../models/product.model.js";
 import { uploadImageToCloudinary } from "../lib/utils.js";
 import fs from "fs";
@@ -47,6 +48,9 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
     const product = await Product.findById(id);
 
     if (!product) {

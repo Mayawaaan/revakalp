@@ -8,6 +8,8 @@ import {
   forgotPassword,
   resetPassword,
   refreshAccessToken,
+  exportMyData,
+  deleteMyAccount,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
@@ -17,7 +19,7 @@ const router = express.Router();
 router.post("/signup", upload.single("profilePic"), signup);
 router.post("/login", login);
 router.post("/logout", logout);
-router.post("/refresh", refreshAccessToken);         // 🔄 Token refresh
+router.post("/refresh", refreshAccessToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp-reset", resetPassword);
 
@@ -35,5 +37,7 @@ router.put(
 );
 
 router.get("/check", protectRoute, checkAuth);
+router.get("/my-data", protectRoute, exportMyData);
+router.delete("/delete-account", protectRoute, deleteMyAccount);
 
 export default router;

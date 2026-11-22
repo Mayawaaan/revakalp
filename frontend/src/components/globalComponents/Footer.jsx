@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, MapPin, Mail } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import BrandMark from "../brand/BrandMark";
 import useStore from "../../store/store";
 
@@ -8,6 +8,7 @@ export default function Footer() {
   const settings = useStore((s) => s.settings);
   const supportEmail = settings?.supportEmail || "contact@revakalp.com";
   const storeAddress = settings?.address || "Indore, Madhya Pradesh";
+  const grievanceEmail = settings?.grievanceOfficerEmail || supportEmail;
 
   return (
     <footer className="bg-[#2B0E17] text-[#F7F1E5] border-t border-[#D4AF63]/30">
@@ -16,22 +17,15 @@ export default function Footer() {
           {/* Official Brand Lockup with Tagline ("WEAVING LIFE INTO TIME") */}
           <div className="lg:col-span-4 space-y-5">
             <Link to="/" aria-label="REVAKALP Home" className="inline-block">
-              <BrandMark
-                variant="primaryDark"
-                className="w-48 sm:w-56"
-              />
+              <BrandMark variant="primaryDark" className="w-48 sm:w-56" />
             </Link>
             <p className="text-sm text-[#F7F1E5]/75 leading-relaxed max-w-sm">
-              An Indore-based fashion retail destination curating sarees, lehengas,
-              kurta pajama, Jodhpuri silhouettes, and contemporary printed tees.
+              An Indore store bringing together sarees, lehengas, Indo-Western pieces, and
+              everyday printed tees — in person and online.
             </p>
             <div className="space-y-2 text-xs text-[#F7F1E5]/75">
-              <p className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#D4AF63] shrink-0 mt-0.5" />
-                <span>{storeAddress}</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#D4AF63] shrink-0" />
+              <p>{storeAddress}</p>
+              <p>
                 <a
                   href={`mailto:${supportEmail}`}
                   className="hover:text-[#F1D889] transition-colors"
@@ -84,18 +78,18 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/shop/kurta" className="hover:text-[#F1D889] transition-colors">
-                  Kurta Pajama
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop/jodhpuri/all" className="hover:text-[#F1D889] transition-colors">
-                  Jodhpuri
+                <Link to="/shop/indo-western/all" className="hover:text-[#F1D889] transition-colors">
+                  Indo-Western
                 </Link>
               </li>
               <li>
                 <Link to="/shop/printed-tees/all" className="hover:text-[#F1D889] transition-colors">
                   Printed Tees
+                </Link>
+              </li>
+              <li>
+                <Link to="/shop/kurta/all" className="hover:text-[#F1D889] transition-colors">
+                  Men (Coming Soon)
                 </Link>
               </li>
             </ul>
@@ -110,6 +104,16 @@ export default function Footer() {
               <li>
                 <Link to="/about" className="hover:text-[#F1D889] transition-colors">
                   About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/heritage" className="hover:text-[#F1D889] transition-colors">
+                  Indian Textile Guide
+                </Link>
+              </li>
+              <li>
+                <Link to="/past-editions" className="hover:text-[#F1D889] transition-colors">
+                  Past Editions
                 </Link>
               </li>
               <li>
@@ -135,10 +139,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Policy */}
+          {/* Legal & Compliance */}
           <div className="lg:col-span-2">
             <h4 className="text-xs uppercase tracking-[0.24em] text-[#D4AF63] font-semibold mb-4">
-              Policy
+              Legal &amp; Compliance
             </h4>
             <ul className="space-y-2.5 text-sm text-[#F7F1E5]/80">
               <li>
@@ -153,8 +157,34 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/returns-exchanges" className="hover:text-[#F1D889] transition-colors">
-                  Returns &amp; Exchanges
+                  Returns &amp; Cancellations
                 </Link>
+              </li>
+              <li>
+                <Link to="/cookie-policy" className="hover:text-[#F1D889] transition-colors">
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/grievance-redressal" className="hover:text-[#F1D889] transition-colors">
+                  Grievance Redressal
+                </Link>
+              </li>
+              <li>
+                <Link to="/legal-compliance" className="hover:text-[#F1D889] transition-colors">
+                  Legal &amp; Security
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.dispatchEvent(new Event("rk-open-cookie-settings"))
+                  }
+                  className="hover:text-[#F1D889] transition-colors text-left cursor-pointer"
+                >
+                  Cookie Preferences
+                </button>
               </li>
             </ul>
           </div>
@@ -191,7 +221,16 @@ export default function Footer() {
 
         {/* Bottom Legal Bar */}
         <div className="mt-12 pt-8 border-t border-[#D4AF63]/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#F7F1E5]/65">
-          <p>© {new Date().getFullYear()} Revakalp. All Rights Reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Revakalp. All Rights Reserved. · Grievance Officer:{" "}
+            <a
+              href={`mailto:${grievanceEmail}`}
+              className="text-[#F1D889] hover:underline"
+            >
+              {grievanceEmail}
+            </a>{" "}
+            · Indore, Madhya Pradesh
+          </p>
           <p>
             Designed and Developed by{" "}
             <a

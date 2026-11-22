@@ -129,7 +129,7 @@ const Orders = () => {
                     </div>
 
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${badgeCls}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-[2px] text-xs font-semibold border ${badgeCls}`}
                     >
                       <StatusIcon size={14} />
                       {statusLabel}
@@ -147,7 +147,7 @@ const Orders = () => {
                             <img
                               src={img}
                               alt={item.name}
-                              className="w-16 h-20 object-cover rounded-xl shrink-0 border border-[#38131E]/10"
+                              className="w-16 h-20 object-cover rounded-[2px] shrink-0 border border-[#38131E]/12"
                             />
                           )}
                           <div className="flex-1 min-w-0">

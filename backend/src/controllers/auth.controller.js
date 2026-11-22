@@ -1,5 +1,21 @@
-import { generateAccessToken, generateRefreshToken, uploadImageToCloudinary } from "../lib/utils.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  uploadImageToCloudinary,
+} from "../lib/utils.js";
+import {
+  SAFE_USER_PROJECTION,
+  generateSecureOtp,
+  isValidEmail,
+  normalizeEmail,
+  timingSafeEqualHex,
+  validatePasswordStrength,
+} from "../lib/security.js";
 import User from "../models/user.model.js";
+import Order from "../models/order.model.js";
+import Cart from "../models/cart.model.js";
+import Wishlist from "../models/wishlist.model.js";
+import Review from "../models/review.model.js";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import crypto from "crypto";
@@ -10,48 +26,68 @@ import { sendEmail } from "../lib/sendEmail.js";
    HELPERS
 ───────────────────────────────────────────── */
 
-/** Hash a refresh token before storing in DB (so a DB leak doesn't expose live tokens) */
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
-/** Cookie options — httpOnly so JS can't read it */
 const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "strict",
-  maxAge: 4 * 24 * 60 * 60 * 1000, // 4 days in ms
+  maxAge: 4 * 24 * 60 * 60 * 1000,
 };
 
-/** Issue both tokens, store hashed refresh in DB, set cookie */
+const CLEAR_COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+};
+
+const cleanupTempFile = (file) => {
+  if (file?.path && fs.existsSync(file.path)) {
+    try {
+      fs.unlinkSync(file.path);
+    } catch {
+      // Ignore cleanup failure for temp files
+    }
+  }
+};
+
 const issueTokens = async (user, res) => {
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
   const hashedRefresh = hashToken(refreshToken);
 
-  // Keep up to 5 refresh tokens (one per device / session)
   user.refreshTokens = [...(user.refreshTokens || []), hashedRefresh].slice(-5);
   await user.save({ validateBeforeSave: false });
 
-  // Send refresh token as httpOnly cookie
   res.cookie("refreshToken", refreshToken, COOKIE_OPTS);
 
   return accessToken;
 };
 
-
 // =========================
-// ✅ SIGNUP
+// SIGNUP
 // =========================
 export const signup = async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const fullName = String(req.body?.fullName || "").trim();
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
+    const consentAccepted =
+      req.body?.consentAccepted === true || req.body?.consentAccepted === "true";
+    const consentVersion = String(req.body?.consentVersion || "2025-dpdpa-v1").trim();
 
     if (!fullName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email address" });
+    }
+
+    const strength = validatePasswordStrength(password);
+    if (!strength.valid) {
+      return res.status(400).json({ message: strength.message });
     }
 
     const existingUser = await User.findOne({ email });
@@ -64,7 +100,6 @@ export const signup = async (req, res) => {
     let profilePic = "";
     if (req.file) {
       profilePic = await uploadImageToCloudinary(req.file);
-      fs.unlinkSync(req.file.path);
     }
 
     const user = await User.create({
@@ -72,6 +107,9 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       profilePic,
+      ...(consentAccepted
+        ? { consentAcceptedAt: new Date(), consentVersion }
+        : {}),
     });
 
     const accessToken = await issueTokens(user, res);
@@ -84,22 +122,27 @@ export const signup = async (req, res) => {
         profilePic: user.profilePic,
         role: user.role,
       },
-      token: accessToken,       // ← access token (short-lived)
+      token: accessToken,
     });
-
   } catch (error) {
     console.log("Signup error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
+  } finally {
+    cleanupTempFile(req.file);
   }
 };
 
-
 // =========================
-// ✅ LOGIN
+// LOGIN
 // =========================
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -121,18 +164,16 @@ export const login = async (req, res) => {
         profilePic: user.profilePic,
         role: user.role,
       },
-      token: accessToken,       // ← access token (short-lived)
+      token: accessToken,
     });
-
   } catch (error) {
     console.log("Login error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
 // =========================
-// ✅ REFRESH TOKEN
+// REFRESH TOKEN
 // =========================
 export const refreshAccessToken = async (req, res) => {
   try {
@@ -142,7 +183,6 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ message: "No refresh token" });
     }
 
-    // Verify signature + expiry
     let decoded;
     try {
       decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
@@ -157,17 +197,16 @@ export const refreshAccessToken = async (req, res) => {
 
     const hashedIncoming = hashToken(incomingRefreshToken);
 
-    // Check it exists in DB (prevents reuse after logout)
     const tokenIndex = user.refreshTokens.indexOf(hashedIncoming);
     if (tokenIndex === -1) {
-      // Token was already used or revoked — wipe all tokens (possible theft)
       user.refreshTokens = [];
       await user.save({ validateBeforeSave: false });
-      res.clearCookie("refreshToken");
-      return res.status(401).json({ message: "Refresh token reuse detected. Please log in again." });
+      res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
+      return res
+        .status(401)
+        .json({ message: "Refresh token reuse detected. Please log in again." });
     }
 
-    // ── ROTATION: remove old, issue new ──
     user.refreshTokens.splice(tokenIndex, 1);
 
     const newAccessToken = generateAccessToken(user._id);
@@ -180,23 +219,20 @@ export const refreshAccessToken = async (req, res) => {
     res.cookie("refreshToken", newRefreshToken, COOKIE_OPTS);
 
     return res.status(200).json({ token: newAccessToken });
-
   } catch (error) {
     console.log("Refresh token error:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
 // =========================
-// ✅ LOGOUT
+// LOGOUT
 // =========================
 export const logout = async (req, res) => {
   try {
     const incomingRefreshToken = req.cookies?.refreshToken;
 
     if (incomingRefreshToken) {
-      // Remove only THIS device's refresh token from DB
       try {
         const decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
         const user = await User.findById(decoded.userId);
@@ -206,11 +242,11 @@ export const logout = async (req, res) => {
           await user.save({ validateBeforeSave: false });
         }
       } catch {
-        // Token already expired — that's fine, just clear cookie
+        // Ignore invalid/expired token while clearing cookie
       }
     }
 
-    res.clearCookie("refreshToken", COOKIE_OPTS);
+    res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Logout error:", error.message);
@@ -218,65 +254,72 @@ export const logout = async (req, res) => {
   }
 };
 
-
 // =========================
-// ✅ UPDATE PROFILE
+// UPDATE PROFILE
 // =========================
 export const updateProfile = async (req, res) => {
   try {
-    const { fullName } = req.body;
+    const fullName = String(req.body?.fullName || req.user.fullName || "").trim();
     const userId = req.user._id;
 
-    let profilePic = req.user.profilePic;
+    if (!fullName) {
+      return res.status(400).json({ message: "Full name is required" });
+    }
 
+    let profilePic = req.user.profilePic;
     if (req.file) {
       profilePic = await uploadImageToCloudinary(req.file, "profiles");
-      fs.unlinkSync(req.file.path);
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { fullName, profilePic },
       { new: true }
-    ).select("-password");
+    ).select(SAFE_USER_PROJECTION);
 
     res.status(200).json(updatedUser);
-
   } catch (error) {
-    console.log("Update profile error:", error);
+    console.log("Update profile error:", error.message);
     res.status(500).json({ message: "Internal server error" });
+  } finally {
+    cleanupTempFile(req.file);
   }
 };
 
-
 // =========================
-// ✅ CHECK AUTH
+// CHECK AUTH
 // =========================
 export const checkAuth = (req, res) => {
   res.status(200).json(req.user);
 };
 
-
 // =========================
-// ✅ FORGOT PASSWORD
+// FORGOT PASSWORD
 // =========================
 export const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = normalizeEmail(req.body?.email);
+    const genericMsg =
+      "If an account exists for this email, a reset OTP has been sent.";
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email address" });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(200).json({
+        success: true,
+        message: genericMsg,
+      });
     }
 
-    // 🔥 Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // 🔐 Hash OTP
+    const otp = generateSecureOtp();
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     user.resetOTP = hashedOTP;
-    user.otpExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    user.otpExpire = Date.now() + 10 * 60 * 1000;
+    user.otpAttempts = 0;
 
     await user.save({ validateBeforeSave: false });
 
@@ -288,57 +331,70 @@ export const forgotPassword = async (req, res) => {
       message,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "OTP sent to email",
+      message: genericMsg,
     });
-
   } catch (error) {
-    console.log("Forgot password error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.log("Forgot password error:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
 // =========================
-// ✅ RESET PASSWORD
+// RESET PASSWORD
 // =========================
 export const resetPassword = async (req, res) => {
   try {
-    const { email, otp, password, confirmPassword } = req.body;
+    const email = normalizeEmail(req.body?.email);
+    const otp = String(req.body?.otp || "").trim();
+    const password = req.body?.password;
+    const confirmPassword = req.body?.confirmPassword;
 
     const user = await User.findOne({ email });
 
-    // ❌ No user or no OTP data
     if (!user || !user.resetOTP || !user.otpExpire) {
       return res.status(400).json({ message: "Invalid request" });
     }
 
-    // 🔐 Hash entered OTP
-    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
-
-    // ❌ OTP mismatch
-    if (user.resetOTP !== hashedOTP) {
-      return res.status(400).json({ message: "Invalid OTP" });
+    if ((user.otpAttempts || 0) >= 5) {
+      user.resetOTP = undefined;
+      user.otpExpire = undefined;
+      user.otpAttempts = 0;
+      await user.save({ validateBeforeSave: false });
+      return res
+        .status(429)
+        .json({ message: "Too many invalid OTP attempts. Request a new OTP." });
     }
 
-    // ❌ OTP expired
     if (user.otpExpire < Date.now()) {
       return res.status(400).json({ message: "OTP expired" });
     }
 
-    // ❌ Password mismatch
+    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
+
+    if (!timingSafeEqualHex(user.resetOTP, hashedOTP)) {
+      user.otpAttempts = (user.otpAttempts || 0) + 1;
+      await user.save({ validateBeforeSave: false });
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    const strength = validatePasswordStrength(password);
+    if (!strength.valid) {
+      return res.status(400).json({ message: strength.message });
+    }
+
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    // ✅ Hash new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
     user.resetOTP = undefined;
     user.otpExpire = undefined;
-    user.refreshTokens = []; // Revoke all sessions on password reset
+    user.otpAttempts = 0;
+    user.refreshTokens = [];
 
     await user.save();
 
@@ -346,9 +402,105 @@ export const resetPassword = async (req, res) => {
       success: true,
       message: "Password reset successful",
     });
-
   } catch (error) {
-    console.log("Reset password error:", error);
+    console.log("Reset password error:", error.message);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// =========================
+// DPDPA 2023 DATA EXPORT (Right to Access)
+// =========================
+export const exportMyData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const [profile, orders, wishlist, cart, reviews] = await Promise.all([
+      User.findById(userId).select(SAFE_USER_PROJECTION).lean(),
+      Order.find({ userId }).sort({ createdAt: -1 }).lean(),
+      Wishlist.findOne({ user: userId }).lean(),
+      Cart.findOne({ userId }).lean(),
+      Review.find({ userId }).sort({ createdAt: -1 }).lean(),
+    ]);
+
+    return res.status(200).json({
+      exportedAt: new Date().toISOString(),
+      legalBasis: "DPDPA 2023 Section 11 (Right to Access)",
+      data: {
+        profile,
+        orders,
+        wishlist,
+        cart,
+        reviews,
+      },
+    });
+  } catch (error) {
+    console.error("Data export error:", error.message);
+    return res.status(500).json({ message: "Failed to export personal data" });
+  }
+};
+
+// =========================
+// DPDPA 2023 ACCOUNT ERASURE (Right to Erasure)
+// =========================
+export const deleteMyAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const password = String(req.body?.password || "");
+
+    if (!password) {
+      return res
+        .status(400)
+        .json({ message: "Password confirmation is required to delete your account" });
+    }
+
+    const fullUser = await User.findById(userId);
+    if (!fullUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, fullUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    if (fullUser.role === "admin") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          message: "Cannot delete the last administrator account",
+        });
+      }
+    }
+
+    await Promise.all([
+      Cart.deleteOne({ userId }),
+      Wishlist.deleteOne({ user: userId }),
+      Review.deleteMany({ userId }),
+      Order.updateMany(
+        {
+          userId,
+          status: { $in: ["Delivered", "Cancelled", "Returned"] },
+        },
+        {
+          $set: {
+            notes: "[REDACTED UPON USER ERASURE REQUEST]",
+            "shippingAddress.street": "REDACTED",
+            "shippingAddress.phone": "REDACTED",
+            "shippingAddress.zip": "REDACTED",
+          },
+        }
+      ),
+    ]);
+
+    await User.findByIdAndDelete(userId);
+    res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
+
+    return res.status(200).json({
+      success: true,
+      message: "Account and personal data deleted cleanly",
+    });
+  } catch (error) {
+    console.error("Account deletion error:", error.message);
+    return res.status(500).json({ message: "Failed to delete account" });
   }
 };

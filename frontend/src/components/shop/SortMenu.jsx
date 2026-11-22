@@ -19,7 +19,7 @@ export default function SortMenu({ value = "featured", onChange }) {
         id="sort-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none min-h-[42px] pl-4 pr-10 py-2 rounded-full bg-white border border-[#38131E]/20 text-xs sm:text-sm font-medium text-[#38131E] hover:border-[#38131E] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+        className="appearance-none min-h-[42px] pl-4 pr-10 py-2 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/22 text-[11px] uppercase tracking-[0.16em] font-medium text-[#38131E] hover:border-[#38131E] cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
       >
         {OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -27,7 +27,7 @@ export default function SortMenu({ value = "featured", onChange }) {
           </option>
         ))}
       </select>
-      <ChevronDown className="w-4 h-4 text-[#38131E]/70 pointer-events-none absolute right-3.5" />
+      <ChevronDown className="w-4 h-4 text-[#38131E]/70 pointer-events-none absolute right-3" />
     </div>
   );
 }

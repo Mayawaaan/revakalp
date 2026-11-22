@@ -1,28 +1,22 @@
 import React from "react";
-import { MessageCircle } from "lucide-react";
 
 const NewsletterBox = () => {
   return (
     <section
       aria-label="Community & Return Notice"
-      className="py-16 sm:py-24 bg-[#F7F1E5] border-t border-[#38131E]/10"
+      className="py-16 sm:py-24 bg-[#F7F1E5]"
     >
       <div className="max-w-3xl mx-auto px-5 sm:px-8 text-center">
-        <div className="inline-flex items-center gap-3 mb-4">
-          <span className="h-px w-6 bg-[#D4AF63]" aria-hidden="true" />
-          <p className="text-[11px] tracking-[0.28em] uppercase text-[#38131E]/75 font-medium">
-            Stay Connected
-          </p>
-          <span className="h-px w-6 bg-[#D4AF63]" aria-hidden="true" />
-        </div>
+        <p className="text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#38131E]/75 font-medium mb-4">
+          Stay in Touch
+        </p>
 
-        <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#38131E] leading-tight">
-          Join Revakalp on WhatsApp
+        <h2 className="font-serif text-[clamp(2rem,4vw,3.1rem)] text-[#38131E] leading-tight">
+          Join our WhatsApp group
         </h2>
 
         <p className="mt-4 text-sm sm:text-base text-[#1A1718]/75 leading-relaxed max-w-xl mx-auto">
-          Receive direct updates on fresh retail arrivals, festive edits, and
-          collection availability through our official WhatsApp community.
+          Hear first when new pieces arrive in store.
         </p>
 
         <div className="mt-8 flex justify-center">
@@ -32,16 +26,14 @@ const NewsletterBox = () => {
             rel="noopener noreferrer"
             className="rk-btn-primary"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span>Join WhatsApp Community</span>
+            <span>Join on WhatsApp</span>
           </a>
         </div>
 
-        <p className="mt-8 text-xs text-[#1A1718]/65 max-w-2xl mx-auto leading-relaxed bg-white/80 border border-[#38131E]/10 rounded-2xl p-4">
-          <span className="font-semibold text-[#38131E]">Important Return Policy:</span>{" "}
-          A clear, continuous unboxing video is mandatory for all return or replacement requests.
-          This video serves as definitive proof of the product&apos;s condition upon arrival. Still
-          images are insufficient for claim processing.
+        <p className="mt-10 text-xs text-[#1A1718]/70 max-w-2xl mx-auto leading-relaxed bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-5">
+          <span className="font-semibold text-[#38131E]">Return note:</span>{" "}
+          Please record a continuous unboxing video when opening your parcel for return or
+          exchange claims.
         </p>
       </div>
     </section>

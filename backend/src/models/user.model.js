@@ -6,10 +6,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     fullName: {
       type: String,
       required: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -26,15 +29,28 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
 
-    // 🔥 OTP SYSTEM
+    // OTP Reset Protection
     resetOTP: {
       type: String,
     },
     otpExpire: {
       type: Date,
     },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
 
-    // 🔄 REFRESH TOKEN SYSTEM
+    // DPDPA 2023 Consent Metadata
+    consentAcceptedAt: {
+      type: Date,
+    },
+    consentVersion: {
+      type: String,
+      default: "",
+    },
+
+    // Refresh Tokens (hashed)
     refreshTokens: {
       type: [String],
       default: [],

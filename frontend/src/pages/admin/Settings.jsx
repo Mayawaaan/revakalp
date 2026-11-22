@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Store, Truck, CreditCard, Bell, Shield, Save, Loader2 } from "lucide-react";
+import {
+  Store,
+  Truck,
+  CreditCard,
+  Bell,
+  Shield,
+  FileText,
+  Save,
+  Loader2,
+} from "lucide-react";
 import useStore from "../../store/store";
 
 const SectionCard = ({ icon, title, children }) => {
@@ -77,6 +86,13 @@ const Settings = () => {
     storeDescription: "",
     phone: "",
     address: "",
+    legalEntityName: "Revakalp",
+    gstin: "",
+    grievanceOfficerName: "Anjali Katare",
+    grievanceOfficerDesignation: "Founder & Grievance Redressal Officer",
+    grievanceOfficerEmail: "contact@revakalp.com",
+    grievanceOfficerPhone: "+91 91096-76562",
+    countryOfOriginDefault: "India",
   });
   const [saving, setSaving] = useState(false);
 
@@ -104,6 +120,21 @@ const Settings = () => {
         storeDescription: settings.storeDescription || "",
         phone: settings.phone || "",
         address: settings.address || "",
+        legalEntityName: settings.legalEntityName || "Revakalp",
+        gstin: settings.gstin || "",
+        grievanceOfficerName: settings.grievanceOfficerName || "Anjali Katare",
+        grievanceOfficerDesignation:
+          settings.grievanceOfficerDesignation ||
+          "Founder & Grievance Redressal Officer",
+        grievanceOfficerEmail:
+          settings.grievanceOfficerEmail ||
+          settings.supportEmail ||
+          "contact@revakalp.com",
+        grievanceOfficerPhone:
+          settings.grievanceOfficerPhone ||
+          settings.phone ||
+          "+91 91096-76562",
+        countryOfOriginDefault: settings.countryOfOriginDefault || "India",
       });
     }
   }, [settings]);
@@ -132,7 +163,7 @@ const Settings = () => {
       </p>
       <h1 className="text-3xl font-serif text-[#38131E]">Settings</h1>
       <p className="text-[#1A1718]/70 text-sm mt-1">
-        Manage global store configuration and preferences
+        Manage global store configuration and Indian statutory disclosures
       </p>
     </div>
   );
@@ -283,6 +314,87 @@ const Settings = () => {
             label="Email alerts for new orders"
           />
         </SectionCard>
+
+        <div className="lg:col-span-2">
+          <SectionCard icon={FileText} title="Legal & Indian Compliance Details">
+            <div className="grid sm:grid-cols-2 gap-5">
+              <Field label="Legal Business / Trade Name">
+                <input
+                  name="legalEntityName"
+                  value={formData.legalEntityName}
+                  onChange={handleChange}
+                  placeholder="Revakalp"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field
+                label="GSTIN"
+                hint="Leave blank if not displayed publicly; only shown when entered"
+              >
+                <input
+                  name="gstin"
+                  value={formData.gstin}
+                  onChange={handleChange}
+                  placeholder="Optional 15-character GSTIN"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field label="Grievance Officer Name">
+                <input
+                  name="grievanceOfficerName"
+                  value={formData.grievanceOfficerName}
+                  onChange={handleChange}
+                  placeholder="Anjali Katare"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field label="Grievance Officer Designation">
+                <input
+                  name="grievanceOfficerDesignation"
+                  value={formData.grievanceOfficerDesignation}
+                  onChange={handleChange}
+                  placeholder="Founder & Grievance Redressal Officer"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field label="Grievance Officer Email">
+                <input
+                  type="email"
+                  name="grievanceOfficerEmail"
+                  value={formData.grievanceOfficerEmail}
+                  onChange={handleChange}
+                  placeholder="contact@revakalp.com"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field label="Grievance Officer Phone">
+                <input
+                  name="grievanceOfficerPhone"
+                  value={formData.grievanceOfficerPhone}
+                  onChange={handleChange}
+                  placeholder="+91 91096-76562"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+              <Field label="Default Country of Origin">
+                <input
+                  name="countryOfOriginDefault"
+                  value={formData.countryOfOriginDefault}
+                  onChange={handleChange}
+                  placeholder="India"
+                  className={inputCls}
+                  disabled={settingsLoading}
+                />
+              </Field>
+            </div>
+          </SectionCard>
+        </div>
 
         <div className="lg:col-span-2">
           <SectionCard icon={Shield} title="Security">

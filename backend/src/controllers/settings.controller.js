@@ -23,6 +23,13 @@ export const getPublicSettings = async (req, res) => {
       phone: settings.phone,
       address: settings.address,
       maintenanceMode: settings.maintenanceMode,
+      legalEntityName: settings.legalEntityName,
+      gstin: settings.gstin,
+      grievanceOfficerName: settings.grievanceOfficerName,
+      grievanceOfficerDesignation: settings.grievanceOfficerDesignation,
+      grievanceOfficerEmail: settings.grievanceOfficerEmail,
+      grievanceOfficerPhone: settings.grievanceOfficerPhone,
+      countryOfOriginDefault: settings.countryOfOriginDefault,
     });
   } catch (error) {
     console.error("Error in getPublicSettings:", error.message);

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Loader2, Banknote } from "lucide-react";
 import useStore from "../../../store/store";
 import CartTotal from "../../../components/cart/CartTotal";
 import PageHero from "../../../components/globalComponents/PageHero";
 import EditorialButton from "../../../components/ui/EditorialButton";
+import { trackEvent } from "../../../utils/analytics";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -28,11 +29,12 @@ const PlaceOrder = () => {
     showToast,
     cart,
     placeOrder,
+    fetchCart,
+    fetchOrders,
     settings,
     applyCoupon,
     removeCoupon,
     couponCode,
-    getCartTotal,
     createRazorpayOrder,
     verifyRazorpayPayment,
   } = useStore();
@@ -52,6 +54,7 @@ const PlaceOrder = () => {
   const [placing, setPlacing] = useState(false);
   const [productError, setProductError] = useState(null);
   const [couponInput, setCouponInput] = useState("");
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
 
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
@@ -83,11 +86,15 @@ const PlaceOrder = () => {
 
   useEffect(() => {
     loadRazorpayScript();
-  }, []);
+    if (cart?.length > 0) {
+      trackEvent("begin_checkout", { itemCount: cart.length });
+    }
+  }, [cart?.length]);
 
   const onSubmitHandler = async (e) => {
     e?.preventDefault();
     setProductError(null);
+    trackEvent("add_payment_info", { paymentMethod: method });
 
     if (
       !formData.firstName ||
@@ -106,6 +113,14 @@ const PlaceOrder = () => {
 
     if (!cart || cart.length === 0) {
       showToast("Your cart is empty", "error");
+      return;
+    }
+
+    if (!acceptedPolicies) {
+      showToast(
+        "Please accept our Terms, Returns, and Privacy Policy before placing your order",
+        "error"
+      );
       return;
     }
 
@@ -133,9 +148,9 @@ const PlaceOrder = () => {
         return;
       }
       try {
-        await placeOrder(orderDetails);
+        const confirmed = await placeOrder(orderDetails);
         showToast("Order placed successfully!", "success");
-        navigate("/orders");
+        navigate("/order-success", { state: { order: confirmed } });
       } catch (error) {
         if (error.productId) {
           setProductError(error.productId);
@@ -161,16 +176,21 @@ const PlaceOrder = () => {
           return;
         }
 
-        const order = await createRazorpayOrder({
-          amount: getCartTotal(),
-          currency: "INR",
+        // Server calculates authoritative price, reserves stock, and creates internal pending order
+        const checkoutSession = await createRazorpayOrder({
+          shippingAddress,
+          paymentMethod: method,
+          notes: orderDetails.notes,
         });
+
+        const gatewayOrder = checkoutSession.order;
+        const internalOrderId = checkoutSession.internalOrderId;
 
         const options = {
           key: settings?.razorpayKey || import.meta.env.VITE_RAZORPAY_KEY,
-          amount: order.amount,
-          currency: order.currency,
-          order_id: order.id,
+          amount: gatewayOrder.amount,
+          currency: gatewayOrder.currency,
+          order_id: gatewayOrder.id,
           name: settings?.storeName || "REVAKALP",
           method:
             method === "upi"
@@ -186,6 +206,7 @@ const PlaceOrder = () => {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
+                internalOrderId,
               });
 
               if (!data.success) {
@@ -193,17 +214,12 @@ const PlaceOrder = () => {
                 return;
               }
 
-              await placeOrder({
-                ...orderDetails,
-                paymentId: response.razorpay_payment_id,
-                paymentMethod: method,
-              });
-
-              showToast("Order placed successfully!", "success");
-              navigate("/orders");
+              await Promise.all([fetchCart?.(), fetchOrders?.()]);
+              showToast("Payment verified and order confirmed!", "success");
+              navigate("/order-success", { state: { order: data.order } });
             } catch (err) {
               showToast(
-                err?.message || "Payment verification or order placement failed",
+                err?.message || "Payment verification failed. Contact support if debited.",
                 "error"
               );
             } finally {
@@ -220,8 +236,13 @@ const PlaceOrder = () => {
         const paymentObject = new window.Razorpay(options);
         paymentObject.open();
       } catch (error) {
-        console.error("Razorpay Error:", error);
-        showToast("Something went wrong with Razorpay. Please try again.", "error");
+        if (error.productId) {
+          setProductError(error.productId);
+        }
+        showToast(
+          error?.message || "Unable to initiate Razorpay payment. Please try again.",
+          "error"
+        );
         setPlacing(false);
       }
     }
@@ -232,7 +253,7 @@ const PlaceOrder = () => {
       <PageHero
         label="Checkout"
         title="Delivery & Payment"
-        subtitle="Complete your shipping details and choose a verified payment option."
+        subtitle="Tell us where to deliver and pick how you'd like to pay."
       />
 
       <form
@@ -242,11 +263,8 @@ const PlaceOrder = () => {
         {/* Delivery Form */}
         <div className="lg:col-span-7 rk-surface-card p-6 sm:p-10 space-y-6">
           <div className="pb-4 border-b border-[#38131E]/10">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
-              Step 1
-            </p>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#38131E]">
-              Delivery Information
+              Where should we send your order?
             </h2>
           </div>
 
@@ -401,18 +419,18 @@ const PlaceOrder = () => {
                     onChange={(e) => setCouponInput(e.target.value)}
                     placeholder="Enter coupon code"
                     aria-label="Coupon code"
-                    className="flex-1 min-h-[44px] px-4 py-2 rounded-xl border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+                    className="flex-1 min-h-[44px] px-4 py-2 rounded-[2px] border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
                   />
                   <button
                     type="button"
                     onClick={handleApplyCoupon}
-                    className="min-h-[44px] px-5 rounded-xl bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer"
+                    className="min-h-[44px] px-5 rounded-[2px] bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer"
                   >
                     Apply
                   </button>
                 </div>
               ) : (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex justify-between items-center text-sm">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-[2px] flex justify-between items-center text-sm">
                   <p className="text-emerald-800 font-medium">
                     Applied: <span className="font-bold">{couponCode}</span>
                   </p>
@@ -432,11 +450,8 @@ const PlaceOrder = () => {
 
           <div className="rk-surface-card p-6 sm:p-8 space-y-5">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
-                Step 2
-              </p>
               <h2 className="font-serif text-2xl text-[#38131E]">
-                Payment Method
+                How would you like to pay?
               </h2>
             </div>
 
@@ -454,10 +469,10 @@ const PlaceOrder = () => {
                     role="radio"
                     aria-checked={selected}
                     onClick={() => setMethod(item.key)}
-                    className={`min-h-[58px] rounded-2xl border p-3 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                    className={`min-h-[58px] rounded-[2px] border p-3 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                       selected
-                        ? "border-[#38131E] bg-[#38131E]/6 ring-2 ring-[#D4AF63]/60"
-                        : "border-[#38131E]/15 bg-white hover:border-[#38131E]/40"
+                        ? "border-[#38131E] bg-[#38131E]/6 ring-1 ring-[#D4AF63]"
+                        : "border-[#38131E]/18 bg-white hover:border-[#38131E]/40"
                     }`}
                   >
                     {item.img ? (
@@ -471,6 +486,31 @@ const PlaceOrder = () => {
                 );
               })}
             </div>
+
+            <label className="flex items-start gap-2.5 text-xs text-[#1A1718]/80 leading-relaxed cursor-pointer pt-1">
+              <input
+                type="checkbox"
+                checked={acceptedPolicies}
+                onChange={(e) => setAcceptedPolicies(e.target.checked)}
+                required
+                className="mt-0.5 w-4 h-4 accent-[#38131E] shrink-0 cursor-pointer"
+              />
+              <span>
+                I accept the{" "}
+                <Link to="/terms-conditions" className="text-[#38131E] font-semibold underline">
+                  Terms &amp; Conditions
+                </Link>
+                ,{" "}
+                <Link to="/returns-exchanges" className="text-[#38131E] font-semibold underline">
+                  7-Day Returns Policy
+                </Link>{" "}
+                (continuous unboxing video required), and{" "}
+                <Link to="/privacy-policy" className="text-[#38131E] font-semibold underline">
+                  Privacy Policy
+                </Link>
+                . Online payments are processed securely via Razorpay.
+              </span>
+            </label>
 
             <EditorialButton
               type="submit"
@@ -489,7 +529,7 @@ const PlaceOrder = () => {
             </EditorialButton>
 
             <p className="text-center text-xs text-[#1A1718]/65">
-              Totals and payment verification are confirmed by our server.
+              Your order total is always confirmed securely at checkout.
             </p>
           </div>
         </div>

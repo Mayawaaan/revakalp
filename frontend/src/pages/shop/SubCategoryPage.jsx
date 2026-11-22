@@ -10,15 +10,15 @@ import EditorialButton from "../../components/ui/EditorialButton";
 const CATEGORY_META = {
   saree: {
     heading: "Saree Traditions",
-    subheading: "Explore weaves, prints, and draping styles from across India.",
+    subheading: "Weaves, prints, and draping styles from across India.",
   },
   suit: {
-    heading: "Suit Collections",
-    subheading: "Classic salwar silhouettes and contemporary festive cuts.",
+    heading: "Suits & Sets",
+    subheading: "Salwar suits and festive sets made to wear easily.",
   },
   kurta: {
     heading: "Kurta Styles",
-    subheading: "Effortless everyday and festive tailoring.",
+    subheading: "Easy everyday kurtas and festive menswear.",
   },
 };
 
@@ -26,6 +26,11 @@ const DIRECT_LIST_ALIASES = new Set([
   "indo-western",
   "lehenga",
   "lehengas",
+  "suit",
+  "suits",
+  "kurta",
+  "kurtas",
+  "kurta-pajama",
   "jodhpuri",
   "printed-tees",
   "all",
@@ -45,7 +50,6 @@ const SubCategoryPage = () => {
   else if (normalized === "suit") types = suitTypes;
   else if (normalized === "kurta") types = kurtaTypes;
   else {
-    // Allow any custom collection id to resolve cleanly to its product listing
     return <Navigate to={`/shop/${normalized || "all"}/all`} replace />;
   }
 
@@ -68,6 +72,12 @@ const SubCategoryPage = () => {
           <span>View All {normalized.charAt(0).toUpperCase() + normalized.slice(1)}</span>
           <ArrowRight className="w-4 h-4" />
         </EditorialButton>
+
+        {normalized === "saree" && (
+          <EditorialButton to="/heritage" variant="outlineDark">
+            <span>Indian Textile Guide</span>
+          </EditorialButton>
+        )}
       </PageHero>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -75,7 +85,7 @@ const SubCategoryPage = () => {
           <Breadcrums />
           <Link
             to="/shop"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#38131E]/15 text-xs uppercase tracking-[0.16em] font-medium text-[#38131E] hover:border-[#38131E] transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/18 text-[11px] uppercase tracking-[0.18em] font-medium text-[#38131E] hover:border-[#38131E] transition-colors"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             Back to Collections
@@ -88,7 +98,7 @@ const SubCategoryPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <Link
               to={`/shop/${normalized}/all`}
-              className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-[#38131E] border border-[#D4AF63]/40 shadow-sm hover:shadow-xl transition-all duration-500 flex items-end"
+              className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/45 hover:border-[#F1D889] transition-colors duration-500 flex items-end"
             >
               <img
                 src={
@@ -120,17 +130,17 @@ const SubCategoryPage = () => {
               <Link
                 key={type.slug || type._id}
                 to={`/shop/${normalized}/${type.slug}`}
-                className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-white border border-[#38131E]/12 hover:border-[#D4AF63] shadow-xs hover:shadow-xl transition-all duration-500 flex items-end"
+                className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
               >
                 <img
                   src={type.image}
                   alt={type.name}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/85 via-[#2B0E17]/20 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/88 via-[#2B0E17]/20 to-transparent"
                 />
                 <div className="relative z-10 w-full p-6 flex items-end justify-between text-[#F7F1E5]">
                   <div>

@@ -29,11 +29,11 @@ const Reviews = ({ productId }) => {
   };
 
   return (
-    <div className="bg-white/90 border border-[#38131E]/12 rounded-3xl p-6 sm:p-10 shadow-xs">
+    <div className="bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-6 sm:p-10">
       <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#38131E]/10 mb-8">
         <div>
           <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
-            Verified Feedback
+            From Our Shoppers
           </p>
           <h2 className="font-serif text-3xl text-[#38131E]">
             Customer Reviews
@@ -41,16 +41,16 @@ const Reviews = ({ productId }) => {
         </div>
 
         {reviews.length > 0 && positivityPercentage > 0 && (
-          <div className="px-4 py-2 rounded-full bg-[#F7F1E5] border border-[#D4AF63]/45 text-xs font-semibold text-[#38131E]">
-            {Math.round(positivityPercentage)}% Positive Sentiment
+          <div className="px-4 py-2 rounded-[2px] bg-[#EFE6D5] border border-[#D4AF63]/45 text-xs font-semibold text-[#38131E]">
+            {Math.round(positivityPercentage)}% would recommend
           </div>
         )}
       </div>
 
       {/* Review Form */}
       {user ? (
-        <form onSubmit={handleSubmit} className="mb-10 bg-[#F7F1E5]/60 rounded-2xl p-6 border border-[#38131E]/10">
-          <h3 className="font-serif text-xl text-[#38131E] mb-3">Leave a Review</h3>
+        <form onSubmit={handleSubmit} className="mb-10 bg-[#F7F1E5] rounded-[2px] p-6 border border-[#38131E]/12">
+          <h3 className="font-serif text-xl text-[#38131E] mb-3">Write a Review</h3>
           <div className="flex items-center gap-1.5 mb-4" role="radiogroup" aria-label="Select rating">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
@@ -74,27 +74,27 @@ const Reviews = ({ productId }) => {
           <textarea
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
-            className="w-full p-4 bg-white border border-[#38131E]/20 rounded-xl text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+            className="w-full p-4 bg-white border border-[#38131E]/20 rounded-[2px] text-sm text-[#1A1718] focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
             rows="4"
-            placeholder="Share your thoughts about fit, fabric, and finish…"
+            placeholder="Share how it feels, fits, and looks in person…"
           />
 
           <div className="mt-4">
             <EditorialButton type="submit" disabled={submitting}>
-              {submitting ? "Submitting…" : "Submit Review"}
+              {submitting ? "Posting…" : "Post Review"}
             </EditorialButton>
           </div>
         </form>
       ) : (
-        <div className="text-center p-6 bg-[#F7F1E5]/60 border border-[#38131E]/12 rounded-2xl mb-8">
+        <div className="text-center p-6 bg-[#F7F1E5] border border-[#38131E]/12 rounded-[2px] mb-8">
           <p className="text-sm text-[#1A1718]/75">
-            Sign in to share your review for this piece.
+            Sign in to share your thoughts on this piece.
           </p>
           <Link
             to="/login"
             className="mt-2 inline-block text-xs uppercase tracking-[0.18em] font-semibold text-[#38131E] underline"
           >
-            Login or Sign Up
+            Sign In or Create Account
           </Link>
         </div>
       )}
@@ -104,11 +104,11 @@ const Reviews = ({ productId }) => {
         <p className="text-sm text-[#1A1718]/65">Loading reviews…</p>
       )}
       {status === "failed" && (
-        <p className="text-sm text-red-700">Could not load reviews: {error}</p>
+        <p className="text-sm text-red-700">Couldn&apos;t load reviews right now: {error}</p>
       )}
       {status === "succeeded" && reviews.length === 0 && (
         <p className="text-sm text-[#1A1718]/65">
-          No reviews yet. Be the first customer to review this item.
+          No reviews yet — if you&apos;ve worn this piece, we&apos;d love to hear what you think.
         </p>
       )}
 

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { X, ChevronDown, Heart, ShoppingBag, Search, User as UserIcon, LogOut, Shield } from "lucide-react";
 import BrandMark from "../brand/BrandMark";
+import { HERITAGE_TRADITIONS } from "../../data/heritageTraditions";
 
 export default function MobileNav({
   open,
@@ -13,7 +14,6 @@ export default function MobileNav({
   cartCount = 0,
   wishlistCount = 0,
   sareeTypes = [],
-  kurtaTypes = [],
 }) {
   const closeBtnRef = useRef(null);
   const [expanded, setExpanded] = useState(null);
@@ -40,7 +40,7 @@ export default function MobileNav({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#1A1718]/60 backdrop-blur-xs"
+        className="fixed inset-0 bg-[#1A1718]/70 backdrop-blur-xs"
         onClick={onClose}
       />
 
@@ -49,7 +49,7 @@ export default function MobileNav({
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className={`fixed right-0 top-0 bottom-0 w-[86%] max-w-sm bg-[#F7F1E5] shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 bottom-0 w-[88%] max-w-sm bg-[#F7F1E5] shadow-2xl flex flex-col transition-transform duration-300 ease-out border-l border-[#D4AF63]/35 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -64,7 +64,7 @@ export default function MobileNav({
             type="button"
             onClick={onClose}
             aria-label="Close navigation menu"
-            className="w-11 h-11 flex items-center justify-center rounded-full text-[#F7F1E5] hover:bg-white/10 transition-colors"
+            className="w-11 h-11 flex items-center justify-center rounded-[2px] text-[#F7F1E5] hover:bg-white/10 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -79,17 +79,17 @@ export default function MobileNav({
               onClose();
               onOpenSearch();
             }}
-            className="w-full min-h-[44px] flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white border border-[#38131E]/15 text-sm text-[#1A1718]/70 mb-4"
+            className="w-full min-h-[44px] flex items-center gap-3 px-4 py-2.5 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/18 text-sm text-[#1A1718]/75 mb-4"
           >
             <Search className="w-4 h-4 text-[#38131E]" />
-            <span>Search sarees, lehengas, kurtas…</span>
+            <span>Search sarees, lehengas, Indo-Western…</span>
           </button>
 
-          <nav className="space-y-1.5" aria-label="Mobile storefront links">
+          <nav className="divide-y divide-[#38131E]/10" aria-label="Mobile storefront links">
             <button
               type="button"
               onClick={() => onNavigate("/")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E] hover:text-[#2B0E17]"
             >
               Home
             </button>
@@ -97,18 +97,54 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/shop/all/all?sort=newest")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
               New Arrivals
             </button>
 
+            {/* Indian Textiles Accordion */}
+            <div>
+              <button
+                type="button"
+                onClick={() => toggleGroup("heritage")}
+                aria-expanded={expanded === "heritage"}
+                className="w-full min-h-[46px] flex items-center justify-between px-2 py-2.5 text-base font-serif text-[#38131E]"
+              >
+                <span>Indian Textiles</span>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${expanded === "heritage" ? "rotate-180" : ""}`}
+                />
+              </button>
+              {expanded === "heritage" && (
+                <div className="pl-5 pr-2 pb-3 space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate("/heritage")}
+                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#38131E] font-semibold bg-[#EFE6D5] rounded-[2px]"
+                  >
+                    Explore All Traditions
+                  </button>
+                  {HERITAGE_TRADITIONS.map((trad) => (
+                    <button
+                      key={trad.slug}
+                      type="button"
+                      onClick={() => onNavigate(`/heritage/${trad.slug}`)}
+                      className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/85 hover:bg-[#FBF7EE]"
+                    >
+                      {trad.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Sarees Accordion */}
-            <div className="rounded-xl overflow-hidden">
+            <div>
               <button
                 type="button"
                 onClick={() => toggleGroup("sarees")}
                 aria-expanded={expanded === "sarees"}
-                className="w-full min-h-[44px] flex items-center justify-between px-4 py-2.5 text-base font-medium text-[#38131E] hover:bg-white rounded-xl transition-colors"
+                className="w-full min-h-[46px] flex items-center justify-between px-2 py-2.5 text-base font-serif text-[#38131E]"
               >
                 <span>Sarees</span>
                 <ChevronDown
@@ -116,18 +152,18 @@ export default function MobileNav({
                 />
               </button>
               {expanded === "sarees" && (
-                <div className="pl-6 pr-3 pb-2 space-y-1">
+                <div className="pl-5 pr-2 pb-3 space-y-1">
                   <button
                     type="button"
                     onClick={() => onNavigate("/shop/saree/all")}
-                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#38131E] font-medium rounded-lg hover:bg-white"
+                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#38131E] font-semibold"
                   >
                     All Sarees
                   </button>
                   <button
                     type="button"
                     onClick={() => onNavigate("/shop/saree")}
-                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80 rounded-lg hover:bg-white"
+                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80"
                   >
                     Saree Categories
                   </button>
@@ -136,7 +172,7 @@ export default function MobileNav({
                       key={t.slug || t._id}
                       type="button"
                       onClick={() => onNavigate(`/shop/saree/${t.slug}`)}
-                      className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80 rounded-lg hover:bg-white"
+                      className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80"
                     >
                       {t.name}
                     </button>
@@ -148,18 +184,26 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/shop/lehenga/all")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
               Lehengas
             </button>
 
+            <button
+              type="button"
+              onClick={() => onNavigate("/shop/indo-western/all")}
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
+            >
+              Indo-Western
+            </button>
+
             {/* Men Accordion */}
-            <div className="rounded-xl overflow-hidden">
+            <div>
               <button
                 type="button"
                 onClick={() => toggleGroup("men")}
                 aria-expanded={expanded === "men"}
-                className="w-full min-h-[44px] flex items-center justify-between px-4 py-2.5 text-base font-medium text-[#38131E] hover:bg-white rounded-xl transition-colors"
+                className="w-full min-h-[46px] flex items-center justify-between px-2 py-2.5 text-base font-serif text-[#38131E]"
               >
                 <span>Men</span>
                 <ChevronDown
@@ -167,36 +211,22 @@ export default function MobileNav({
                 />
               </button>
               {expanded === "men" && (
-                <div className="pl-6 pr-3 pb-2 space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => onNavigate("/shop/kurta")}
-                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80 rounded-lg hover:bg-white"
-                  >
-                    Kurta Pajama
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate("/shop/jodhpuri/all")}
-                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80 rounded-lg hover:bg-white"
-                  >
-                    Jodhpuri
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate("/shop/suit")}
-                    className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/80 rounded-lg hover:bg-white"
-                  >
-                    Suits
-                  </button>
-                  {kurtaTypes.slice(0, 3).map((t) => (
+                <div className="pl-5 pr-2 pb-3 space-y-1">
+                  {[
+                    { label: "Suits", to: "/shop/suit/all" },
+                    { label: "Kurta Pajama", to: "/shop/kurta/all" },
+                    { label: "Jodhpuri", to: "/shop/jodhpuri/all" },
+                  ].map((item) => (
                     <button
-                      key={t.slug || t._id}
+                      key={item.to}
                       type="button"
-                      onClick={() => onNavigate(`/shop/kurta/${t.slug}`)}
-                      className="w-full min-h-[40px] text-left px-3 py-1.5 text-sm text-[#1A1718]/75 rounded-lg hover:bg-white"
+                      onClick={() => onNavigate(item.to)}
+                      className="w-full min-h-[40px] flex items-center justify-between text-left px-3 py-1.5 text-sm text-[#1A1718]/80"
                     >
-                      {t.name}
+                      <span>{item.label}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[#38131E]/55">
+                        Coming Soon
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -206,23 +236,23 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/shop/printed-tees/all")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
               Printed Tees
             </button>
 
             <button
               type="button"
-              onClick={() => onNavigate("/shop")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              onClick={() => onNavigate("/past-editions")}
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
-              Collections
+              Past Editions
             </button>
 
             <button
               type="button"
               onClick={() => onNavigate("/about")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
               Our Store
             </button>
@@ -230,7 +260,7 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/contact")}
-              className="w-full min-h-[44px] text-left px-4 py-2.5 rounded-xl text-base font-medium text-[#38131E] hover:bg-white transition-colors"
+              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
             >
               Contact
             </button>
@@ -241,7 +271,7 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/wishlist")}
-              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#38131E]/15 text-sm font-medium text-[#38131E]"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/18 text-xs uppercase tracking-[0.14em] font-medium text-[#38131E]"
             >
               <Heart className="w-4 h-4" />
               <span>Wishlist ({wishlistCount})</span>
@@ -249,7 +279,7 @@ export default function MobileNav({
             <button
               type="button"
               onClick={() => onNavigate("/cart")}
-              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#38131E]/15 text-sm font-medium text-[#38131E]"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/18 text-xs uppercase tracking-[0.14em] font-medium text-[#38131E]"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Bag ({cartCount})</span>
@@ -258,13 +288,13 @@ export default function MobileNav({
         </div>
 
         {/* Account footer */}
-        <div className="p-5 bg-white/80 border-t border-[#38131E]/10 space-y-2.5">
+        <div className="p-5 bg-[#EFE6D5] border-t border-[#38131E]/15 space-y-2.5">
           {user ? (
             <>
               <div className="flex items-center justify-between text-sm text-[#38131E] px-1">
                 <span className="font-medium truncate">Hi, {user.fullName}</span>
                 {user.role === "admin" && (
-                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#38131E] text-[#F1D889]">
+                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#38131E] text-[#F1D889]">
                     Admin
                   </span>
                 )}
@@ -273,14 +303,14 @@ export default function MobileNav({
                 <button
                   type="button"
                   onClick={() => onNavigate("/my-profile")}
-                  className="min-h-[44px] flex items-center justify-center gap-1.5 rounded-full border border-[#38131E]/25 text-xs font-medium uppercase tracking-wider text-[#38131E]"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 rounded-[2px] border border-[#38131E]/25 bg-[#FBF7EE] text-xs font-medium uppercase tracking-wider text-[#38131E]"
                 >
                   <UserIcon className="w-3.5 h-3.5" /> Profile
                 </button>
                 <button
                   type="button"
                   onClick={() => onNavigate("/orders")}
-                  className="min-h-[44px] flex items-center justify-center gap-1.5 rounded-full border border-[#38131E]/25 text-xs font-medium uppercase tracking-wider text-[#38131E]"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 rounded-[2px] border border-[#38131E]/25 bg-[#FBF7EE] text-xs font-medium uppercase tracking-wider text-[#38131E]"
                 >
                   Orders
                 </button>
@@ -289,7 +319,7 @@ export default function MobileNav({
                 <button
                   type="button"
                   onClick={() => onNavigate("/admin")}
-                  className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-full bg-[#38131E]/10 text-[#38131E] text-xs font-semibold uppercase tracking-wider"
+                  className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-[2px] bg-[#38131E]/10 border border-[#38131E]/20 text-[#38131E] text-xs font-semibold uppercase tracking-wider"
                 >
                   <Shield className="w-3.5 h-3.5" /> Admin Dashboard
                 </button>
@@ -297,7 +327,7 @@ export default function MobileNav({
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-full bg-[#38131E] text-[#F7F1E5] text-xs font-medium uppercase tracking-wider"
+                className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-[2px] bg-[#38131E] text-[#F7F1E5] text-xs font-medium uppercase tracking-wider"
               >
                 <LogOut className="w-3.5 h-3.5" /> Logout
               </button>

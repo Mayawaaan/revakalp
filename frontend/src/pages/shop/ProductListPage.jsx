@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { SlidersHorizontal, ShoppingBag, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import useStore from "../../store/store";
 import Breadcrums from "../../components/globalComponents/Breadcrums";
 import PageHero from "../../components/globalComponents/PageHero";
@@ -10,12 +10,15 @@ import SortMenu from "../../components/shop/SortMenu";
 import ProductGrid from "../../components/ui/ProductGrid";
 import EditorialButton from "../../components/ui/EditorialButton";
 import {
-  STOREFRONT_CATEGORIES,
+  ACTIVE_STOREFRONT_CATEGORIES,
   matchesCategory,
   matchesTypeOrKeyword,
+  isEmptyMensCategory,
   getEffectivePrice,
+  getAvailableStock,
   normalizeSlug,
 } from "../../config/storefrontCategories";
+import { useSeoMeta } from "../../utils/seo";
 
 const ProductListPage = () => {
   const { category = "all", type = "all" } = useParams();
@@ -85,7 +88,7 @@ const ProductListPage = () => {
     const q = activeQuery.toLowerCase();
 
     const list = routeScopedProducts.filter((p) => {
-      if (inStockOnly && !(Number(p?.stock) > 0)) return false;
+      if (inStockOnly && getAvailableStock(p) <= 0) return false;
 
       if (q) {
         const hay = [
@@ -190,10 +193,17 @@ const ProductListPage = () => {
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
+  useSeoMeta({
+    title: pageTitle,
+    description: `Browse ${pageTitle} — live inventory from Revakalp's Indore retail boutique.`,
+    canonicalPath: `/shop/${category}/${type}`,
+  });
+
   const normalizedCategorySlug = normalizeSlug(category);
+  const isMensEmpty = isEmptyMensCategory(category);
   const categoryOptions = [
     { id: "all", label: "All" },
-    ...STOREFRONT_CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
+    ...ACTIVE_STOREFRONT_CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
   ];
 
   const hasActiveChips =
@@ -227,27 +237,26 @@ const ProductListPage = () => {
   return (
     <div className="bg-[#F7F1E5] min-h-screen">
       <PageHero
-        label={category !== "all" ? decodeURIComponent(category).replace(/-/g, " ") : "Catalog"}
+        label={category !== "all" ? decodeURIComponent(category).replace(/-/g, " ") : "Shop"}
         title={pageTitle}
-        subtitle="Curated apparel and occasionwear from our Indore retail inventory."
+        subtitle="Available online and at our Indore store."
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <Breadcrums />
 
-        {/* Toolbar */}
-        <div className="mt-4 mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#38131E]/12">
+        {/* Sticky Mobile & Desktop Filter/Sort Toolbar */}
+        <div className="sticky top-[64px] z-20 bg-[#F7F1E5]/96 backdrop-blur-md py-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:static sm:bg-transparent mt-4 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#38131E]/14">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="lg:hidden inline-flex items-center gap-2 min-h-[42px] px-4 py-2 rounded-full bg-white border border-[#38131E]/25 text-xs uppercase tracking-[0.16em] font-medium text-[#38131E] cursor-pointer"
+              className="lg:hidden inline-flex items-center gap-2 min-h-[42px] px-4 py-2 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/25 text-[11px] uppercase tracking-[0.18em] font-medium text-[#38131E] cursor-pointer"
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
             </button>
 
-            <span className="inline-flex items-center gap-2 text-xs sm:text-sm text-[#38131E]/80 font-medium">
-              <ShoppingBag className="w-4 h-4 text-[#38131E]" />
+            <span className="text-xs sm:text-sm text-[#38131E]/85 font-medium">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "piece" : "pieces"}
             </span>
@@ -330,9 +339,9 @@ const ProductListPage = () => {
           </div>
         )}
 
-        {/* Main Layout: Desktop Filter Sidebar + Product Grid */}
+        {/* Main Layout: Desktop Hairline Filter Rail + Product Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8 items-start">
-          <aside className="hidden lg:block sticky top-28 rk-surface-card p-6">
+          <aside className="hidden lg:block sticky top-28 lg:border-r lg:border-[#38131E]/14 lg:pr-6 py-1">
             <FilterPanel {...filterPanelProps} />
           </aside>
 
@@ -342,16 +351,23 @@ const ProductListPage = () => {
               loading={loading}
               columnsClass="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
               emptyProps={{
-                title: "No matching products found",
-                description:
-                  routeScopedProducts.length === 0
-                    ? "There are currently no products listed in this category. Explore our full available catalog below."
-                    : "Try clearing one or more active filters to view available pieces.",
-                actionLabel: hasActiveChips ? "Reset Filters" : "View All Catalog",
-                onAction: hasActiveChips ? clearAllFilters : undefined,
-                actionTo: hasActiveChips ? undefined : "/shop/all/all",
+                title: isMensEmpty
+                  ? `Men's ${pageTitle} — Coming Soon`
+                  : "Nothing matched your filters",
+                description: isMensEmpty
+                  ? "Our men's section is currently empty while we prepare new pieces. Explore our active collections in the meantime."
+                  : routeScopedProducts.length === 0
+                  ? "We don't have any pieces listed in this category right now. Take a look at everything else in store."
+                  : "Try clearing a filter or two to see what's available.",
+                actionLabel: isMensEmpty
+                  ? "Explore Collections"
+                  : hasActiveChips
+                  ? "Clear Filters"
+                  : "See Everything In Store",
+                onAction: !isMensEmpty && hasActiveChips ? clearAllFilters : undefined,
+                actionTo: isMensEmpty ? "/shop" : hasActiveChips ? undefined : "/shop/all/all",
                 secondaryAction:
-                  category !== "all" ? (
+                  !isMensEmpty && category !== "all" ? (
                     <EditorialButton to="/shop/all/all" variant="secondary">
                       All Collections
                     </EditorialButton>

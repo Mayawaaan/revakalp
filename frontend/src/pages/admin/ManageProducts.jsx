@@ -427,7 +427,7 @@ const ManageProducts = () => {
               />
 
               <input
-                placeholder="Category"
+                placeholder="Category (e.g. Saree, Lehenga, Indo-Western, Printed Tees)"
                 value={form.category}
                 onChange={(e) =>
                   setForm({ ...form, category: e.target.value })
@@ -445,7 +445,7 @@ const ManageProducts = () => {
               />
 
               <input
-                placeholder="Type (Saree / Kurta / Suit)"
+                placeholder="Type (e.g. Banarasi, Fusion, Bridal)"
                 value={form.type}
                 onChange={(e) =>
                   setForm({ ...form, type: e.target.value })

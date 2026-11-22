@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Trash2, ShoppingBag, ShieldCheck, RotateCcw, Minus, Plus } from "lucide-react";
+import { Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
 import useStore from "../../../store/store";
 import CartTotal from "../../../components/cart/CartTotal";
 import PageHero from "../../../components/globalComponents/PageHero";
@@ -46,8 +46,8 @@ const Cart = () => {
     <div className="min-h-screen bg-[#F7F1E5]">
       <PageHero
         label="Shopping Bag"
-        title="Your Shopping Bag"
-        subtitle="Review your selected pieces before proceeding to checkout."
+        title="Your Bag"
+        subtitle="Take a moment to review your pieces before checking out."
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -65,8 +65,8 @@ const Cart = () => {
                   Your bag is empty
                 </h2>
                 <p className="text-sm text-[#1A1718]/70 mb-8 max-w-md mx-auto leading-relaxed">
-                  Explore our curated collection of sarees, lehengas, kurta pajama,
-                  Jodhpuri silhouettes, and printed tees.
+                  Explore our curated collection of sarees, lehengas, Indo-Western styles,
+                  and printed tees.
                 </p>
                 <EditorialButton to="/shop" variant="primary">
                   Browse Collections
@@ -103,7 +103,7 @@ const Cart = () => {
                               <img
                                 src={image}
                                 alt={item.name || "Product"}
-                                className="w-20 h-24 object-cover rounded-xl border border-[#38131E]/10"
+                                className="w-20 h-24 object-cover rounded-[2px] border border-[#38131E]/12"
                               />
                             </Link>
                           )}
@@ -127,14 +127,14 @@ const Cart = () => {
                                 </span>
                               )}
                               {item.discount > 0 && (
-                                <span className="text-[10px] uppercase tracking-wider font-semibold bg-[#38131E] text-[#F1D889] px-2.5 py-0.5 rounded-full">
+                                <span className="text-[10px] uppercase tracking-wider font-semibold bg-[#38131E] text-[#F1D889] px-2.5 py-0.5 rounded-[2px]">
                                   -{item.discount}%
                                 </span>
                               )}
                             </div>
 
                             {item.size && item.size !== "NO_SIZE" && (
-                              <span className="inline-block mt-2 px-3 py-0.5 rounded-full bg-[#F7F1E5] border border-[#38131E]/15 text-[11px] uppercase tracking-wider font-medium text-[#38131E]">
+                              <span className="inline-block mt-2 px-3 py-0.5 rounded-[2px] bg-[#EFE6D5] border border-[#38131E]/15 text-[11px] uppercase tracking-wider font-medium text-[#38131E]">
                                 Size: {item.size}
                               </span>
                             )}
@@ -142,7 +142,7 @@ const Cart = () => {
                         </div>
 
                         <div className="flex items-center justify-between sm:justify-end gap-3">
-                          <div className="inline-flex items-center rounded-full border border-[#38131E]/20 bg-[#F7F1E5]/70">
+                          <div className="inline-flex items-center rounded-[2px] border border-[#38131E]/22 bg-[#EFE6D5]/65">
                             <button
                               type="button"
                               aria-label={`Decrease quantity of ${item.name}`}
@@ -169,7 +169,7 @@ const Cart = () => {
                             type="button"
                             aria-label={`Remove ${item.name} from bag`}
                             onClick={() => removeFromCart(item._id, item.size)}
-                            className="w-10 h-10 rounded-full bg-red-50 text-red-700 hover:bg-red-100 flex items-center justify-center transition-colors cursor-pointer"
+                            className="w-10 h-10 rounded-[2px] bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 flex items-center justify-center transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -197,7 +197,7 @@ const Cart = () => {
                   Promo Code
                 </p>
                 {discountPercentage > 0 ? (
-                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm">
+                  <div className="flex items-center justify-between px-4 py-3 rounded-[2px] bg-emerald-50 border border-emerald-200 text-sm">
                     <span className="text-emerald-800 font-medium">
                       Coupon {activeCoupon ? `(${activeCoupon}) ` : ""}Applied ({discountPercentage}% off)
                     </span>
@@ -216,12 +216,12 @@ const Cart = () => {
                       onChange={(e) => setCouponInput(e.target.value)}
                       placeholder="Enter promo code"
                       aria-label="Promo code"
-                      className="flex-1 min-h-[44px] px-4 py-2 rounded-xl border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+                      className="flex-1 min-h-[44px] px-4 py-2 rounded-[2px] border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
                     />
                     <button
                       type="submit"
                       disabled={applyingCoupon}
-                      className="min-h-[44px] px-5 rounded-xl bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer disabled:opacity-50"
+                      className="min-h-[44px] px-5 rounded-[2px] bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer disabled:opacity-50"
                     >
                       {applyingCoupon ? "…" : "Apply"}
                     </button>
@@ -238,14 +238,13 @@ const Cart = () => {
                 Proceed to Checkout →
               </EditorialButton>
 
-              <div className="flex items-center justify-center gap-6 text-xs text-[#38131E]/70 pt-1">
-                <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#D4AF63]" /> Secure Payment
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <RotateCcw className="w-4 h-4 text-[#D4AF63]" /> 7-Day Returns
-                </span>
-              </div>
+              <p className="text-[11px] text-[#38131E]/70 text-center leading-relaxed">
+                Pieces in your bag aren&apos;t held until you head to checkout.
+              </p>
+
+              <p className="text-center text-xs text-[#38131E]/75 uppercase tracking-[0.16em] pt-1">
+                Safe Checkout · 7-Day Returns
+              </p>
             </div>
           </div>
         </div>

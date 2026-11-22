@@ -1,10 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Star,
-  ShieldCheck,
-  Truck,
-  RefreshCw,
   Heart,
   ZoomIn,
   X,
@@ -12,7 +9,7 @@ import {
   ChevronRight,
   Minus,
   Plus,
-  Shirt,
+  ArrowRight,
 } from "lucide-react";
 import useStore from "../../store/store";
 import { apiFetch } from "../../hooks/useApiHelper";
@@ -22,6 +19,10 @@ import EditorialButton from "../../components/ui/EditorialButton";
 import EmptyState from "../../components/ui/EmptyState";
 import RelatedProducts from "../../components/products/RelatedProducts";
 import Reviews from "../../components/reviews/Reviews";
+import { useSeoMeta } from "../../utils/seo";
+import { trackEvent } from "../../utils/analytics";
+import { getEffectivePrice } from "../../config/storefrontCategories";
+import { findTraditionForProduct } from "../../data/heritageTraditions";
 
 const ProductDetailsPage = () => {
   const { productId } = useParams();
@@ -106,6 +107,65 @@ const ProductDetailsPage = () => {
     return Array.isArray(raw) ? raw.filter(Boolean) : raw ? [raw] : [];
   }, [product]);
 
+  const availableStock = useMemo(() => {
+    if (!product) return 0;
+    return Math.max(0, (Number(product.stock) || 0) - (Number(product.reserved) || 0));
+  }, [product]);
+
+  const seoJsonLd = useMemo(() => {
+    if (!product) return null;
+    const resolved = product._id || product.id;
+    const effective = getEffectivePrice(product);
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      description: product.description || undefined,
+      image: images.length ? images : undefined,
+      sku: product.sku || resolved,
+      category: product.category || undefined,
+      brand: { "@type": "Brand", name: "REVAKALP" },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "INR",
+        price: effective,
+        availability:
+          availableStock > 0
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        url: origin ? `${origin}/product/${resolved}` : undefined,
+      },
+    };
+  }, [product, images, availableStock]);
+
+  useSeoMeta({
+    title: product?.name || "Product Details",
+    description: product?.description
+      ? String(product.description).slice(0, 155)
+      : "Discover Revakalp ethnic wear, sarees, lehengas, and festive silhouettes.",
+    canonicalPath: productId ? `/product/${productId}` : undefined,
+    jsonLd: seoJsonLd,
+  });
+
+  useEffect(() => {
+    if (!product) return;
+    const resolved = product._id || product.id;
+    trackEvent("view_item", {
+      item_id: resolved,
+      item_name: product.name,
+      item_category: product.category || undefined,
+      price: getEffectivePrice(product),
+      available: availableStock,
+    });
+    if (availableStock <= 0) {
+      trackEvent("stock_unavailable", {
+        item_id: resolved,
+        item_name: product.name,
+      });
+    }
+  }, [product, availableStock]);
+
   useEffect(() => {
     if (!lightboxOpen) return undefined;
     const onKeyDown = (e) => {
@@ -166,11 +226,11 @@ const ProductDetailsPage = () => {
     hasSizes,
     sizes = [],
     bestseller,
-    stock = 0,
   } = product;
 
-  const numericStock = Number(stock) || 0;
+  const numericStock = availableStock;
   const isOutOfStock = numericStock <= 0;
+  const isOnePiece = numericStock === 1;
   const activeImage = images[activeIndex] || images[0] || "";
 
   const isWishlisted = wishlist?.items?.some(
@@ -208,6 +268,10 @@ const ProductDetailsPage = () => {
       removeFromWishlist(resolvedId);
     } else {
       addToWishlist(resolvedId);
+      trackEvent("add_to_wishlist", {
+        item_id: resolvedId,
+        item_name: name,
+      });
     }
   };
 
@@ -230,7 +294,12 @@ const ProductDetailsPage = () => {
     const existingQty =
       cart?.find((i) => i._id === resolvedId && i.size === sizeToUse)?.quantity || 0;
     if (existingQty + quantity > numericStock) {
-      showToast(`Only ${numericStock} available in stock`, "error");
+      showToast(
+        isOnePiece
+          ? "Only one piece of this creation is available"
+          : `Only ${numericStock} available in stock`,
+        "error"
+      );
       return;
     }
 
@@ -240,6 +309,13 @@ const ProductDetailsPage = () => {
       for (let i = 1; i < quantity; i++) {
         await incrementQuantity(resolvedId, sizeToUse);
       }
+      trackEvent("add_to_cart", {
+        item_id: resolvedId,
+        item_name: name,
+        price: getEffectivePrice(product),
+        quantity,
+        size: sizeToUse,
+      });
       showToast(
         redirectPath === "/place-order" ? "Proceeding to checkout" : "Added to bag",
         "success"
@@ -264,9 +340,10 @@ const ProductDetailsPage = () => {
 
   const freeThreshold = settings?.freeShippingThreshold;
   const currencySym = settings?.currencySymbol || "₹";
+  const matchedTradition = findTraditionForProduct(product);
 
   return (
-    <div className="bg-[#F7F1E5] min-h-screen py-8 sm:py-12">
+    <div className="bg-[#F7F1E5] min-h-screen pt-8 pb-24 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrums product={product} />
 
@@ -290,9 +367,9 @@ const ProductDetailsPage = () => {
                       aria-label={`View image ${i + 1} of ${images.length}`}
                       onClick={() => setActiveIndex(i)}
                       onKeyDown={(e) => handleThumbKeyDown(e, i)}
-                      className={`w-16 h-20 sm:w-20 sm:h-24 shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                      className={`w-16 h-20 sm:w-20 sm:h-24 shrink-0 rounded-[2px] overflow-hidden border-2 transition-all cursor-pointer ${
                         selected
-                          ? "border-[#38131E] ring-2 ring-[#D4AF63]/60"
+                          ? "border-[#38131E] ring-1 ring-[#D4AF63]"
                           : "border-[#38131E]/15 opacity-75 hover:opacity-100"
                       }`}
                     >
@@ -308,18 +385,22 @@ const ProductDetailsPage = () => {
             )}
 
             {/* Main Image with Interactive Hover Zoom & Lightbox */}
-            <div className="relative flex-1 rounded-3xl overflow-hidden bg-white border border-[#38131E]/12 shadow-sm">
+            <div className="relative flex-1 rounded-[2px] overflow-hidden bg-[#EFE6D5] border border-[#38131E]/14">
               {badgeText && (
-                <span className="pointer-events-none absolute top-4 left-4 z-10 bg-[#38131E] text-[#F1D889] text-[11px] uppercase tracking-[0.18em] font-semibold px-3.5 py-1.5 rounded-full border border-[#D4AF63]/40">
+                <span className="pointer-events-none absolute top-4 left-4 z-10 bg-[#2B0E17] text-[#F1D889] text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1.5 rounded-[2px] border border-[#D4AF63]/45">
                   {badgeText}
                 </span>
               )}
+
+              <span className="pointer-events-none hidden md:inline-block absolute bottom-4 left-4 z-10 px-2.5 py-1 rounded-[2px] bg-[#2B0E17]/75 text-[#F1D889] text-[10px] uppercase tracking-[0.18em] border border-[#D4AF63]/35">
+                Hover to zoom in
+              </span>
 
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
                 aria-label="Open full-size image zoom"
-                className="absolute bottom-4 right-4 z-10 w-11 h-11 rounded-full bg-[#F7F1E5]/90 border border-[#38131E]/20 flex items-center justify-center text-[#38131E] hover:bg-[#38131E] hover:text-[#F1D889] transition-colors shadow-md cursor-pointer"
+                className="absolute bottom-4 right-4 z-10 w-11 h-11 rounded-[2px] bg-[#F7F1E5]/92 border border-[#38131E]/22 flex items-center justify-center text-[#38131E] hover:bg-[#38131E] hover:text-[#F1D889] transition-colors shadow-sm cursor-pointer"
               >
                 <ZoomIn className="w-5 h-5" />
               </button>
@@ -352,7 +433,7 @@ const ProductDetailsPage = () => {
           </div>
 
           {/* ── PRODUCT INFO ── */}
-          <div className="lg:col-span-6 space-y-6 bg-white/85 border border-[#38131E]/12 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs">
+          <div className="lg:col-span-6 space-y-6 bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-6 sm:p-8 lg:p-10">
             <div>
               <p className="uppercase tracking-[0.24em] text-[11px] font-medium text-[#38131E]/65 mb-2">
                 {[category, subCategory, type].filter(Boolean).join(" · ")}
@@ -390,6 +471,8 @@ const ProductDetailsPage = () => {
                 >
                   {isOutOfStock
                     ? "Out of Stock"
+                    : isOnePiece
+                    ? "Only 1 piece left"
                     : numericStock <= 5
                     ? `Only ${numericStock} left`
                     : "In Stock"}
@@ -425,10 +508,10 @@ const ProductDetailsPage = () => {
                         type="button"
                         onClick={() => setSelectedSize(size)}
                         aria-pressed={active}
-                        className={`min-h-[44px] min-w-[52px] px-4 py-2 text-sm font-medium rounded-full border transition-all cursor-pointer ${
+                        className={`min-h-[44px] min-w-[52px] px-4 py-2 text-sm font-medium rounded-[2px] border transition-all cursor-pointer ${
                           active
                             ? "bg-[#38131E] text-[#F7F1E5] border-[#38131E]"
-                            : "bg-[#F7F1E5]/60 border-[#38131E]/25 text-[#38131E] hover:border-[#38131E]"
+                            : "bg-[#F7F1E5]/70 border-[#38131E]/25 text-[#38131E] hover:border-[#38131E]"
                         }`}
                       >
                         {size}
@@ -445,7 +528,7 @@ const ProductDetailsPage = () => {
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#38131E]">
                   Quantity
                 </span>
-                <div className="inline-flex items-center rounded-full border border-[#38131E]/25 bg-[#F7F1E5]/60">
+                <div className="inline-flex items-center rounded-[2px] border border-[#38131E]/25 bg-[#F7F1E5]/70">
                   <button
                     type="button"
                     aria-label="Decrease quantity"
@@ -496,7 +579,7 @@ const ProductDetailsPage = () => {
                 onClick={handleToggleWishlist}
                 aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 aria-pressed={Boolean(isWishlisted)}
-                className={`min-h-[44px] px-4 rounded-full border flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                className={`min-h-[46px] px-4 rounded-[2px] border flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   isWishlisted
                     ? "bg-[#38131E] text-[#F1D889] border-[#38131E]"
                     : "bg-white text-[#38131E] border-[#38131E]/30 hover:border-[#38131E]"
@@ -523,46 +606,94 @@ const ProductDetailsPage = () => {
                   )}
               </div>
 
-              {(print || regionState) && (
-                <div className="flex flex-wrap gap-3 pt-2">
-                  {print && (
-                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#F7F1E5] border border-[#38131E]/10 text-xs">
-                      <Shirt className="w-4 h-4 text-[#38131E]" />
-                      <span>
-                        <strong className="text-[#38131E]">Pattern:</strong> {print}
-                      </span>
-                    </div>
-                  )}
-                  {regionState && (
-                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#F7F1E5] border border-[#38131E]/10 text-xs">
-                      <span>
-                        <strong className="text-[#38131E]">Style Region:</strong>{" "}
-                        {regionState}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="pt-3 space-y-3">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#38131E]/75">
+                  Fabric &amp; Care
+                </h3>
+                {(() => {
+                  const specs = product.specs || {};
+                  const includedValue =
+                    specs.includedPieces ||
+                    (typeof specs.blouseIncluded === "boolean"
+                      ? specs.blouseIncluded
+                        ? "Includes unstitched blouse piece"
+                        : "Blouse piece not included"
+                      : "");
+                  const rows = [
+                    { label: "Fabric", value: specs.fabric },
+                    { label: "Weave & Pattern", value: specs.weave || print },
+                    { label: "Length", value: specs.length },
+                    { label: "What's Included", value: includedValue },
+                    { label: "Origin", value: specs.provenance || regionState },
+                    { label: "Care", value: specs.care },
+                    { label: "Weight", value: specs.gsm },
+                    { label: "Alterations", value: specs.alterationNotes },
+                    {
+                      label: "Country of Origin",
+                      value: settings?.countryOfOriginDefault || "India",
+                    },
+                    {
+                      label: "Seller",
+                      value: settings?.legalEntityName
+                        ? `${settings.legalEntityName}, Indore, Madhya Pradesh`
+                        : "Revakalp, Indore, Madhya Pradesh",
+                    },
+                  ].filter((r) => Boolean(r.value && String(r.value).trim()));
+
+                  return (
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {rows.map((row) => (
+                        <div
+                          key={row.label}
+                          className="rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12 px-4 py-3"
+                        >
+                          <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#38131E]/70">
+                            {row.label}
+                          </dt>
+                          <dd className="mt-1 text-xs sm:text-sm font-medium text-[#1A1718]">
+                            {row.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  );
+                })()}
+              </div>
             </div>
+
+            {/* Matched Textile Heritage Lineage Link */}
+            {matchedTradition && (
+              <Link
+                to={`/heritage/${matchedTradition.slug}`}
+                className="flex items-center justify-between gap-4 p-4 rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/45 hover:border-[#F1D889] transition-colors"
+              >
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889]">
+                    Behind the Weave
+                  </p>
+                  <p className="font-serif text-lg">
+                    Read about {matchedTradition.name} history &amp; care
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#F1D889] shrink-0" />
+              </Link>
+            )}
 
             {/* Policy Notes (strictly aligned with store policy) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="p-3.5 rounded-2xl bg-[#F7F1E5]/70 border border-[#38131E]/10 text-center">
-                <ShieldCheck className="w-5 h-5 mx-auto text-[#38131E] mb-1.5" />
-                <p className="text-xs font-medium text-[#38131E]">Quality Checked</p>
+              <div className="p-3.5 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12 text-center">
+                <p className="text-xs font-medium text-[#38131E]">Checked by hand</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-[#F7F1E5]/70 border border-[#38131E]/10 text-center">
-                <Truck className="w-5 h-5 mx-auto text-[#38131E] mb-1.5" />
+              <div className="p-3.5 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12 text-center">
                 <p className="text-xs font-medium text-[#38131E]">
                   {Number.isFinite(Number(freeThreshold))
-                    ? `Free over ${currencySym}${freeThreshold}`
-                    : "Pan-India Shipping"}
+                    ? `Free shipping over ${currencySym}${freeThreshold}`
+                    : "Ships across India"}
                 </p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-[#F7F1E5]/70 border border-[#38131E]/10 text-center">
-                <RefreshCw className="w-5 h-5 mx-auto text-[#38131E] mb-1.5" />
+              <div className="p-3.5 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12 text-center">
                 <p className="text-xs font-medium text-[#38131E]">
-                  7-Day Return (Unboxing Video)
+                  7-day returns (unboxing video)
                 </p>
               </div>
             </div>
@@ -594,7 +725,7 @@ const ProductDetailsPage = () => {
             type="button"
             onClick={() => setLightboxOpen(false)}
             aria-label="Close zoomed view"
-            className="absolute top-5 right-5 w-11 h-11 rounded-full bg-[#F7F1E5] text-[#38131E] flex items-center justify-center cursor-pointer"
+            className="absolute top-5 right-5 w-11 h-11 rounded-[2px] bg-[#F7F1E5] text-[#38131E] flex items-center justify-center cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -607,7 +738,7 @@ const ProductDetailsPage = () => {
                 onClick={() =>
                   setActiveIndex((prev) => (prev - 1 + images.length) % images.length)
                 }
-                className="absolute left-4 sm:left-8 w-11 h-11 rounded-full bg-[#F7F1E5]/90 text-[#38131E] flex items-center justify-center cursor-pointer"
+                className="absolute left-4 sm:left-8 w-11 h-11 rounded-[2px] bg-[#F7F1E5]/90 text-[#38131E] flex items-center justify-center cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -615,7 +746,7 @@ const ProductDetailsPage = () => {
                 type="button"
                 aria-label="Next image"
                 onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
-                className="absolute right-4 sm:right-8 w-11 h-11 rounded-full bg-[#F7F1E5]/90 text-[#38131E] flex items-center justify-center cursor-pointer"
+                className="absolute right-4 sm:right-8 w-11 h-11 rounded-[2px] bg-[#F7F1E5]/90 text-[#38131E] flex items-center justify-center cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -625,10 +756,33 @@ const ProductDetailsPage = () => {
           <img
             src={activeImage}
             alt={`${name} enlarged view`}
-            className="max-h-[88vh] max-w-[92vw] object-contain rounded-2xl shadow-2xl"
+            className="max-h-[88vh] max-w-[92vw] object-contain rounded-[2px] shadow-2xl"
           />
         </div>
       )}
+
+      {/* Sticky Mobile Purchase Bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#F7F1E5]/96 backdrop-blur-md border-t border-[#D4AF63]/45 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-[#38131E]/65 truncate">
+            {name}
+          </p>
+          <Price
+            price={price}
+            discountedPrice={discountedPrice}
+            discount={discount}
+            size="sm"
+          />
+        </div>
+        <EditorialButton
+          variant="primary"
+          disabled={isOutOfStock || submitting}
+          onClick={() => addSelectionToCart("/cart")}
+          className="px-5 py-2.5 min-h-[42px] shrink-0"
+        >
+          {isOutOfStock ? "Out of Stock" : submitting ? "Adding…" : "Add to Bag"}
+        </EditorialButton>
+      </div>
     </div>
   );
 };

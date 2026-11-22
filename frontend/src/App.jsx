@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import useLenis from "./hooks/useLenis";
+import useReducedMotion from "./components/motion/useReducedMotion";
 import axiosInstance from "./utils/axiosInstance";
 
 /* ===== Global Layout ===== */
@@ -10,6 +12,7 @@ import Footer from "./components/globalComponents/Footer";
 import Toast from "./components/globalComponents/Toast";
 import ScrollToTop from "./components/globalComponents/ScrollToTop";
 import WebsiteLoader from "./components/globalComponents/WebsiteLoader";
+import CookieConsentBanner from "./components/compliance/CookieConsentBanner";
 
 /* ===== Public & Customer Pages ===== */
 import Home from "./pages/home/Home";
@@ -35,12 +38,18 @@ const Terms = lazy(() => import("./pages/footer/Terms"));
 const Delivery = lazy(() => import("./pages/footer/Delivery"));
 const Returns = lazy(() => import("./pages/footer/Returns"));
 const FAQ = lazy(() => import("./pages/footer/FAQ"));
+const GrievanceRedressal = lazy(() => import("./pages/footer/GrievanceRedressal"));
+const CookiePolicy = lazy(() => import("./pages/footer/CookiePolicy"));
+const LegalDisclosures = lazy(() => import("./pages/footer/LegalDisclosures"));
 
 /* ===== Shop ===== */
 const CategoryPage = lazy(() => import("./pages/shop/CategoryPage"));
 const SubCategoryPage = lazy(() => import("./pages/shop/SubCategoryPage"));
 const ProductListPage = lazy(() => import("./pages/shop/ProductListPage"));
 const ProductDetailsPage = lazy(() => import("./pages/shop/ProductDetailsPage"));
+const PastEditions = lazy(() => import("./pages/editorial/PastEditions"));
+const HeritageAtlasPage = lazy(() => import("./pages/heritage/HeritageAtlasPage"));
+const HeritageTraditionPage = lazy(() => import("./pages/heritage/HeritageTraditionPage"));
 
 /* ===== Route Guards ===== */
 import ProtectedRoute from "./components/globalComponents/ProtectedRoute";
@@ -58,6 +67,8 @@ const ImageManagement = lazy(() => import("./pages/admin/ImageManagement"));
 const Settings = lazy(() => import("./pages/admin/Settings"));
 const ManageCollections = lazy(() => import("./pages/admin/ManageCollections"));
 const ManageTypes = lazy(() => import("./pages/admin/ManageTypes"));
+const InventoryPOS = lazy(() => import("./pages/admin/InventoryPOS"));
+const ManageCMS = lazy(() => import("./pages/admin/ManageCMS"));
 
 /* ===== Store ===== */
 import useStore from "./store/store";
@@ -68,8 +79,12 @@ const RouteFallback = () => (
   </div>
 );
 
+const MotionMain = motion.main;
+
 const App = () => {
   useLenis();
+  const location = useLocation();
+  const reducedMotion = useReducedMotion();
 
   const {
     fetchProducts,
@@ -79,6 +94,10 @@ const App = () => {
     initAuth,
     user,
   } = useStore();
+
+  const routeTransitionKey = location.pathname.startsWith("/admin")
+    ? "/admin"
+    : location.pathname;
 
   /* Load public data and restore active session */
   useEffect(() => {
@@ -108,9 +127,17 @@ const App = () => {
       <Toast />
       <Navbar />
       <ScrollToTop />
+      <CookieConsentBanner />
       <SearchBar />
 
-      <main id="main-content" className="flex-1">
+      <MotionMain
+        id="main-content"
+        key={routeTransitionKey}
+        initial={reducedMotion ? false : { opacity: 0.86 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
+        className="flex-1"
+      >
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Public */}
@@ -122,6 +149,10 @@ const App = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/heritage" element={<HeritageAtlasPage />} />
+            <Route path="/heritage/:slug" element={<HeritageTraditionPage />} />
+            <Route path="/textile-atlas" element={<HeritageAtlasPage />} />
+            <Route path="/past-editions" element={<PastEditions />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -130,8 +161,13 @@ const App = () => {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<Terms />} />
             <Route path="/delivery-information" element={<Delivery />} />
+            <Route path="/shipping-policy" element={<Delivery />} />
             <Route path="/returns-exchanges" element={<Returns />} />
+            <Route path="/cancellation-refund-policy" element={<Returns />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/grievance-redressal" element={<GrievanceRedressal />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/legal-compliance" element={<LegalDisclosures />} />
 
             {/* User Protected */}
             <Route element={<ProtectedRoute />}>
@@ -155,6 +191,8 @@ const App = () => {
                 <Route path="types" element={<ManageTypes />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="images" element={<ImageManagement />} />
+                <Route path="inventory" element={<InventoryPOS />} />
+                <Route path="cms" element={<ManageCMS />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
@@ -163,7 +201,7 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </main>
+      </MotionMain>
 
       <Footer />
     </div>

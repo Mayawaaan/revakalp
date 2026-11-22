@@ -1,102 +1,186 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import useStore from "../../store/store";
 import PageHero from "../../components/globalComponents/PageHero";
+import { useSeoMeta } from "../../utils/seo";
 
-const PolicySection = ({ number, title, children }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-[44px_1fr] gap-4 sm:gap-6 pb-8 mb-8 border-b border-[#38131E]/10 last:border-0 last:pb-0 last:mb-0">
-    <div className="w-10 h-10 rounded-full bg-[#38131E] text-[#F1D889] flex items-center justify-center text-xs font-bold shrink-0">
-      {number}
-    </div>
-    <div>
-      <h2 className="font-serif text-2xl text-[#38131E] mb-3">{title}</h2>
-      {children}
-    </div>
+const PolicySection = ({ title, children }) => (
+  <div className="pb-8 mb-8 border-b border-[#38131E]/10 last:border-0 last:pb-0 last:mb-0">
+    <h2 className="font-serif text-2xl text-[#38131E] mb-3">{title}</h2>
+    {children}
   </div>
 );
 
-const PrivacyPolicy = () => (
-  <div className="bg-[#F7F1E5] text-[#1A1718]">
-    <PageHero
-      label="Your Privacy"
-      title="Privacy Policy"
-      subtitle="This policy explains how Revakalp collects, uses, and safeguards your personal information."
-    />
+const PrivacyPolicy = () => {
+  const settings = useStore((s) => s.settings);
+  const legalName = settings?.legalEntityName?.trim() || "Revakalp";
+  const address =
+    settings?.address?.trim() ||
+    "231-231, Shop No. 2, Dhanwantri Nagar, Rajendra Nagar, Indore, Madhya Pradesh – 452012";
+  const supportEmail = settings?.supportEmail?.trim() || "contact@revakalp.com";
+  const officerName = settings?.grievanceOfficerName?.trim() || "Anjali Katare";
+  const officerRole =
+    settings?.grievanceOfficerDesignation?.trim() ||
+    "Founder & Grievance Redressal Officer";
+  const officerEmail =
+    settings?.grievanceOfficerEmail?.trim() || supportEmail;
+  const officerPhone =
+    settings?.grievanceOfficerPhone?.trim() ||
+    settings?.phone?.trim() ||
+    "+91 91096-76562";
 
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-      <div className="inline-flex items-center gap-2 bg-white border border-[#38131E]/15 rounded-full px-4 py-1.5 mb-8 text-xs text-[#38131E]">
-        <span className="w-2 h-2 rounded-full bg-[#38131E]" />
-        <span>Last updated: June 2025</span>
-      </div>
+  useSeoMeta({
+    title: "Privacy Policy",
+    description:
+      "How Revakalp handles and protects personal data under India's Digital Personal Data Protection Act, 2023 (DPDPA) and IT Act rules.",
+    canonicalPath: "/privacy-policy",
+  });
 
-      <div className="rk-surface-card p-6 sm:p-10 md:p-12">
-        <PolicySection number="01" title="Information We Collect">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed mb-2">
-            When you browse our website or place an order, we may collect:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
-            <li>Name, email address, phone number, and delivery address</li>
-            <li>Order and transaction details</li>
-            <li>Basic device and browser information</li>
-          </ul>
-        </PolicySection>
+  const openCookiePreferences = () => {
+    window.dispatchEvent(new Event("rk-open-cookie-settings"));
+  };
 
-        <PolicySection number="02" title="How We Use Your Information">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed mb-2">
-            Your information is used strictly to:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
-            <li>Process and fulfill orders</li>
-            <li>Communicate order updates and provide customer support</li>
-            <li>Improve our website experience and services</li>
-            <li>Comply with legal and regulatory requirements</li>
-          </ul>
-        </PolicySection>
+  return (
+    <div className="bg-[#F7F1E5] text-[#1A1718]">
+      <PageHero
+        label="DPDPA 2023 & IT Act Notice"
+        title="Privacy Policy"
+        subtitle="How Revakalp collects, uses, and protects personal data shared on our website."
+      />
 
-        <PolicySection number="03" title="Data Protection & Security">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-            We take reasonable security measures to protect your personal data against
-            unauthorized access, misuse, or disclosure. Payment details are processed
-            through secure payment gateways and are never stored on our servers.
-          </p>
-        </PolicySection>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div className="inline-block bg-[#FBF7EE] border border-[#38131E]/15 rounded-[2px] px-4 py-1.5 mb-8 text-xs text-[#38131E]">
+          Last updated: November 2026
+        </div>
 
-        <PolicySection number="04" title="Sharing of Information">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-            We do not sell, rent, or trade your personal information. Data is shared only
-            with trusted partners such as delivery services or payment processors, solely
-            for order fulfillment.
-          </p>
-        </PolicySection>
+        <div className="rk-surface-card p-6 sm:p-10 md:p-12">
+          <PolicySection title="Data Fiduciary Identity">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+              This platform is operated by <strong className="text-[#38131E]">{legalName}</strong>,
+              located at {address}. Under India&apos;s Digital Personal Data Protection Act, 2023
+              (DPDPA) and the Information Technology (Reasonable Security Practices and Procedures
+              and Sensitive Personal Data or Information) Rules, 2011, {legalName} acts as the
+              Data Fiduciary for personal data collected through this storefront.
+            </p>
+          </PolicySection>
 
-        <PolicySection number="05" title="Cookies">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-            Our website uses essential cookies for session security and may use analytics
-            to understand storefront performance. You may manage cookies via your browser settings.
-          </p>
-        </PolicySection>
+          <PolicySection title="What We Collect & Why">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed mb-3">
+              We collect only the personal data strictly necessary for specified, lawful
+              purposes:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#1A1718]/80">
+              <li>Account details (full name, email address, and encrypted password) to manage logins and order history.</li>
+              <li>Delivery details (recipient address, city, state, PIN code, and phone number) to pack, ship, and update orders.</li>
+              <li>Order, return, and grievance records (including payment status references and continuous unboxing videos when submitted for returns).</li>
+              <li>Essential session tokens and opt-in storefront analytics preferences stored locally.</li>
+            </ul>
+          </PolicySection>
 
-        <PolicySection number="06" title="Your Rights">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-            You have the right to access, update, or request deletion of your personal
-            information at any time. Please contact us and we will respond within 48 hours.
-          </p>
-        </PolicySection>
+          <PolicySection title="Consent & Withdrawal">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+              Personal data is processed with your clear affirmative consent at account
+              registration or checkout, or where needed to fulfill an order and meet Indian
+              tax and accounting obligations. Optional analytics are disabled by default until
+              you explicitly opt in. You may withdraw consent for optional cookies anytime via{" "}
+              <button
+                type="button"
+                onClick={openCookiePreferences}
+                className="text-[#38131E] font-semibold underline cursor-pointer"
+              >
+                Cookie Preferences
+              </button>{" "}
+              or by reading our{" "}
+              <Link to="/cookie-policy" className="text-[#38131E] font-semibold underline">
+                Cookie Policy
+              </Link>
+              .
+            </p>
+          </PolicySection>
 
-        <PolicySection number="07" title="Updates to This Policy">
-          <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-            This Privacy Policy may be updated periodically to reflect changes in our
-            practices or legal requirements.
-          </p>
-        </PolicySection>
+          <PolicySection title="Your Rights as a Data Principal (DPDPA 2023)">
+            <ul className="list-disc pl-5 space-y-2 text-sm text-[#1A1718]/80">
+              <li>
+                <strong className="text-[#38131E]">Right to Access:</strong> Download a summary
+                of your profile, orders, wishlist, bag, and reviews anytime in{" "}
+                <Link to="/my-profile" className="text-[#38131E] font-semibold underline">
+                  My Profile
+                </Link>
+                .
+              </li>
+              <li>
+                <strong className="text-[#38131E]">Right to Correction &amp; Updating:</strong>{" "}
+                Update your account details inside My Profile or write to us for corrections.
+              </li>
+              <li>
+                <strong className="text-[#38131E]">Right to Erasure:</strong> Permanently delete
+                your account and personal profile in My Profile (tax-invoice totals are kept in
+                redacted form where required by Indian GST law).
+              </li>
+              <li>
+                <strong className="text-[#38131E]">Right of Grievance Redressal &amp; Nomination:</strong>{" "}
+                Raise complaints or nominate an authorized representative via our{" "}
+                <Link to="/grievance-redressal" className="text-[#38131E] font-semibold underline">
+                  Grievance Redressal
+                </Link>{" "}
+                page.
+              </li>
+            </ul>
+          </PolicySection>
 
-        <div className="mt-8 p-6 rounded-2xl bg-[#F7F1E5] border border-[#38131E]/10 text-center text-sm">
-          Questions about this policy? Write to us at{" "}
-          <a href="mailto:contact@revakalp.com" className="text-[#38131E] font-semibold underline">
-            contact@revakalp.com
-          </a>
+          <PolicySection title="Third-Party Processors & Payment Security">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+              We never sell, rent, or trade your personal data. Information is shared strictly
+              with service partners necessary to complete your purchase — including Razorpay
+              (PCI-DSS compliant payment processing; we never store card numbers, CVVs, or
+              UPI PINs on our servers), delivery couriers, and cloud media/email infrastructure.
+            </p>
+          </PolicySection>
+
+          <PolicySection title="Security Safeguards & Retention">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+              We protect data using HTTPS/TLS encryption in transit, bcrypt password hashing,
+              httpOnly refresh cookies with rotation, server-side input sanitization, and rate
+              limiting. Account data is kept while your account remains active; transaction and
+              invoice records are retained for statutory periods required under applicable Indian
+              GST and commercial laws.
+            </p>
+          </PolicySection>
+
+          <PolicySection title="Children&apos;s Privacy">
+            <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+              Our online storefront is intended for adults aged 18 years and above who are
+              competent to contract under the Indian Contract Act, 1872. We do not knowingly
+              collect personal data of children without verifiable parental consent.
+            </p>
+          </PolicySection>
+
+          <PolicySection title="Grievance & Data Protection Contact">
+            <div className="text-sm text-[#1A1718]/80 space-y-1.5 leading-relaxed">
+              <p>
+                <strong className="text-[#38131E]">{officerName}</strong> ({officerRole})
+              </p>
+              <p>{address}</p>
+              <p>
+                Email:{" "}
+                <a href={`mailto:${officerEmail}`} className="text-[#38131E] font-semibold underline">
+                  {officerEmail}
+                </a>{" "}
+                · Phone / WhatsApp: <strong className="text-[#38131E]">{officerPhone}</strong>
+              </p>
+              <p className="pt-1">
+                Submit a formal privacy or order ticket via{" "}
+                <Link to="/grievance-redressal" className="text-[#38131E] font-semibold underline">
+                  Grievance Redressal
+                </Link>
+                .
+              </p>
+            </div>
+          </PolicySection>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default PrivacyPolicy;

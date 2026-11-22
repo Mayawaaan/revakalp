@@ -110,7 +110,7 @@ const TrackOrder = () => {
           >
             <ArrowLeft size={16} /> Back
           </button>
-          <div className="flex items-start gap-4 bg-red-50 p-6 rounded-2xl border border-red-200">
+          <div className="flex items-start gap-4 bg-red-50 p-6 rounded-[2px] border border-red-200">
             <XCircle className="text-red-700 shrink-0" />
             <div>
               <h2 className="font-serif text-xl text-red-900">Order {order.status}</h2>
@@ -165,10 +165,10 @@ const TrackOrder = () => {
               return (
                 <div key={status} className="flex flex-col items-center text-center">
                   <div
-                    className={`w-12 h-12 flex items-center justify-center rounded-full border ${
+                    className={`w-12 h-12 flex items-center justify-center rounded-[2px] border ${
                       active
                         ? "bg-[#38131E] border-[#D4AF63]"
-                        : "bg-[#F7F1E5] border-[#38131E]/15"
+                        : "bg-[#F7F1E5] border-[#38131E]/18"
                     }`}
                   >
                     {statusIcon(status, active)}
@@ -186,7 +186,7 @@ const TrackOrder = () => {
           </div>
 
           {order.estimatedDelivery && (
-            <div className="mt-6 bg-[#F7F1E5] border border-[#D4AF63]/40 rounded-xl p-4 text-sm text-[#38131E]">
+            <div className="mt-6 bg-[#EFE6D5] border border-[#D4AF63]/45 rounded-[2px] p-4 text-sm text-[#38131E]">
               <strong>Estimated Delivery:</strong>{" "}
               {new Date(order.estimatedDelivery).toLocaleDateString("en-IN")}
             </div>
@@ -216,7 +216,7 @@ const TrackOrder = () => {
               <div key={i} className="flex items-center gap-4 py-4">
                 <img
                   src={Array.isArray(item.image) ? item.image[0] : item.image}
-                  className="w-16 h-20 rounded-xl object-cover shrink-0 border border-[#38131E]/10"
+                  className="w-16 h-20 rounded-[2px] object-cover shrink-0 border border-[#38131E]/12"
                   alt={item.name}
                 />
                 <div className="flex-1 min-w-0">

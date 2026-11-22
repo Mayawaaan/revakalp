@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Review from "../models/review.model.js";
 import Product from "../models/product.model.js";
 import axios from "axios";
@@ -5,21 +6,33 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || "http://localhost:8000";
 
 export const createReview = async (req, res) => {
   try {
     const { productId, rating, reviewText } = req.body;
-    // console.log("Creating review for productId:", productId);
     const userId = req.user._id;
-    // console.log("User ID:", userId);
-    if (!reviewText || !reviewText.trim()) {
-      return res.status(400).json({ message: "Review text is required" });
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
     }
 
+    const trimmedText = String(reviewText || "").trim();
+    if (!trimmedText) {
+      return res.status(400).json({ message: "Review text is required" });
+    }
+    if (trimmedText.length > 2000) {
+      return res
+        .status(400)
+        .json({ message: "Review text must not exceed 2000 characters" });
+    }
+
+    const numericRating = Number(rating);
+    const boundedRating = Number.isFinite(numericRating)
+      ? Math.min(5, Math.max(1, Math.round(numericRating)))
+      : 5;
+
     const product = await Product.findById(productId);
-    // console.log("Product:", product);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -29,17 +42,15 @@ export const createReview = async (req, res) => {
       return res
         .status(400)
         .json({ message: "You have already reviewed this product" });
-      }
-      // console.log("Existing review found:", existingReview);
-    // console.log("ML service URL:", ML_SERVICE_URL);
-    // Default sentiment fallback
+    }
+
     let sentiment = "neutral";
 
     try {
       const response = await axios.post(
         `${ML_SERVICE_URL}/predict`,
-        { text: reviewText },
-        { timeout: (3000*400*5*60*60) } // ⬅ prevents blocking
+        { text: trimmedText },
+        { timeout: 3000 }
       );
 
       sentiment = response.data?.sentiment || "neutral";
@@ -50,20 +61,24 @@ export const createReview = async (req, res) => {
     const review = await Review.create({
       userId,
       productId,
-      rating,
-      reviewText,
+      rating: boundedRating,
+      reviewText: trimmedText,
       sentiment,
     });
-    console.log("Review created:", review);
     res.status(201).json(review);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("createReview error:", error.message);
+    res.status(500).json({ message: "Error submitting review" });
   }
 };
 
 export const getReviewsForProduct = async (req, res) => {
   try {
     const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
 
     const reviews = await Review.find({ productId })
       .populate("userId", "fullName profilePic")
@@ -76,7 +91,9 @@ export const getReviewsForProduct = async (req, res) => {
     };
 
     reviews.forEach((review) => {
-      sentimentBreakdown[review.sentiment]++;
+      if (sentimentBreakdown[review.sentiment] !== undefined) {
+        sentimentBreakdown[review.sentiment]++;
+      }
     });
 
     const totalReviews = reviews.length;
@@ -93,13 +110,18 @@ export const getReviewsForProduct = async (req, res) => {
       positivityPercentage: Math.round(positivityPercentage),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("getReviewsForProduct error:", error.message);
+    res.status(500).json({ message: "Error loading reviews" });
   }
 };
 
 export const deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid review ID" });
+    }
 
     const review = await Review.findById(id);
     if (!review) {
@@ -110,6 +132,7 @@ export const deleteReview = async (req, res) => {
 
     res.status(200).json({ message: "Review deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("deleteReview error:", error.message);
+    res.status(500).json({ message: "Error deleting review" });
   }
 };
