@@ -74,7 +74,7 @@ const Cart = () => {
               </div>
             ) : (
               <div className="rk-surface-card overflow-hidden">
-                <div className="px-6 py-4 bg-[#38131E]/5 border-b border-[#38131E]/10 flex items-center justify-between">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#38131E]/5 border-b border-[#38131E]/10 flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-[#38131E]">
                     {cart.length} {cart.length === 1 ? "item" : "items"} in your bag
                   </p>
@@ -95,22 +95,22 @@ const Cart = () => {
                     return (
                       <div
                         key={`${item._id}-${item.size}`}
-                        className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
+                        className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
                       >
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
                           {image && (
                             <Link to={`/product/${item._id}`} className="shrink-0">
                               <img
                                 src={image}
                                 alt={item.name || "Product"}
-                                className="w-20 h-24 object-cover rounded-[2px] border border-[#38131E]/12"
+                                className="w-20 h-24 sm:w-20 sm:h-24 object-cover rounded-[2px] border border-[#38131E]/12"
                               />
                             </Link>
                           )}
 
                           <div className="flex-1 min-w-0">
                             <Link to={`/product/${item._id}`}>
-                              <h3 className="font-serif text-xl text-[#38131E] hover:underline truncate">
+                              <h3 className="font-serif text-lg sm:text-xl text-[#38131E] hover:underline line-clamp-2">
                                 {item.name || "Product"}
                               </h3>
                             </Link>
@@ -184,11 +184,11 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:sticky lg:top-28 rk-surface-card overflow-hidden">
-            <div className="bg-[#38131E] px-6 py-4 text-[#F7F1E5]">
+            <div className="bg-[#38131E] px-5 sm:px-6 py-4 text-[#F7F1E5]">
               <h2 className="font-serif text-xl">Order Summary</h2>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
               <CartTotal />
 
               {/* Coupon */}
@@ -197,31 +197,31 @@ const Cart = () => {
                   Promo Code
                 </p>
                 {discountPercentage > 0 ? (
-                  <div className="flex items-center justify-between px-4 py-3 rounded-[2px] bg-emerald-50 border border-emerald-200 text-sm">
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 rounded-[2px] bg-emerald-50 border border-emerald-200 text-sm">
                     <span className="text-emerald-800 font-medium">
                       Coupon {activeCoupon ? `(${activeCoupon}) ` : ""}Applied ({discountPercentage}% off)
                     </span>
                     <button
                       type="button"
                       onClick={removeCoupon}
-                      className="text-xs font-semibold text-red-700 hover:underline cursor-pointer"
+                      className="text-xs font-semibold text-red-700 hover:underline cursor-pointer shrink-0"
                     >
                       Remove
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                  <form onSubmit={handleApplyCoupon} className="flex flex-col min-[360px]:flex-row gap-2">
                     <input
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value)}
                       placeholder="Enter promo code"
                       aria-label="Promo code"
-                      className="flex-1 min-h-[44px] px-4 py-2 rounded-[2px] border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
+                      className="flex-1 min-w-0 min-h-[44px] px-4 py-2 rounded-[2px] border border-[#38131E]/20 bg-white text-sm text-[#1A1718] focus:outline-none focus:ring-1 focus:ring-[#D4AF63]"
                     />
                     <button
                       type="submit"
                       disabled={applyingCoupon}
-                      className="min-h-[44px] px-5 rounded-[2px] bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer disabled:opacity-50"
+                      className="min-h-[44px] px-5 rounded-[2px] bg-[#38131E] text-[#F7F1E5] text-xs uppercase tracking-wider font-semibold hover:bg-[#2B0E17] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
                     >
                       {applyingCoupon ? "…" : "Apply"}
                     </button>

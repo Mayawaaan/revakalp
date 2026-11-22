@@ -41,7 +41,7 @@ export default function CookieConsentBanner() {
     <aside
       role="dialog"
       aria-label="Cookie and privacy consent"
-      className="fixed bottom-4 inset-x-4 sm:left-6 sm:right-auto sm:max-w-lg z-[95] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/50 rounded-[2px] shadow-2xl p-5 sm:p-6 space-y-4"
+      className="fixed bottom-20 sm:bottom-5 lg:bottom-4 inset-x-3 sm:left-6 sm:right-auto sm:max-w-lg z-[95] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/50 rounded-[2px] shadow-2xl p-4 sm:p-6 space-y-3.5 sm:space-y-4"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -102,11 +102,11 @@ export default function CookieConsentBanner() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2.5 pt-1">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-1">
         <button
           type="button"
           onClick={() => saveAndClose(false)}
-          className="px-4 py-2 rounded-[2px] border border-[#D4AF63]/55 text-[#F7F1E5] hover:bg-white/10 text-[11px] uppercase tracking-[0.16em] font-medium transition-colors cursor-pointer"
+          className="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-[2px] border border-[#D4AF63]/55 text-[#F7F1E5] hover:bg-white/10 text-[10.5px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.16em] font-medium transition-colors cursor-pointer text-center"
         >
           Essential Only
         </button>
@@ -115,7 +115,7 @@ export default function CookieConsentBanner() {
           <button
             type="button"
             onClick={() => saveAndClose(analyticsEnabled)}
-            className="px-4 py-2 rounded-[2px] bg-[#D4AF63] text-[#2B0E17] hover:bg-[#F1D889] text-[11px] uppercase tracking-[0.16em] font-semibold transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-[2px] bg-[#D4AF63] text-[#2B0E17] hover:bg-[#F1D889] text-[10.5px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.16em] font-semibold transition-colors cursor-pointer text-center"
           >
             Save Preferences
           </button>
@@ -123,7 +123,7 @@ export default function CookieConsentBanner() {
           <button
             type="button"
             onClick={() => setShowPrefs(true)}
-            className="px-4 py-2 rounded-[2px] text-[#F1D889] hover:text-[#F7F1E5] text-[11px] uppercase tracking-[0.16em] font-medium underline underline-offset-4 cursor-pointer"
+            className="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-2 rounded-[2px] text-[#F1D889] hover:text-[#F7F1E5] text-[10.5px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.16em] font-medium underline underline-offset-4 cursor-pointer text-center"
           >
             Preferences
           </button>
@@ -132,7 +132,7 @@ export default function CookieConsentBanner() {
         <button
           type="button"
           onClick={() => saveAndClose(true)}
-          className="ml-auto px-4 py-2 rounded-[2px] bg-[#D4AF63] text-[#2B0E17] hover:bg-[#F1D889] text-[11px] uppercase tracking-[0.16em] font-semibold transition-colors cursor-pointer"
+          className="col-span-2 sm:col-span-1 sm:ml-auto w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-[2px] bg-[#D4AF63] text-[#2B0E17] hover:bg-[#F1D889] text-[11px] uppercase tracking-[0.16em] font-semibold transition-colors cursor-pointer text-center"
         >
           Accept All
         </button>

@@ -53,7 +53,7 @@ const CategoryPage = () => {
             className="mb-8"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
             {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => {
               const matching = (products || []).filter(
                 (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
@@ -77,15 +77,15 @@ const CategoryPage = () => {
                     aria-hidden="true"
                     className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/90 via-[#2B0E17]/25 to-transparent"
                   />
-                  <div className="relative z-10 w-full p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] mb-1">
+                  <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
+                    <div className="min-w-0">
+                      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1 truncate">
                         {matching.length > 0 ? `${matching.length} available` : "Browse category"}
                       </p>
-                      <h3 className="font-serif text-3xl leading-tight">{cat.label}</h3>
-                      <p className="text-xs text-[#F7F1E5]/75 mt-1">{cat.subtitle}</p>
+                      <h3 className="font-serif text-xl sm:text-3xl leading-tight">{cat.label}</h3>
+                      <p className="text-xs text-[#F7F1E5]/75 mt-1 hidden sm:block">{cat.subtitle}</p>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
               );
@@ -104,12 +104,12 @@ const CategoryPage = () => {
             className="mb-8"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {MENS_STOREFRONT_CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 to={cat.route}
-                className="group rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/35 hover:border-[#F1D889] p-7 flex flex-col justify-between min-h-[180px] transition-colors"
+                className="group rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/35 hover:border-[#F1D889] p-5 sm:p-7 flex flex-col justify-between min-h-[140px] sm:min-h-[180px] transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] font-medium">
@@ -118,7 +118,7 @@ const CategoryPage = () => {
                   <ArrowRight className="w-4 h-4 text-[#F1D889] group-hover:translate-x-1 transition-transform" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-3xl leading-tight">{cat.label}</h3>
+                  <h3 className="font-serif text-2xl sm:text-3xl leading-tight">{cat.label}</h3>
                   <p className="text-xs text-[#F7F1E5]/70 mt-1.5">{cat.subtitle}</p>
                 </div>
               </Link>
@@ -127,7 +127,7 @@ const CategoryPage = () => {
         </section>
 
         {/* Heritage Gateway Strip */}
-        <section className="rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] p-7 sm:p-10 border border-[#D4AF63]/35 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <section className="rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] p-5 sm:p-10 border border-[#D4AF63]/35 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6">
           <div className="space-y-2 max-w-xl">
             <p className="text-[10px] uppercase tracking-[0.26em] text-[#F1D889]">
               Indian Textile Guide
@@ -140,7 +140,7 @@ const CategoryPage = () => {
               Kanjivaram, Paithani, and Pashmina.
             </p>
           </div>
-          <EditorialButton to="/heritage" variant="gold">
+          <EditorialButton to="/heritage" variant="gold" className="w-full md:w-auto">
             <span>Open Textile Guide</span>
             <ArrowRight className="w-4 h-4" />
           </EditorialButton>
@@ -159,7 +159,7 @@ const CategoryPage = () => {
           {loading && !collections?.length ? (
             <LoadingSkeleton count={4} />
           ) : collections?.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
               {collections.map((collection) => (
                 <Link
                   to={`/shop/${collection.id}`}
@@ -176,21 +176,21 @@ const CategoryPage = () => {
                     aria-hidden="true"
                     className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/88 via-[#2B0E17]/25 to-transparent"
                   />
-                  <div className="relative z-10 w-full p-5 flex items-end justify-between gap-3 text-[#F7F1E5]">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] mb-1">
+                  <div className="relative z-10 w-full p-3.5 sm:p-5 flex items-end justify-between gap-2 sm:gap-3 text-[#F7F1E5]">
+                    <div className="min-w-0">
+                      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1">
                         Collection
                       </p>
-                      <h3 className="font-serif text-2xl leading-tight">
+                      <h3 className="font-serif text-lg sm:text-2xl leading-tight truncate">
                         {collection.name}
                       </h3>
                       {collection.description && (
-                        <p className="text-xs text-[#F7F1E5]/75 mt-1 line-clamp-2">
+                        <p className="text-xs text-[#F7F1E5]/75 mt-1 line-clamp-2 hidden sm:block">
                           {collection.description}
                         </p>
                       )}
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
               ))}

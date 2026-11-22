@@ -18,17 +18,20 @@ export default function IndoWesternFeature() {
   return (
     <section
       aria-label="Indo-Western Collection"
-      className="py-16 sm:py-24 bg-[#FBF7EE] text-[#1A1718] border-b border-[#38131E]/12"
+      className="py-12 sm:py-24 bg-[#FBF7EE] text-[#1A1718] border-b border-[#38131E]/12"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Copy Column */}
-          <div className="lg:col-span-6 space-y-5">
+          <div className="lg:col-span-6 space-y-5" data-reveal="card">
             <p className="uppercase tracking-[0.3em] text-[10px] sm:text-[11px] font-medium text-[#38131E]/75">
               Indo-Western
             </p>
 
-            <h2 className="font-serif text-[clamp(2.25rem,4.4vw,3.6rem)] text-[#38131E] leading-[1.06]">
+            <h2
+              data-reveal="heading"
+              className="font-serif text-[clamp(2.1rem,4.4vw,3.6rem)] text-[#38131E] leading-[1.06]"
+            >
               Modern silhouettes,{" "}
               <span className="italic font-normal text-[#38131E]/85">
                 festive ease.
@@ -40,7 +43,11 @@ export default function IndoWesternFeature() {
             </p>
 
             <div className="pt-2 flex flex-wrap gap-3">
-              <EditorialButton to="/shop/indo-western/all" variant="primary">
+              <EditorialButton
+                to="/shop/indo-western/all"
+                variant="primary"
+                className="w-full sm:w-auto"
+              >
                 <span>Explore Indo-Western</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
@@ -50,7 +57,7 @@ export default function IndoWesternFeature() {
           {/* Live Catalog Cards OR Clean Preview Card */}
           <div className="lg:col-span-6">
             {indoWesternProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-[#F7F1E5] p-5 rounded-[2px] border border-[#38131E]/15">
+              <div className="grid grid-cols-2 gap-3.5 sm:gap-6 bg-[#F7F1E5] p-3.5 sm:p-5 rounded-[2px] border border-[#38131E]/15">
                 {indoWesternProducts.slice(0, 2).map((item) => (
                   <ProductCard
                     key={item._id || item.id}
@@ -60,7 +67,7 @@ export default function IndoWesternFeature() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/40 p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-[#F7F1E5]">
+              <div className="rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/40 p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-[#F7F1E5]">
                 <div className="w-full sm:w-48 aspect-[4/5] rounded-[2px] overflow-hidden bg-[#38131E] shrink-0 border border-[#D4AF63]/35">
                   <img
                     src="/campaign/category-lehengas.png"

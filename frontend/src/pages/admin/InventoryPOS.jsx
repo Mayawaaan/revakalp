@@ -96,7 +96,7 @@ export default function InventoryPOS() {
           <p className="text-xs uppercase tracking-[0.22em] text-[#7A6A6E] mb-1 font-medium">
             One Source of Truth
           </p>
-          <h1 className="text-3xl font-serif text-[#38131E]">
+          <h1 className="text-2xl sm:text-3xl font-serif text-[#38131E]">
             Boutique POS &amp; Shared Inventory
           </h1>
           <p className="text-sm text-[#5C4E52] mt-1">
@@ -118,7 +118,7 @@ export default function InventoryPOS() {
       {/* Record Boutique Sale */}
       <form
         onSubmit={handlePosSale}
-        className="bg-white/95 border border-[#38131E]/15 rounded-2xl p-6 shadow-sm space-y-4"
+        className="bg-white/95 border border-[#38131E]/15 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4"
       >
         <div className="flex items-center gap-2.5 text-[#38131E]">
           <Store size={18} />
@@ -180,11 +180,12 @@ export default function InventoryPOS() {
 
       {/* Live Stock Table */}
       <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-[#38131E]/10 bg-[#F7F1E5]/60">
-          <h2 className="font-serif text-xl text-[#38131E]">Central Stock Table</h2>
+        <div className="px-4 sm:px-6 py-4 border-b border-[#38131E]/10 bg-[#F7F1E5]/60">
+          <h2 className="font-serif text-lg sm:text-xl text-[#38131E]">Central Stock Table</h2>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Stock Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-[#F7F1E5]/50 border-b border-[#38131E]/10 text-xs uppercase tracking-wider text-[#38131E]">
               <tr>
@@ -297,10 +298,120 @@ export default function InventoryPOS() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Stock Cards */}
+        <div className="md:hidden divide-y divide-[#38131E]/10">
+          {products.map((p) => {
+            const statusBadge =
+              p.available <= 0
+                ? p.reserved > 0
+                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                  : "bg-red-50 text-red-700 border-red-200"
+                : p.available === 1
+                ? "bg-[#F7F1E5] text-[#38131E] border-[#D4AF63]"
+                : "bg-emerald-50 text-emerald-700 border-emerald-200";
+            const statusText =
+              p.available <= 0
+                ? p.reserved > 0
+                  ? "ON HOLD"
+                  : "SOLD"
+                : p.available === 1
+                ? "ONE PIECE"
+                : "AVAILABLE";
+
+            return (
+              <div key={p._id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[11px] text-[#38131E]/75 font-semibold">
+                      {p.code || "SKU"} · {p.category}
+                    </p>
+                    <p className="font-medium text-sm text-[#1A1718] break-words">
+                      {p.name}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border ${statusBadge}`}
+                  >
+                    {statusText}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#F7F1E5]/60 p-2.5 text-center border border-[#38131E]/10">
+                  <div>
+                    <p className="text-[10px] uppercase text-[#7A6A6E]">On Hand</p>
+                    <p className="font-mono text-sm font-semibold text-[#1A1718]">{p.onHand}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase text-[#7A6A6E]">Reserved</p>
+                    <p className="font-mono text-sm font-semibold text-amber-700">{p.reserved}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase text-[#7A6A6E]">Avail</p>
+                    <p className="font-mono text-sm font-semibold text-[#38131E]">{p.available}</p>
+                  </div>
+                </div>
+
+                {adjustingId === p._id ? (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <input
+                      type="number"
+                      min={p.reserved}
+                      value={adjustValue}
+                      onChange={(e) => setAdjustValue(e.target.value)}
+                      className="w-20 border border-[#38131E]/25 rounded-lg px-2.5 py-1.5 text-xs"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Reason"
+                      value={adjustReason}
+                      onChange={(e) => setAdjustReason(e.target.value)}
+                      className="flex-1 min-w-[110px] border border-[#38131E]/25 rounded-lg px-2.5 py-1.5 text-xs"
+                    />
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={() => handleAdjustSave(p._id)}
+                        className="px-3 py-1.5 rounded-lg bg-[#38131E] text-[#F7F1E5] text-xs font-semibold cursor-pointer"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAdjustingId("")}
+                        className="text-[#7A6A6E] text-xs cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustingId(p._id);
+                        setAdjustValue(String(p.onHand));
+                      }}
+                      className="text-xs text-[#38131E] hover:underline font-semibold cursor-pointer"
+                    >
+                      Adjust Stock
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {!loading && products.length === 0 && (
+            <div className="text-center py-10 text-sm text-[#7A6A6E]">
+              No catalog products found.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Immutable Audit Ledger */}
-      <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl p-6 shadow-sm space-y-4">
+      <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2 text-[#38131E]">
           <ArrowDownUp size={17} />
           <h2 className="font-serif text-xl">Recent Stock Movements</h2>

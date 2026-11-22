@@ -82,8 +82,8 @@ export default function IndiaHeritageMap({
   return (
     <div className="relative w-full h-full bg-[#2B0E17] border border-[#D4AF63]/35 rounded-[2px] overflow-hidden select-none">
       {/* Subtle Cartographic Header Bar */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between gap-2 pointer-events-none">
-        <span className="px-2.5 py-1 bg-[#2B0E17]/88 border border-[#D4AF63]/35 text-[10px] uppercase tracking-[0.2em] text-[#F1D889]">
+      <div className="absolute top-2.5 left-2.5 right-2.5 sm:top-3 sm:left-3 sm:right-3 z-10 flex items-center justify-between gap-2 pointer-events-none">
+        <span className="px-2 sm:px-2.5 py-1 bg-[#2B0E17]/88 border border-[#D4AF63]/35 text-[9px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#F1D889] truncate">
           {compact ? activeTradition.region : "India Textile Map"}
         </span>
 
@@ -91,7 +91,7 @@ export default function IndiaHeritageMap({
           <button
             type="button"
             onClick={onToggleZoom}
-            className="pointer-events-auto inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#2B0E17]/90 border border-[#D4AF63]/45 text-[10px] uppercase tracking-[0.16em] text-[#F7F1E5] hover:bg-[#D4AF63] hover:text-[#2B0E17] transition-colors cursor-pointer"
+            className="pointer-events-auto shrink-0 inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 bg-[#2B0E17]/90 border border-[#D4AF63]/45 text-[9px] sm:text-[10px] uppercase tracking-[0.14em] sm:tracking-[0.16em] text-[#F7F1E5] hover:bg-[#D4AF63] hover:text-[#2B0E17] transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
             <span>{zoomToActive ? "Full India View" : "Focus Region"}</span>
@@ -102,7 +102,7 @@ export default function IndiaHeritageMap({
       <svg
         ref={svgRef}
         viewBox="45 25 520 610"
-        className="w-full h-full min-h-[340px] sm:min-h-[420px] block"
+        className="w-full h-full min-h-[290px] sm:min-h-[420px] block"
         role="img"
         aria-label="Interactive Textile Heritage Map of India showing regional textile origins"
       >

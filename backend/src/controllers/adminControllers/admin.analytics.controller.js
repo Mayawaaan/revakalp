@@ -1,6 +1,8 @@
 import User from "../../models/user.model.js";
 import Order from "../../models/order.model.js";
 import Product from "../../models/product.model.js";
+import Review from "../../models/review.model.js";
+import { getMlStatus } from "../../services/sentiment.service.js";
 
 const parseRangeToStartDate = (range) => {
   // Supported: 7d, 30d, 90d, 12m (defaults to 7d)
@@ -190,6 +192,73 @@ export const getProductsByCategory = async (req, res) => {
     res.status(200).json(rows.map((r) => ({ category: r._id, count: r.count })));
   } catch (error) {
     console.error("Error in getProductsByCategory:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getSentimentAnalytics = async (req, res) => {
+  try {
+    const [grouped, confidenceAgg, recentReviews, mlStatus] = await Promise.all([
+      Review.aggregate([
+        { $group: { _id: "$sentiment", count: { $sum: 1 } } },
+      ]),
+      Review.aggregate([
+        { $match: { sentimentConfidence: { $ne: null } } },
+        {
+          $group: {
+            _id: null,
+            avgConfidence: { $avg: "$sentimentConfidence" },
+          },
+        },
+      ]),
+      Review.find({})
+        .populate("userId", "fullName")
+        .populate("productId", "name")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(),
+      getMlStatus(),
+    ]);
+
+    const sentimentBreakdown = {
+      positive: 0,
+      neutral: 0,
+      negative: 0,
+    };
+
+    for (const row of grouped) {
+      if (sentimentBreakdown[row._id] !== undefined) {
+        sentimentBreakdown[row._id] = Number(row.count || 0);
+      }
+    }
+
+    const totalReviews =
+      sentimentBreakdown.positive +
+      sentimentBreakdown.neutral +
+      sentimentBreakdown.negative;
+    const positivityPercentage =
+      totalReviews > 0
+        ? Math.round(
+            ((sentimentBreakdown.positive + 0.5 * sentimentBreakdown.neutral) /
+              totalReviews) *
+              100
+          )
+        : 0;
+    const averageConfidence =
+      confidenceAgg.length > 0 && Number.isFinite(confidenceAgg[0]?.avgConfidence)
+        ? Math.round(confidenceAgg[0].avgConfidence * 100)
+        : 0;
+
+    res.status(200).json({
+      totalReviews,
+      sentimentBreakdown,
+      positivityPercentage,
+      averageConfidence,
+      recentReviews,
+      mlStatus,
+    });
+  } catch (error) {
+    console.error("Error in getSentimentAnalytics:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

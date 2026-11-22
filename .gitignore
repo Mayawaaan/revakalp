@@ -32,3 +32,8 @@ dist-ssr
 *.zip
 frontend.zip
 Revakalp_Official_Brand_Antigravity_Kit/
+Revakalp_Complete_Antigravity_Implementation_Kit/
+
+# Python cache
+__pycache__/
+*.py[cod]

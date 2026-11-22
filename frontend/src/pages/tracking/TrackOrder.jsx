@@ -128,8 +128,8 @@ const TrackOrder = () => {
     <section className="min-h-screen bg-[#F7F1E5] py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
-        <div className="rk-surface-card p-6 sm:p-8 flex flex-wrap items-center justify-between gap-4">
-          <div>
+        <div className="rk-surface-card p-4 sm:p-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -137,14 +137,14 @@ const TrackOrder = () => {
             >
               <ArrowLeft size={15} /> Back
             </button>
-            <h1 className="font-serif text-2xl sm:text-3xl text-[#38131E]">
-              Order #{order.orderId}
+            <h1 className="font-serif text-xl sm:text-3xl text-[#38131E] break-all sm:break-normal">
+              Order #{order.orderNumber || order.orderId}
             </h1>
             <p className="text-xs text-[#1A1718]/65 mt-1">
               Placed on {new Date(order.createdAt).toLocaleDateString("en-IN")}
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/60">
               Total
             </p>
@@ -156,7 +156,7 @@ const TrackOrder = () => {
         </div>
 
         {/* Status Timeline */}
-        <div className="rk-surface-card p-6 sm:p-8">
+        <div className="rk-surface-card p-4 sm:p-8">
           <h2 className="font-serif text-2xl text-[#38131E] mb-6">Order Progress</h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
@@ -195,8 +195,8 @@ const TrackOrder = () => {
 
         {/* Shipping Address */}
         {order.shippingAddress && (
-          <div className="rk-surface-card p-6 sm:p-8 space-y-2 text-sm text-[#1A1718]/80">
-            <h2 className="font-serif text-2xl text-[#38131E] mb-3 flex items-center gap-2">
+          <div className="rk-surface-card p-4 sm:p-8 space-y-2 text-sm text-[#1A1718]/80">
+            <h2 className="font-serif text-xl sm:text-2xl text-[#38131E] mb-3 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-[#38131E]" /> Shipping Address
             </h2>
             <p>{order.shippingAddress.street}</p>
@@ -209,18 +209,18 @@ const TrackOrder = () => {
         )}
 
         {/* Items */}
-        <div className="rk-surface-card p-6 sm:p-8">
-          <h2 className="font-serif text-2xl text-[#38131E] mb-4">Items</h2>
+        <div className="rk-surface-card p-4 sm:p-8">
+          <h2 className="font-serif text-xl sm:text-2xl text-[#38131E] mb-4">Items</h2>
           <div className="divide-y divide-[#38131E]/10">
             {(order.items || []).map((item, i) => (
-              <div key={i} className="flex items-center gap-4 py-4">
+              <div key={i} className="flex items-center gap-3.5 sm:gap-4 py-4">
                 <img
                   src={Array.isArray(item.image) ? item.image[0] : item.image}
                   className="w-16 h-20 rounded-[2px] object-cover shrink-0 border border-[#38131E]/12"
                   alt={item.name}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif text-lg text-[#38131E] truncate">
+                  <p className="font-serif text-base sm:text-lg text-[#38131E] line-clamp-2">
                     {item.name}
                   </p>
                   <p className="text-xs text-[#1A1718]/65">

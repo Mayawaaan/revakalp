@@ -31,13 +31,16 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-padding-top: 6rem;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   body {
     background-color: var(--revakalp-ivory);
     color: var(--revakalp-ink);
     font-family: var(--revakalp-body-font);
-    overflow-x: hidden;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4, .font-serif {
@@ -95,7 +98,8 @@
 }
 
 .label-floating {
-  @apply absolute left-4 top-4 text-sm text-[#1A1718]/60
+  @apply absolute left-4 top-4 text-xs sm:text-sm text-[#1A1718]/60
+         truncate max-w-[calc(100%-2rem)]
          pointer-events-none transition-all duration-200
          peer-focus:top-1.5 peer-focus:text-[11px] peer-focus:text-[#38131E] peer-focus:font-medium
          peer-valid:top-1.5 peer-valid:text-[11px] peer-valid:text-[#38131E]/80;
@@ -103,27 +107,31 @@
 
 /* Shared editorial architectural button primitives */
 .rk-btn-primary {
-  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
-         bg-[#38131E] text-[#F7F1E5] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] px-4 sm:px-7 py-2.5 sm:py-3 rounded-[2px] max-w-full text-center
+         bg-[#38131E] text-[#F7F1E5] text-[11px] sm:text-xs font-medium tracking-[0.14em] sm:tracking-[0.2em] uppercase
          border border-[#38131E] transition-all duration-300
          hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[0_12px_30px_-14px_rgba(43,14,23,0.7)]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
 .rk-btn-secondary {
-  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
-         bg-transparent text-[#38131E] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] px-4 sm:px-7 py-2.5 sm:py-3 rounded-[2px] max-w-full text-center
+         bg-transparent text-[#38131E] text-[11px] sm:text-xs font-medium tracking-[0.14em] sm:tracking-[0.2em] uppercase
          border border-[#38131E]/35 transition-all duration-300
          hover:bg-[#38131E] hover:text-[#F7F1E5] hover:border-[#38131E]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
 .rk-btn-gold {
-  @apply inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px]
-         bg-[#D4AF63] text-[#2B0E17] text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase
+  @apply inline-flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] px-4 sm:px-7 py-2.5 sm:py-3 rounded-[2px] max-w-full text-center
+         bg-[#D4AF63] text-[#2B0E17] text-[11px] sm:text-xs font-semibold tracking-[0.14em] sm:tracking-[0.2em] uppercase
          border border-[#D4AF63] transition-all duration-300
          hover:bg-[#F1D889] hover:border-[#F1D889]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+}
+
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 .rk-surface-card {
@@ -140,10 +148,10 @@
   @apply bg-[#38131E] text-[#F1D889] border-[#38131E];
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
 }

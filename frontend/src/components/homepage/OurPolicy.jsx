@@ -38,7 +38,8 @@ const OurPolicy = () => {
           {cards.map((item) => (
             <div
               key={item.title}
-              className="py-7 sm:px-6 first:sm:pl-0 last:sm:pr-0"
+              data-reveal="card"
+              className="py-5 sm:py-7 sm:px-6 first:sm:pl-0 last:sm:pr-0"
             >
               <h3 className="font-serif text-lg text-[#38131E] leading-snug mb-1.5">
                 {item.title}

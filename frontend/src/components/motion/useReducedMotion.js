@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 
 export function checkReducedMotion() {
-  if (typeof window === "undefined" || !window.matchMedia) return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof window === "undefined") return false;
+  try {
+    if (document.documentElement?.dataset?.reducedMotion === "true") return true;
+    if (window.localStorage?.getItem("rk_reduced_motion") === "true") return true;
+  } catch {
+    // ignore storage access issues
+  }
+  return false;
 }
 
 export function checkWebGLSupport() {
@@ -22,11 +28,10 @@ export default function useReducedMotion() {
   const [reduced, setReduced] = useState(checkReducedMotion);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return undefined;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = (e) => setReduced(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    if (typeof window === "undefined") return undefined;
+    const onChange = () => setReduced(checkReducedMotion());
+    window.addEventListener("rk-reduced-motion-change", onChange);
+    return () => window.removeEventListener("rk-reduced-motion-change", onChange);
   }, []);
 
   return reduced;

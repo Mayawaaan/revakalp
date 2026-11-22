@@ -133,9 +133,9 @@ const App = () => {
       <MotionMain
         id="main-content"
         key={routeTransitionKey}
-        initial={reducedMotion ? false : { opacity: 0.86 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
+        initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reducedMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
         className="flex-1"
       >
         <Suspense fallback={<RouteFallback />}>

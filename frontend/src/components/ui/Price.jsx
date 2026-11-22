@@ -23,20 +23,20 @@ export default function Price({
   const savings = hasDiscount ? mrp - computedDiscounted : 0;
 
   const sizeMap = {
-    sm: "text-sm",
+    sm: "text-[13px] sm:text-sm",
     md: "text-base",
     lg: "text-2xl md:text-3xl",
   };
 
   return (
-    <div className={`inline-flex items-baseline flex-wrap gap-2 ${className}`.trim()}>
+    <div className={`inline-flex items-baseline flex-wrap gap-1.5 sm:gap-2 ${className}`.trim()}>
       <span className={`font-semibold text-[#38131E] ${sizeMap[size] || sizeMap.md}`}>
         {currency}
         {computedDiscounted.toLocaleString("en-IN")}
       </span>
 
       {hasDiscount && (
-        <span className="text-xs sm:text-sm text-[#1A1718]/45 line-through">
+        <span className="text-[11px] sm:text-sm text-[#1A1718]/45 line-through">
           {currency}
           {mrp.toLocaleString("en-IN")}
         </span>

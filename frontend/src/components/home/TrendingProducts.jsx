@@ -55,10 +55,10 @@ export default function TrendingProducts() {
   return (
     <section
       aria-label="Seasonal Arrivals Carousel"
-      className="py-16 sm:py-24 bg-[#FBF7EE] border-b border-[#38131E]/12 overflow-hidden"
+      className="py-12 sm:py-24 bg-[#FBF7EE] border-b border-[#38131E]/12 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 sm:gap-6 mb-7 sm:mb-10">
           <SectionHeading
             eyebrow="Most Loved"
             title="What everyone is"
@@ -99,7 +99,7 @@ export default function TrendingProducts() {
         <div
           role="tablist"
           aria-label="Filter trending products by category"
-          className="flex flex-wrap gap-2 mb-10"
+          className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 mb-7 sm:mb-10"
         >
           {TABS.map((tab) => {
             const active = activeTab === tab.id;
@@ -114,7 +114,7 @@ export default function TrendingProducts() {
                   setScrollProgress(0);
                   if (railRef.current) railRef.current.scrollLeft = 0;
                 }}
-                className={`rk-chip ${active ? "rk-chip-active" : ""}`}
+                className={`rk-chip shrink-0 ${active ? "rk-chip-active" : ""}`}
               >
                 {tab.label}
               </button>
@@ -158,12 +158,12 @@ export default function TrendingProducts() {
             <div
               ref={railRef}
               onScroll={handleRailScroll}
-              className="flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+              className="flex gap-3.5 sm:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
             >
               {visibleProducts.map((product) => (
                 <div
                   key={product._id || product.id}
-                  className="w-[78vw] sm:w-[295px] lg:w-[285px] shrink-0 snap-start"
+                  className="w-[72vw] max-w-[285px] sm:w-[295px] lg:w-[285px] shrink-0 snap-start"
                 >
                   <ProductCard id={product._id || product.id} {...product} />
                 </div>

@@ -54,7 +54,7 @@ export default function CategoryExpressions() {
           className="pointer-events-none absolute inset-3 border border-[#D4AF63]/0 group-hover:border-[#D4AF63]/50 transition-colors duration-500"
         />
 
-        <div className="relative z-10 w-full p-5 sm:p-6 flex items-end justify-between gap-4 text-[#F7F1E5]">
+        <div className="relative z-10 w-full p-4 sm:p-6 flex items-end justify-between gap-3 sm:gap-4 text-[#F7F1E5]">
           <div className="space-y-1">
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889]">
               {loading
@@ -79,9 +79,9 @@ export default function CategoryExpressions() {
   return (
     <section
       aria-label="Curated Storefront Categories"
-      className="py-16 sm:py-24 bg-[#F7F1E5] border-b border-[#38131E]/12"
+      className="py-12 sm:py-24 bg-[#F7F1E5] border-b border-[#38131E]/12"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Shop by Style"
@@ -98,27 +98,27 @@ export default function CategoryExpressions() {
         </div>
 
         {/* Asymmetric Top Architectural Row: Sarees + Lehengas */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
           <div className="lg:col-span-7" data-reveal="image">
             {leadCategories[0] &&
               renderCategoryTile(
                 leadCategories[0],
-                "aspect-[4/3] lg:aspect-[16/10] w-full"
+                "aspect-[4/4.3] sm:aspect-[16/10] w-full"
               )}
           </div>
           <div className="lg:col-span-5" data-reveal="image">
             {leadCategories[1] &&
               renderCategoryTile(
                 leadCategories[1],
-                "aspect-[4/3] lg:aspect-auto lg:h-full min-h-[300px] w-full"
+                "aspect-[4/4.3] sm:aspect-[16/10] lg:aspect-auto lg:h-full min-h-[260px] sm:min-h-[300px] w-full"
               )}
           </div>
         </div>
 
         {/* Secondary Duo: Indo-Western & Printed Tees */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           {secondaryCategories.map((cat) =>
-            renderCategoryTile(cat, "aspect-[16/10] w-full")
+            renderCategoryTile(cat, "aspect-[4/3] sm:aspect-[16/10] w-full")
           )}
         </div>
 
@@ -129,12 +129,12 @@ export default function CategoryExpressions() {
               Men&apos;s Section · Coming Soon
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
             {MENS_STOREFRONT_CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 to={cat.route}
-                className="group rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/30 hover:border-[#F1D889] p-6 flex items-end justify-between gap-4 transition-colors"
+                className="group rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/30 hover:border-[#F1D889] p-4 sm:p-6 flex items-end justify-between gap-4 transition-colors"
               >
                 <div className="space-y-1.5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889]">

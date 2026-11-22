@@ -95,8 +95,8 @@ const Orders = () => {
               return (
                 <article key={order._id} className="rk-surface-card overflow-hidden">
                   {/* Header */}
-                  <div className="bg-[#38131E]/5 px-5 sm:px-7 py-4 border-b border-[#38131E]/10 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex flex-wrap gap-6 sm:gap-8">
+                  <div className="bg-[#38131E]/5 px-4 sm:px-7 py-3.5 sm:py-4 border-b border-[#38131E]/10 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                    <div className="flex flex-wrap gap-4 sm:gap-8">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.2em] text-[#38131E]/60 font-semibold">
                           Order ID
@@ -137,12 +137,12 @@ const Orders = () => {
                   </div>
 
                   {/* Items */}
-                  <div className="divide-y divide-[#38131E]/10 px-5 sm:px-7">
+                  <div className="divide-y divide-[#38131E]/10 px-4 sm:px-7">
                     {(order.items || []).map((item, idx) => {
                       const img = Array.isArray(item.image) ? item.image[0] : item.image;
                       const qty = item.quantity || item.qty || 1;
                       return (
-                        <div key={item._id || idx} className="py-4 flex items-center gap-4">
+                        <div key={item._id || idx} className="py-4 flex items-center gap-3 sm:gap-4">
                           {img && (
                             <img
                               src={img}
@@ -151,7 +151,7 @@ const Orders = () => {
                             />
                           )}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-serif text-lg text-[#38131E] truncate">
+                            <h3 className="font-serif text-base sm:text-lg text-[#38131E] line-clamp-2">
                               {item.name}
                             </h3>
                             <div className="mt-1 flex flex-wrap gap-2 text-xs text-[#1A1718]/70">
@@ -175,10 +175,11 @@ const Orders = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="px-5 sm:px-7 py-4 bg-[#F7F1E5]/50 border-t border-[#38131E]/10 flex flex-wrap justify-end gap-3">
+                  <div className="px-4 sm:px-7 py-3.5 sm:py-4 bg-[#F7F1E5]/50 border-t border-[#38131E]/10 grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-end gap-2.5 sm:gap-3">
                     <EditorialButton
                       variant="primary"
                       onClick={() => navigate(`/track/${order._id}`)}
+                      className="col-span-2 sm:col-span-1 w-full sm:w-auto"
                     >
                       <Truck size={14} /> Track Order
                     </EditorialButton>
@@ -186,6 +187,7 @@ const Orders = () => {
                     <EditorialButton
                       variant="secondary"
                       onClick={() => handleDownloadInvoice(order._id)}
+                      className="w-full sm:w-auto"
                     >
                       <Download size={14} /> Invoice
                     </EditorialButton>
@@ -200,6 +202,7 @@ const Orders = () => {
                           showToast(err?.message || "Reorder failed", "error");
                         }
                       }}
+                      className="w-full sm:w-auto"
                     >
                       <RefreshCw size={14} /> Reorder
                     </EditorialButton>

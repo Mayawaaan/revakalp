@@ -1,16 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import useStore from "../../store/store";
+import axios from "../../utils/axiosInstance";
 import SentimentBar from "./SentimentBar";
 import EditorialButton from "../ui/EditorialButton";
 
+const TONE_LABELS = {
+  positive: "Positive",
+  neutral: "Neutral",
+  negative: "Negative",
+};
+
 const Reviews = ({ productId }) => {
-  const { reviews, status, error, addReview, user, showToast, positivityPercentage } =
-    useStore();
+  const {
+    reviews,
+    status,
+    error,
+    addReview,
+    user,
+    showToast,
+    positivityPercentage,
+    sentimentBreakdown,
+  } = useStore();
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [livePreview, setLivePreview] = useState(null);
+
+  useEffect(() => {
+    const trimmed = reviewText.trim();
+    if (!user || trimmed.length < 12) {
+      setLivePreview(null);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await axios.post(
+          "/api/ml/analyze",
+          { text: trimmed },
+          { signal: controller.signal }
+        );
+        if (data?.sentiment) {
+          setLivePreview({
+            sentiment: data.sentiment,
+            confidence: data.confidence,
+          });
+        }
+      } catch {
+        // Silent failure: live preview is optional and never blocks submitting a review
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [reviewText, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,17 +68,20 @@ const Reviews = ({ productId }) => {
     }
     setSubmitting(true);
     try {
-      await addReview({ productId, rating, reviewText });
-      setRating(0);
-      setReviewText("");
+      const ok = await addReview({ productId, rating, reviewText });
+      if (ok) {
+        setRating(0);
+        setReviewText("");
+        setLivePreview(null);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-6 sm:p-10">
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#38131E]/10 mb-8">
+    <div className="bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-4 sm:p-10">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#38131E]/10 mb-6 sm:mb-8">
         <div>
           <p className="text-[11px] uppercase tracking-[0.24em] text-[#38131E]/65 mb-1">
             From Our Shoppers
@@ -40,16 +91,33 @@ const Reviews = ({ productId }) => {
           </h2>
         </div>
 
-        {reviews.length > 0 && positivityPercentage > 0 && (
-          <div className="px-4 py-2 rounded-[2px] bg-[#EFE6D5] border border-[#D4AF63]/45 text-xs font-semibold text-[#38131E]">
-            {Math.round(positivityPercentage)}% would recommend
+        {reviews.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {sentimentBreakdown && (
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-[#38131E]/80">
+                <span className="px-2.5 py-1 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12">
+                  {sentimentBreakdown.positive || 0} Positive
+                </span>
+                <span className="px-2.5 py-1 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12">
+                  {sentimentBreakdown.neutral || 0} Neutral
+                </span>
+                <span className="px-2.5 py-1 rounded-[2px] bg-[#F7F1E5] border border-[#38131E]/12">
+                  {sentimentBreakdown.negative || 0} Negative
+                </span>
+              </div>
+            )}
+            {positivityPercentage > 0 && (
+              <div className="px-4 py-2 rounded-[2px] bg-[#EFE6D5] border border-[#D4AF63]/45 text-xs font-semibold text-[#38131E]">
+                {Math.round(positivityPercentage)}% would recommend
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Review Form */}
       {user ? (
-        <form onSubmit={handleSubmit} className="mb-10 bg-[#F7F1E5] rounded-[2px] p-6 border border-[#38131E]/12">
+        <form onSubmit={handleSubmit} className="mb-8 sm:mb-10 bg-[#F7F1E5] rounded-[2px] p-4 sm:p-6 border border-[#38131E]/12">
           <h3 className="font-serif text-xl text-[#38131E] mb-3">Write a Review</h3>
           <div className="flex items-center gap-1.5 mb-4" role="radiogroup" aria-label="Select rating">
             {[1, 2, 3, 4, 5].map((value) => (
@@ -78,6 +146,23 @@ const Reviews = ({ productId }) => {
             rows="4"
             placeholder="Share how it feels, fits, and looks in person…"
           />
+
+          {livePreview && (
+            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-[2px] bg-[#EFE6D5] border border-[#D4AF63]/50 text-[11px] text-[#38131E]">
+              <span>
+                Detected tone:{" "}
+                <strong className="font-semibold">
+                  {TONE_LABELS[livePreview.sentiment] || livePreview.sentiment}
+                </strong>
+              </span>
+              {Number.isFinite(Number(livePreview.confidence)) &&
+                Number(livePreview.confidence) > 0 && (
+                  <span className="font-mono text-[#38131E]/75">
+                    ({Math.round(Number(livePreview.confidence) * 100)}%)
+                  </span>
+                )}
+            </div>
+          )}
 
           <div className="mt-4">
             <EditorialButton type="submit" disabled={submitting}>
@@ -153,7 +238,12 @@ const Reviews = ({ productId }) => {
                     <p className="text-sm text-[#1A1718]/80 mt-1.5 leading-relaxed">
                       {review.reviewText}
                     </p>
-                    {review.sentiment && <SentimentBar sentiment={review.sentiment} />}
+                    {review.sentiment && (
+                      <SentimentBar
+                        sentiment={review.sentiment}
+                        confidence={review.sentimentConfidence}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

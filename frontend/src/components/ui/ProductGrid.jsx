@@ -6,7 +6,7 @@ import EmptyState from "./EmptyState";
 export default function ProductGrid({
   products = [],
   loading = false,
-  columnsClass = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+  columnsClass = "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
   emptyProps,
   onQuickView,
 }) {
@@ -19,7 +19,7 @@ export default function ProductGrid({
   }
 
   return (
-    <div className={`grid ${columnsClass} gap-6 sm:gap-7`}>
+    <div className={`grid ${columnsClass} gap-3.5 sm:gap-6 lg:gap-7`}>
       {products.map((product) => (
         <ProductCard
           key={product._id || product.id}

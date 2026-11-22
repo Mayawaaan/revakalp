@@ -74,14 +74,14 @@ export default function HeritageFabricCanvas({
         <div
           role="toolbar"
           aria-label={`Interactive fabric controls for ${traditionName}`}
-          className="absolute bottom-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2"
+          className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 z-10 flex flex-wrap items-center justify-between gap-1.5 sm:gap-2"
         >
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               type="button"
               onClick={() => setMacroZoom((prev) => !prev)}
               aria-pressed={macroZoom}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[2px] text-[10px] uppercase tracking-[0.14em] border backdrop-blur-xs transition-colors cursor-pointer ${
+              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[2px] text-[9.5px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.14em] border backdrop-blur-xs transition-colors cursor-pointer ${
                 macroZoom
                   ? "bg-[#D4AF63] text-[#2B0E17] border-[#F1D889] font-semibold"
                   : "bg-[#2B0E17]/82 text-[#F1D889] border-[#D4AF63]/40 hover:bg-[#38131E]"
@@ -94,7 +94,7 @@ export default function HeritageFabricCanvas({
             <button
               type="button"
               onClick={() => setLightIdx((i) => (i + 1) % LIGHT_MODES.length)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[2px] text-[10px] uppercase tracking-[0.14em] border bg-[#2B0E17]/82 text-[#F1D889] border-[#D4AF63]/40 hover:bg-[#38131E] backdrop-blur-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[2px] text-[9.5px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.14em] border bg-[#2B0E17]/82 text-[#F1D889] border-[#D4AF63]/40 hover:bg-[#38131E] backdrop-blur-xs transition-colors cursor-pointer"
             >
               <Sun className="w-3 h-3" />
               <span>{activeLight.label}</span>
@@ -104,7 +104,7 @@ export default function HeritageFabricCanvas({
               type="button"
               onClick={() => setPaused((prev) => !prev)}
               aria-pressed={paused}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[2px] text-[10px] uppercase tracking-[0.14em] border bg-[#2B0E17]/82 text-[#F1D889] border-[#D4AF63]/40 hover:bg-[#38131E] backdrop-blur-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[2px] text-[9.5px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.14em] border bg-[#2B0E17]/82 text-[#F1D889] border-[#D4AF63]/40 hover:bg-[#38131E] backdrop-blur-xs transition-colors cursor-pointer"
             >
               {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
               <span>{paused ? "Move" : "Pause"}</span>

@@ -1,12 +1,7 @@
 import mongoose from "mongoose";
 import Review from "../models/review.model.js";
 import Product from "../models/product.model.js";
-import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || "http://localhost:8000";
+import { analyzeSentiment } from "../services/sentiment.service.js";
 
 export const createReview = async (req, res) => {
   try {
@@ -44,27 +39,23 @@ export const createReview = async (req, res) => {
         .json({ message: "You have already reviewed this product" });
     }
 
-    let sentiment = "neutral";
-
-    try {
-      const response = await axios.post(
-        `${ML_SERVICE_URL}/predict`,
-        { text: trimmedText },
-        { timeout: 3000 }
-      );
-
-      sentiment = response.data?.sentiment || "neutral";
-    } catch (error) {
-      console.error("ML service unavailable:", error.message);
-    }
+    const analysis = await analyzeSentiment(trimmedText);
 
     const review = await Review.create({
       userId,
       productId,
       rating: boundedRating,
       reviewText: trimmedText,
-      sentiment,
+      sentiment: analysis.sentiment,
+      sentimentConfidence: analysis.confidence,
+      sentimentProbabilities: analysis.probabilities,
+      sentimentSource: analysis.source,
     });
+
+    if (typeof review.populate === "function") {
+      await review.populate("userId", "fullName profilePic");
+    }
+
     res.status(201).json(review);
   } catch (error) {
     console.error("createReview error:", error.message);
@@ -90,9 +81,20 @@ export const getReviewsForProduct = async (req, res) => {
       neutral: 0,
     };
 
+    let confSum = 0;
+    let confCount = 0;
+
     reviews.forEach((review) => {
       if (sentimentBreakdown[review.sentiment] !== undefined) {
         sentimentBreakdown[review.sentiment]++;
+      }
+      if (
+        review.sentimentConfidence !== null &&
+        review.sentimentConfidence !== undefined &&
+        Number.isFinite(Number(review.sentimentConfidence))
+      ) {
+        confSum += Number(review.sentimentConfidence);
+        confCount++;
       }
     });
 
@@ -103,11 +105,14 @@ export const getReviewsForProduct = async (req, res) => {
             totalReviews) *
           100
         : 0;
+    const averageConfidence =
+      confCount > 0 ? Math.round((confSum / confCount) * 100) : 0;
 
     res.status(200).json({
       reviews,
       sentimentBreakdown,
       positivityPercentage: Math.round(positivityPercentage),
+      averageConfidence,
     });
   } catch (error) {
     console.error("getReviewsForProduct error:", error.message);

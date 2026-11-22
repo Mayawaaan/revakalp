@@ -81,7 +81,7 @@ export default function ProductCard({
     : null;
 
   return (
-    <article className="group flex flex-col">
+    <article data-reveal="card" className="group flex flex-col">
       {/* Architectural Plate Frame */}
       <div className="relative aspect-[3/4] overflow-hidden rounded-[2px] bg-[#EFE6D5] border border-[#38131E]/12 group-hover:border-[#D4AF63] transition-colors duration-500">
         <Link
@@ -106,13 +106,13 @@ export default function ProductCard({
 
         {/* Minimal Status Tag */}
         {badgeText && (
-          <span className="pointer-events-none absolute top-3 left-3 bg-[#2B0E17]/92 text-[#F1D889] text-[10px] font-semibold tracking-[0.18em] uppercase px-2.5 py-1 rounded-[2px] border border-[#D4AF63]/45">
+          <span className="pointer-events-none absolute top-2 left-2 sm:top-3 sm:left-3 max-w-[calc(100%-3.25rem)] truncate bg-[#2B0E17]/92 text-[#F1D889] text-[9px] sm:text-[10px] font-semibold tracking-[0.14em] sm:tracking-[0.18em] uppercase px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-[2px] border border-[#D4AF63]/45">
             {badgeText}
           </span>
         )}
 
         {isOutOfStock && !hideOutOfStock && (
-          <span className="pointer-events-none absolute bottom-3 left-3 bg-[#1A1718]/90 text-[#F7F1E5] text-[10px] font-medium tracking-[0.18em] uppercase px-2.5 py-1 rounded-[2px]">
+          <span className="pointer-events-none absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-[#1A1718]/90 text-[#F7F1E5] text-[9px] sm:text-[10px] font-medium tracking-[0.14em] sm:tracking-[0.18em] uppercase px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-[2px]">
             Sold Out
           </span>
         )}
@@ -123,13 +123,13 @@ export default function ProductCard({
           onClick={handleWishlistClick}
           aria-label={isWishlisted ? `Remove ${name} from wishlist` : `Save ${name} to wishlist`}
           aria-pressed={Boolean(isWishlisted)}
-          className={`absolute top-3 right-3 w-10 h-10 rounded-[2px] border flex items-center justify-center transition-colors cursor-pointer z-10 ${
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 rounded-[2px] border flex items-center justify-center transition-colors cursor-pointer z-10 ${
             isWishlisted
               ? "bg-[#38131E] text-[#F1D889] border-[#D4AF63]"
               : "bg-[#F7F1E5]/88 backdrop-blur-xs text-[#38131E] border-[#38131E]/18 hover:bg-[#38131E] hover:text-[#F1D889]"
           }`}
         >
-          <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
+          <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isWishlisted ? "fill-current" : ""}`} />
         </button>
 
         {/* Slide-up Architectural Curtain CTA (Desktop Hover) */}
@@ -158,20 +158,20 @@ export default function ProductCard({
       </div>
 
       {/* Borderless Editorial Metadata Caption */}
-      <div className="pt-3.5 pb-1 flex flex-col gap-1.5">
+      <div className="pt-2.5 sm:pt-3.5 pb-1 flex flex-col gap-1 sm:gap-1.5">
         {(category || state || subCategory || type) && (
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#38131E]/60 truncate">
+          <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.22em] text-[#38131E]/60 truncate">
             {[category, state || subCategory || type].filter(Boolean).join(" · ")}
           </p>
         )}
 
         <Link to={`/product/${productId}`} className="block">
-          <h3 className="font-serif text-lg sm:text-xl text-[#38131E] leading-snug line-clamp-2 group-hover:text-[#2B0E17] transition-colors">
+          <h3 className="font-serif text-[15px] sm:text-xl text-[#38131E] leading-snug line-clamp-2 group-hover:text-[#2B0E17] transition-colors">
             {name}
           </h3>
         </Link>
 
-        <div className="pt-0.5 flex items-baseline justify-between gap-2">
+        <div className="pt-0.5 flex flex-wrap items-baseline justify-between gap-1 sm:gap-2">
           <Price
             price={price}
             discountedPrice={discountedPrice}
@@ -179,7 +179,7 @@ export default function ProductCard({
             size="sm"
           />
           {hasNumericStock && availableStock > 1 && availableStock <= 5 && (
-            <span className="text-[10px] uppercase tracking-[0.16em] text-[#38131E]/70 font-medium">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.16em] text-[#38131E]/70 font-medium">
               Only {availableStock} left
             </span>
           )}

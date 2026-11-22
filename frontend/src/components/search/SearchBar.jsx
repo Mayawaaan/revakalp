@@ -67,7 +67,7 @@ export default function SearchBar() {
       role="dialog"
       aria-modal="true"
       aria-label="Search storefront catalog"
-      className="fixed inset-0 z-[90] flex items-start justify-center pt-14 sm:pt-20 px-4"
+      className="fixed inset-0 z-[90] flex items-start justify-center pt-3 sm:pt-20 px-2.5 sm:px-4"
     >
       <div
         className="fixed inset-0 bg-[#1A1718]/70 backdrop-blur-xs"
@@ -78,7 +78,7 @@ export default function SearchBar() {
         {/* Search Input Header */}
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-3 px-5 sm:px-7 py-4 bg-[#FBF7EE] border-b border-[#38131E]/14"
+          className="flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-7 py-3 sm:py-4 bg-[#FBF7EE] border-b border-[#38131E]/14"
         >
           <Search className="w-5 h-5 text-[#38131E] shrink-0" />
           <input
@@ -110,18 +110,18 @@ export default function SearchBar() {
         </form>
 
         {/* Results & Category Shortcuts */}
-        <div className="max-h-[72vh] overflow-y-auto p-5 sm:p-7 space-y-6">
+        <div className="max-h-[80dvh] sm:max-h-[72vh] overflow-y-auto p-4 sm:p-7 space-y-5 sm:space-y-6">
           <div>
             <p className="text-[10px] uppercase tracking-[0.26em] text-[#38131E]/65 mb-3">
               Browse by Category
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 gap-2 pb-1">
               {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => (
                 <Link
                   key={cat.id}
                   to={cat.allRoute}
                   onClick={() => setShowSearch(false)}
-                  className="rk-chip"
+                  className="rk-chip shrink-0"
                 >
                   {cat.label}
                 </Link>

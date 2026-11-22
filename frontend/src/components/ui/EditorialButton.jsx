@@ -24,7 +24,7 @@ export default function EditorialButton({
   ...props
 }) {
   const base =
-    "group relative overflow-hidden inline-flex items-center justify-center gap-2.5 min-h-[46px] px-7 py-3 rounded-[2px] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase border transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none";
+    "group relative overflow-hidden inline-flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] px-4 sm:px-7 py-2.5 sm:py-3 rounded-[2px] max-w-full text-center text-[11px] sm:text-xs font-medium tracking-[0.14em] sm:tracking-[0.2em] uppercase border transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none";
   const classes = `${base} ${VARIANT_CLASSES[variant] || VARIANT_CLASSES.primary} ${className}`.trim();
 
   const inner = (

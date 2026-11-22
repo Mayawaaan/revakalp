@@ -343,7 +343,7 @@ const ProductDetailsPage = () => {
   const matchedTradition = findTraditionForProduct(product);
 
   return (
-    <div className="bg-[#F7F1E5] min-h-screen pt-8 pb-24 lg:py-12">
+    <div className="bg-[#F7F1E5] min-h-screen pt-6 pb-28 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrums product={product} />
 
@@ -387,7 +387,7 @@ const ProductDetailsPage = () => {
             {/* Main Image with Interactive Hover Zoom & Lightbox */}
             <div className="relative flex-1 rounded-[2px] overflow-hidden bg-[#EFE6D5] border border-[#38131E]/14">
               {badgeText && (
-                <span className="pointer-events-none absolute top-4 left-4 z-10 bg-[#2B0E17] text-[#F1D889] text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1.5 rounded-[2px] border border-[#D4AF63]/45">
+                <span className="pointer-events-none absolute top-3 left-3 sm:top-4 sm:left-4 z-10 bg-[#2B0E17] text-[#F1D889] text-[10px] uppercase tracking-[0.2em] font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-[2px] border border-[#D4AF63]/45">
                   {badgeText}
                 </span>
               )}
@@ -396,13 +396,39 @@ const ProductDetailsPage = () => {
                 Hover to zoom in
               </span>
 
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Previous product image"
+                    onClick={() =>
+                      setActiveIndex((prev) => (prev - 1 + images.length) % images.length)
+                    }
+                    className="lg:hidden absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-[2px] bg-[#F7F1E5]/90 border border-[#38131E]/22 flex items-center justify-center text-[#38131E] cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Next product image"
+                    onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
+                    className="lg:hidden absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-[2px] bg-[#F7F1E5]/90 border border-[#38131E]/22 flex items-center justify-center text-[#38131E] cursor-pointer"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <span className="lg:hidden pointer-events-none absolute bottom-3 left-3 z-10 px-2.5 py-1 rounded-[2px] bg-[#2B0E17]/82 text-[#F1D889] text-[10px] font-mono tracking-wider border border-[#D4AF63]/40">
+                    {activeIndex + 1} / {images.length}
+                  </span>
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
                 aria-label="Open full-size image zoom"
-                className="absolute bottom-4 right-4 z-10 w-11 h-11 rounded-[2px] bg-[#F7F1E5]/92 border border-[#38131E]/22 flex items-center justify-center text-[#38131E] hover:bg-[#38131E] hover:text-[#F1D889] transition-colors shadow-sm cursor-pointer"
+                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-[2px] bg-[#F7F1E5]/92 border border-[#38131E]/22 flex items-center justify-center text-[#38131E] hover:bg-[#38131E] hover:text-[#F1D889] transition-colors shadow-sm cursor-pointer"
               >
-                <ZoomIn className="w-5 h-5" />
+                <ZoomIn className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <div
@@ -433,13 +459,13 @@ const ProductDetailsPage = () => {
           </div>
 
           {/* ── PRODUCT INFO ── */}
-          <div className="lg:col-span-6 space-y-6 bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-6 sm:p-8 lg:p-10">
+          <div className="lg:col-span-6 space-y-6 bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] p-4 sm:p-8 lg:p-10">
             <div>
               <p className="uppercase tracking-[0.24em] text-[11px] font-medium text-[#38131E]/65 mb-2">
                 {[category, subCategory, type].filter(Boolean).join(" · ")}
               </p>
 
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-[2.6rem] text-[#38131E] leading-tight">
+              <h1 className="font-serif text-2xl sm:text-4xl lg:text-[2.6rem] text-[#38131E] leading-tight">
                 {name}
               </h1>
 
@@ -762,9 +788,9 @@ const ProductDetailsPage = () => {
       )}
 
       {/* Sticky Mobile Purchase Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#F7F1E5]/96 backdrop-blur-md border-t border-[#D4AF63]/45 px-4 py-3 flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-[0.18em] text-[#38131E]/65 truncate">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#F7F1E5]/96 backdrop-blur-md border-t border-[#D4AF63]/45 px-3.5 pt-2.5 pb-safe flex items-center justify-between gap-2.5">
+        <div className="min-w-0 flex-1">
+          <p className="text-[9.5px] uppercase tracking-[0.16em] text-[#38131E]/65 truncate">
             {name}
           </p>
           <Price
@@ -774,14 +800,26 @@ const ProductDetailsPage = () => {
             size="sm"
           />
         </div>
-        <EditorialButton
-          variant="primary"
-          disabled={isOutOfStock || submitting}
-          onClick={() => addSelectionToCart("/cart")}
-          className="px-5 py-2.5 min-h-[42px] shrink-0"
-        >
-          {isOutOfStock ? "Out of Stock" : submitting ? "Adding…" : "Add to Bag"}
-        </EditorialButton>
+        <div className="flex items-center gap-2 shrink-0">
+          {!isOutOfStock && (
+            <EditorialButton
+              variant="secondary"
+              disabled={submitting}
+              onClick={() => addSelectionToCart("/place-order")}
+              className="px-3 min-[380px]:px-4 py-2 min-h-[42px] text-[10px] tracking-[0.12em] shrink-0"
+            >
+              Buy Now
+            </EditorialButton>
+          )}
+          <EditorialButton
+            variant="primary"
+            disabled={isOutOfStock || submitting}
+            onClick={() => addSelectionToCart("/cart")}
+            className="px-3.5 min-[380px]:px-5 py-2 min-h-[42px] text-[10px] tracking-[0.12em] shrink-0"
+          >
+            {isOutOfStock ? "Out of Stock" : submitting ? "Adding…" : "Add to Bag"}
+          </EditorialButton>
+        </div>
       </div>
     </div>
   );

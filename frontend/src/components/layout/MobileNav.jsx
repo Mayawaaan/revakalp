@@ -21,12 +21,17 @@ export default function MobileNav({
   useEffect(() => {
     if (!open) return undefined;
     closeBtnRef.current?.focus();
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [open, onClose]);
 
   const toggleGroup = (key) => setExpanded((prev) => (prev === key ? null : key));
@@ -54,10 +59,10 @@ export default function MobileNav({
         }`}
       >
         {/* Dark burgundy brand header — official gold header SVG + monogram */}
-        <div className="bg-[#2B0E17] px-5 py-4 flex items-center justify-between border-b border-[#D4AF63]/30">
-          <Link to="/" onClick={onClose} className="flex items-center gap-2.5">
-            <BrandMark variant="iconDark" className="h-7 w-7 shrink-0" decorative />
-            <BrandMark variant="headerDark" className="h-5 w-auto" />
+        <div className="bg-[#2B0E17] px-4 sm:px-5 py-3.5 flex items-center justify-between gap-2 border-b border-[#D4AF63]/30">
+          <Link to="/" onClick={onClose} className="flex items-center gap-2 min-w-0">
+            <BrandMark variant="iconDark" className="h-6 w-6 shrink-0" decorative />
+            <BrandMark variant="headerDark" className="h-4 w-auto max-w-[130px]" />
           </Link>
           <button
             ref={closeBtnRef}

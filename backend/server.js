@@ -22,6 +22,7 @@ import reviewRoutes from "./src/routes/review.routes.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import seoRoutes from "./src/routes/seo.routes.js";
 import complianceRoutes from "./src/routes/compliance.routes.js";
+import mlRoutes from "./src/routes/ml.routes.js";
 import { handleWebhook } from "./src/controllers/payment.controller.js";
 import { getActiveCampaigns } from "./src/controllers/adminControllers/admin.cms.controller.js";
 import { razorpay } from "./src/lib/razorpay.js";
@@ -158,6 +159,14 @@ const grievanceLimiter = rateLimit({
   message: "Too many grievance submissions from this IP, please wait an hour",
 });
 
+const mlLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many ML analysis requests, please try again shortly",
+});
+
 app.use("/api", apiLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/signup", authLimiter);
@@ -196,6 +205,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/compliance", complianceRoutes);
+app.use("/api/ml", mlLimiter, mlRoutes);
 app.get("/api/cms/active", getActiveCampaigns);
 app.use("/", seoRoutes);
 

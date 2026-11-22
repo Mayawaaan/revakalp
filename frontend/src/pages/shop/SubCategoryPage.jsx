@@ -95,7 +95,7 @@ const SubCategoryPage = () => {
         {loading && !types?.length ? (
           <LoadingSkeleton count={6} />
         ) : types && types.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-8">
             <Link
               to={`/shop/${normalized}/all`}
               className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/45 hover:border-[#F1D889] transition-colors duration-500 flex items-end"
@@ -113,16 +113,16 @@ const SubCategoryPage = () => {
                 aria-hidden="true"
                 className="absolute inset-0 bg-gradient-to-t from-[#2B0E17] via-[#2B0E17]/30 to-transparent"
               />
-              <div className="relative z-10 w-full p-6 flex items-end justify-between text-[#F7F1E5]">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] mb-1">
+              <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
+                <div className="min-w-0">
+                  <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1">
                     Complete Edit
                   </p>
-                  <h3 className="font-serif text-2xl sm:text-3xl">
+                  <h3 className="font-serif text-lg sm:text-3xl leading-tight">
                     View All {normalized.charAt(0).toUpperCase() + normalized.slice(1)}
                   </h3>
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
@@ -142,16 +142,16 @@ const SubCategoryPage = () => {
                   aria-hidden="true"
                   className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/88 via-[#2B0E17]/20 to-transparent"
                 />
-                <div className="relative z-10 w-full p-6 flex items-end justify-between text-[#F7F1E5]">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] mb-1">
+                <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
+                  <div className="min-w-0">
+                    <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1">
                       {normalized}
                     </p>
-                    <h3 className="font-serif text-2xl sm:text-3xl leading-tight">
+                    <h3 className="font-serif text-lg sm:text-3xl leading-tight truncate">
                       {type.name}
                     </h3>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
             ))}

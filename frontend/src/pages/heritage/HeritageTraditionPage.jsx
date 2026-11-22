@@ -73,9 +73,9 @@ const HeritageTraditionPage = () => {
   return (
     <div ref={pageRef} className="bg-[#F7F1E5] min-h-screen">
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-16 sm:py-24 border-b border-[#D4AF63]/35">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-6 space-y-6">
+      <section className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-12 sm:py-24 border-b border-[#D4AF63]/35">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6">
             <Link
               to="/heritage"
               className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[#F1D889] hover:text-[#F7F1E5] transition-colors"
@@ -87,7 +87,7 @@ const HeritageTraditionPage = () => {
               {tradition.region}
             </p>
 
-            <h1 className="font-serif text-[clamp(2.75rem,5.5vw,4.9rem)] leading-[1.02] tracking-tight text-[#F7F1E5]">
+            <h1 className="font-serif text-[clamp(2.35rem,5.5vw,4.9rem)] leading-[1.02] tracking-tight text-[#F7F1E5]">
               {tradition.name}
             </h1>
 
@@ -99,8 +99,8 @@ const HeritageTraditionPage = () => {
               {tradition.summary}
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-3">
-              <EditorialButton href="#available-pieces" variant="gold">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3">
+              <EditorialButton href="#available-pieces" variant="gold" className="w-full sm:w-auto">
                 <span>
                   See Available Pieces
                   {matchingProducts.length > 0 ? ` (${matchingProducts.length})` : ""}
@@ -108,7 +108,7 @@ const HeritageTraditionPage = () => {
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
 
-              <EditorialButton to={tradition.shopRoute} variant="outlineDark">
+              <EditorialButton to={tradition.shopRoute} variant="outlineDark" className="w-full sm:w-auto">
                 <span>Shop This Style</span>
               </EditorialButton>
             </div>
@@ -120,24 +120,24 @@ const HeritageTraditionPage = () => {
               traditionName={tradition.name}
               motifKind={tradition.motifs[0]?.svgKind}
               swatches={tradition.paletteSwatches}
-              className="h-72 sm:h-[400px]"
+              className="h-60 sm:h-[400px]"
             />
           </div>
         </div>
       </section>
 
       {/* ── STORYTELLING & STICKY MAP RAIL ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-12 sm:space-y-16">
         <Breadcrums />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Sticky Rail */}
-          <aside className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
-            <div className="h-72">
+          <aside className="lg:col-span-4 lg:sticky lg:top-28 space-y-4 sm:space-y-6">
+            <div className="h-56 sm:h-72">
               <IndiaHeritageMap activeSlug={tradition.slug} zoomToActive compact />
             </div>
 
-            <div className="rk-surface-card p-6 space-y-4">
+            <div className="rk-surface-card p-4 sm:p-6 space-y-4">
               <div className="border-b border-[#38131E]/12 pb-3">
                 <p className="text-[10px] uppercase tracking-[0.22em] text-[#38131E]/60">
                   Where it&apos;s from
@@ -147,20 +147,23 @@ const HeritageTraditionPage = () => {
                 </p>
               </div>
 
-              <nav aria-label="Story sections" className="space-y-1.5 text-xs uppercase tracking-[0.16em]">
-                <a href="#history" className="block py-1.5 text-[#38131E] hover:underline">
+              <nav
+                aria-label="Story sections"
+                className="flex lg:block overflow-x-auto scrollbar-hide gap-3 lg:gap-0 lg:space-y-1.5 text-[11px] sm:text-xs uppercase tracking-[0.14em] lg:tracking-[0.16em] pb-1 lg:pb-0"
+              >
+                <a href="#history" className="shrink-0 whitespace-nowrap block py-1.5 px-2.5 lg:px-0 bg-[#EFE6D5] lg:bg-transparent rounded-[2px] text-[#38131E] hover:underline">
                   History &amp; Origin
                 </a>
-                <a href="#motifs" className="block py-1.5 text-[#38131E] hover:underline">
+                <a href="#motifs" className="shrink-0 whitespace-nowrap block py-1.5 px-2.5 lg:px-0 bg-[#EFE6D5] lg:bg-transparent rounded-[2px] text-[#38131E] hover:underline">
                   Classic Motifs
                 </a>
-                <a href="#material-craft" className="block py-1.5 text-[#38131E] hover:underline">
+                <a href="#material-craft" className="shrink-0 whitespace-nowrap block py-1.5 px-2.5 lg:px-0 bg-[#EFE6D5] lg:bg-transparent rounded-[2px] text-[#38131E] hover:underline">
                   Fabric &amp; Feel
                 </a>
-                <a href="#significance-care" className="block py-1.5 text-[#38131E] hover:underline">
+                <a href="#significance-care" className="shrink-0 whitespace-nowrap block py-1.5 px-2.5 lg:px-0 bg-[#EFE6D5] lg:bg-transparent rounded-[2px] text-[#38131E] hover:underline">
                   Why It&apos;s Loved &amp; Care
                 </a>
-                <a href="#available-pieces" className="block py-1.5 font-semibold text-[#38131E] hover:underline">
+                <a href="#available-pieces" className="shrink-0 whitespace-nowrap block py-1.5 px-2.5 lg:px-0 bg-[#EFE6D5] lg:bg-transparent rounded-[2px] font-semibold text-[#38131E] hover:underline">
                   Available Pieces
                 </a>
               </nav>
@@ -291,7 +294,7 @@ const HeritageTraditionPage = () => {
               <ProductGrid
                 products={matchingProducts}
                 loading={loading}
-                columnsClass="grid-cols-1 sm:grid-cols-2"
+                columnsClass="grid-cols-2 sm:grid-cols-2"
                 emptyProps={{
                   title: `No ${tradition.name} pieces in stock right now`,
                   description:
@@ -317,29 +320,29 @@ const HeritageTraditionPage = () => {
           >
             <Link
               to={`/heritage/${prevTradition.slug}`}
-              className="group p-6 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/14 hover:border-[#D4AF63] flex items-center justify-between gap-4 transition-colors"
+              className="group p-4 sm:p-6 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/14 hover:border-[#D4AF63] flex items-center justify-between gap-3 sm:gap-4 transition-colors"
             >
               <div>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#38131E]/60">
                   ← Previous
                 </p>
-                <p className="font-serif text-2xl text-[#38131E] mt-1">
+                <p className="font-serif text-lg sm:text-2xl text-[#38131E] mt-1">
                   {prevTradition.name}
                 </p>
               </div>
-              <ArrowLeft className="w-5 h-5 text-[#D4AF63] group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-5 h-5 text-[#D4AF63] group-hover:-translate-x-1 transition-transform shrink-0" />
             </Link>
 
             <Link
               to={`/heritage/${nextTradition.slug}`}
-              className="group p-6 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/14 hover:border-[#D4AF63] flex items-center justify-between gap-4 text-right transition-colors"
+              className="group p-4 sm:p-6 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/14 hover:border-[#D4AF63] flex items-center justify-between gap-3 sm:gap-4 text-right transition-colors"
             >
-              <ArrowRight className="w-5 h-5 text-[#D4AF63] group-hover:translate-x-1 transition-transform sm:order-2" />
+              <ArrowRight className="w-5 h-5 text-[#D4AF63] group-hover:translate-x-1 transition-transform sm:order-2 shrink-0" />
               <div className="sm:order-1 ml-auto">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#38131E]/60">
                   Next →
                 </p>
-                <p className="font-serif text-2xl text-[#38131E] mt-1">
+                <p className="font-serif text-lg sm:text-2xl text-[#38131E] mt-1">
                   {nextTradition.name}
                 </p>
               </div>

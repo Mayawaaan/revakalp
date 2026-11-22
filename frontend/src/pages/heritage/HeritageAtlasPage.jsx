@@ -67,18 +67,18 @@ const HeritageAtlasPage = () => {
   return (
     <div ref={pageRef} className="bg-[#F7F1E5] min-h-screen">
       {/* ── OPENING STAGE ── */}
-      <section className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-16 sm:py-24 border-b border-[#D4AF63]/30">
+      <section className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-12 sm:py-24 border-b border-[#D4AF63]/30">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#2B0E17]/75 via-[#2B0E17]/88 to-[#2B0E17]"
         />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-7 space-y-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          <div className="lg:col-span-7 space-y-5 sm:space-y-6">
             <p className="uppercase tracking-[0.34em] text-[10px] sm:text-[11px] font-medium text-[#F1D889]">
               Indian Textile Guide
             </p>
 
-            <h1 className="font-serif text-[clamp(2.5rem,5.2vw,4.6rem)] leading-[1.03] tracking-tight text-[#F7F1E5]">
+            <h1 className="font-serif text-[clamp(2.25rem,5.2vw,4.6rem)] leading-[1.03] tracking-tight text-[#F7F1E5]">
               Stories Woven
               <span className="block italic font-normal text-[#F1D889] mt-1">
                 Across India.
@@ -91,12 +91,12 @@ const HeritageAtlasPage = () => {
               origins, motifs, and care — then see what&apos;s in store.
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-3">
-              <EditorialButton href="#interactive-atlas" variant="gold">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3">
+              <EditorialButton href="#interactive-atlas" variant="gold" className="w-full sm:w-auto">
                 <span>Explore the Map</span>
               </EditorialButton>
 
-              <EditorialButton to="/shop/saree/all" variant="outlineDark">
+              <EditorialButton to="/shop/saree/all" variant="outlineDark" className="w-full sm:w-auto">
                 <span>Browse Sarees</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
@@ -109,13 +109,13 @@ const HeritageAtlasPage = () => {
               traditionName={activeTradition.name}
               motifKind={activeTradition.motifs[0]?.svgKind}
               swatches={activeTradition.paletteSwatches}
-              className="h-64 sm:h-80"
+              className="h-60 sm:h-80"
             />
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-12 sm:space-y-20">
         <Breadcrums />
 
         {/* ── INTERACTIVE MAP STAGE ── */}
@@ -132,7 +132,7 @@ const HeritageAtlasPage = () => {
           <div
             role="tablist"
             aria-label="Select Indian textile tradition"
-            className="flex flex-wrap gap-2 mb-6"
+            className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 mb-6"
           >
             {HERITAGE_TRADITIONS.map((trad) => {
               const selected = trad.slug === activeTradition.slug;
@@ -143,7 +143,7 @@ const HeritageAtlasPage = () => {
                   type="button"
                   aria-selected={selected}
                   onClick={() => handleSelectTradition(trad.slug)}
-                  className={`rk-chip ${selected ? "rk-chip-active" : ""}`}
+                  className={`rk-chip shrink-0 ${selected ? "rk-chip-active" : ""}`}
                 >
                   <span>{trad.name}</span>
                 </button>
@@ -151,8 +151,8 @@ const HeritageAtlasPage = () => {
             })}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div className="lg:col-span-7 min-h-[380px] sm:min-h-[480px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+            <div className="lg:col-span-7 min-h-[300px] sm:min-h-[480px]">
               <IndiaHeritageMap
                 activeSlug={activeTradition.slug}
                 onSelect={handleSelectTradition}
@@ -161,7 +161,7 @@ const HeritageAtlasPage = () => {
               />
             </div>
 
-            <div className="lg:col-span-5 rk-surface-card p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div className="lg:col-span-5 rk-surface-card p-5 sm:p-8 flex flex-col justify-between gap-5 sm:gap-6">
               <div className="space-y-5">
                 <div className="flex items-center justify-between border-b border-[#38131E]/12 pb-3 text-[10px] uppercase tracking-[0.22em] text-[#38131E]/70">
                   <span className="font-semibold text-[#38131E]">
@@ -327,7 +327,7 @@ const HeritageAtlasPage = () => {
         </section>
 
         {/* ── TRANSPARENCY NOTE ── */}
-        <section className="rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] p-7 sm:p-9 border border-[#D4AF63]/35 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <section className="rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] p-5 sm:p-9 border border-[#D4AF63]/35 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6">
           <div className="space-y-2 max-w-2xl">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#F1D889]">
               A note from our store

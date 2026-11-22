@@ -6,12 +6,15 @@ const NewsletterBox = () => {
       aria-label="Community & Return Notice"
       className="py-16 sm:py-24 bg-[#F7F1E5]"
     >
-      <div className="max-w-3xl mx-auto px-5 sm:px-8 text-center">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8 text-center" data-reveal="card">
         <p className="text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#38131E]/75 font-medium mb-4">
           Stay in Touch
         </p>
 
-        <h2 className="font-serif text-[clamp(2rem,4vw,3.1rem)] text-[#38131E] leading-tight">
+        <h2
+          data-reveal="heading"
+          className="font-serif text-[clamp(2rem,4vw,3.1rem)] text-[#38131E] leading-tight"
+        >
           Join our WhatsApp group
         </h2>
 

@@ -4,7 +4,7 @@ import { protectAdminRoute } from "../middlewares/admin.middleware.js";
 import { getAllUsers, updateUserRole, deleteUser } from "../controllers/adminControllers/admin.user.controller.js";
 import { createCollection, updateCollection, deleteCollection, getAllCollectionsAdmin } from "../controllers/adminControllers/admin.collection.controller.js";
 import { createType, updateType, deleteType, getAllTypes } from "../controllers/adminControllers/admin.type.controller.js";
-import { getAnalytics, getRevenueAnalytics, getOrdersByStatus, getUsersAnalytics, getProductsByCategory } from "../controllers/adminControllers/admin.analytics.controller.js";
+import { getAnalytics, getRevenueAnalytics, getOrdersByStatus, getUsersAnalytics, getProductsByCategory, getSentimentAnalytics } from "../controllers/adminControllers/admin.analytics.controller.js";
 import { getSettings, updateSettings } from "../controllers/adminControllers/admin.settings.controller.js";
 import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin, getAdminProductById, deleteAllProducts } from "../controllers/adminControllers/admin.product.controller.js";
 import { getAllOrders, getOrderById, updateOrderStatus, recordReturnDecision } from "../controllers/adminControllers/admin.order.controller.js";
@@ -43,6 +43,7 @@ router.get("/analytics/revenue", protectRoute, protectAdminRoute, getRevenueAnal
 router.get("/analytics/orders-by-status", protectRoute, protectAdminRoute, getOrdersByStatus);
 router.get("/analytics/users", protectRoute, protectAdminRoute, getUsersAnalytics);
 router.get("/analytics/products", protectRoute, protectAdminRoute, getProductsByCategory);
+router.get("/analytics/sentiment", protectRoute, protectAdminRoute, getSentimentAnalytics);
 
 // Admin settings routes
 router.get("/settings", protectRoute, protectAdminRoute, getSettings);

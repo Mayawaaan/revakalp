@@ -246,7 +246,7 @@ const ProductListPage = () => {
         <Breadcrums />
 
         {/* Sticky Mobile & Desktop Filter/Sort Toolbar */}
-        <div className="sticky top-[64px] z-20 bg-[#F7F1E5]/96 backdrop-blur-md py-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:static sm:bg-transparent mt-4 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#38131E]/14">
+        <div className="sticky top-[128px] sm:top-[144px] z-20 bg-[#F7F1E5]/96 backdrop-blur-md py-2.5 sm:py-3 -mx-4 px-4 sm:mx-0 sm:px-0 lg:static lg:bg-transparent mt-4 mb-5 sm:mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4 border-b border-[#38131E]/14">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -349,7 +349,7 @@ const ProductListPage = () => {
             <ProductGrid
               products={filteredProducts}
               loading={loading}
-              columnsClass="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              columnsClass="grid-cols-2 sm:grid-cols-2 xl:grid-cols-3"
               emptyProps={{
                 title: isMensEmpty
                   ? `Men's ${pageTitle} — Coming Soon`

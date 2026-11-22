@@ -34,12 +34,12 @@ export default function OccasionEdit() {
   return (
     <section
       aria-label="Shop by Occasion"
-      className="py-16 sm:py-24 bg-[#F7F1E5] border-b border-[#38131E]/12"
+      className="py-12 sm:py-24 bg-[#F7F1E5] border-b border-[#38131E]/12"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Sticky Architectural Chapter Selector */}
-          <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
+          <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-5 sm:space-y-6">
             <SectionHeading
               eyebrow="Shop by Occasion"
               title="What are you"
@@ -51,7 +51,7 @@ export default function OccasionEdit() {
             <div
               role="tablist"
               aria-label="Select occasion"
-              className="divide-y divide-[#38131E]/14 border-y border-[#38131E]/14"
+              className="grid grid-cols-2 lg:block lg:divide-y lg:divide-[#38131E]/14 lg:border-y lg:border-[#38131E]/14 gap-2 lg:gap-0"
             >
               {OCCASION_EDITS.map((occ) => {
                 const active = occ.id === selectedOccasion;
@@ -65,15 +65,17 @@ export default function OccasionEdit() {
                       setSelectedOccasion(occ.id);
                       setExpanded(false);
                     }}
-                    className={`w-full py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                    className={`w-full py-2.5 sm:py-3.5 px-3 lg:px-2 flex items-center justify-between text-left transition-colors cursor-pointer rounded-[2px] lg:rounded-none border border-[#38131E]/15 lg:border-0 ${
                       active
-                        ? "bg-[#38131E] text-[#F7F1E5] px-4"
-                        : "px-2 text-[#38131E] hover:bg-[#EFE6D5]/70"
+                        ? "bg-[#38131E] text-[#F7F1E5] lg:px-4 border-[#38131E]"
+                        : "bg-[#FBF7EE] lg:bg-transparent text-[#38131E] hover:bg-[#EFE6D5]/70"
                     }`}
                   >
-                    <span className="font-serif text-xl">{occ.label}</span>
+                    <span className="font-serif text-base sm:text-xl truncate pr-2">
+                      {occ.label}
+                    </span>
                     <ArrowRight
-                      className={`w-4 h-4 ${
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
                         active ? "text-[#F1D889]" : "text-[#38131E]/40"
                       }`}
                     />
@@ -82,10 +84,11 @@ export default function OccasionEdit() {
               })}
             </div>
 
-            <div className="pt-2 flex flex-wrap gap-3">
+            <div className="pt-1 flex flex-wrap gap-3">
               <EditorialButton
                 to={activeConfig.route || "/shop/all/all"}
                 variant="secondary"
+                className="w-full sm:w-auto"
               >
                 <span>See All {activeConfig.label} Styles</span>
                 <ArrowRight className="w-4 h-4" />
@@ -106,7 +109,7 @@ export default function OccasionEdit() {
               />
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 items-start">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-3.5 sm:gap-8 items-start">
                   {displayed.map((item, idx) => (
                     <div
                       key={item._id || item.id}

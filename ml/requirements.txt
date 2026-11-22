@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+numpy
+h5py
+# Optional full Keras runtime (automatic NumPy/HDF5 BiLSTM fallback is built into main.py)
+# tensorflow

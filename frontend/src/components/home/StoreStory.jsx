@@ -16,15 +16,15 @@ export default function StoreStory() {
   return (
     <section
       aria-label="Our Indore Storefront"
-      className="py-16 sm:py-24 bg-[#FBF7EE] border-b border-[#38131E]/12"
+      className="py-12 sm:py-24 bg-[#FBF7EE] border-b border-[#38131E]/12"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Official Brand Plaque */}
-          <div className="lg:col-span-5">
-            <div className="rounded-[2px] bg-[#F7F1E5] border border-[#D4AF63]/65 p-8 sm:p-10 space-y-6">
-              <div className="flex justify-center py-4 border-b border-[#38131E]/12">
-                <BrandMark variant="primaryLight" className="w-56 sm:w-64" />
+          <div className="lg:col-span-5" data-reveal="card">
+            <div className="rounded-[2px] bg-[#F7F1E5] border border-[#D4AF63]/65 p-5 sm:p-10 space-y-5 sm:space-y-6">
+              <div className="flex justify-center py-3 sm:py-4 border-b border-[#38131E]/12">
+                <BrandMark variant="primaryLight" className="w-44 sm:w-64" />
               </div>
 
               <div className="space-y-4 text-sm text-[#1A1718]/85">
@@ -55,7 +55,7 @@ export default function StoreStory() {
                   </p>
                   <a
                     href={`mailto:${email}`}
-                    className="text-[#38131E] font-medium hover:underline"
+                    className="text-[#38131E] font-medium hover:underline break-all sm:break-normal"
                   >
                     {email}
                   </a>
@@ -65,12 +65,15 @@ export default function StoreStory() {
           </div>
 
           {/* Store Story */}
-          <div className="lg:col-span-7 space-y-5">
+          <div className="lg:col-span-7 space-y-5" data-reveal="card">
             <p className="uppercase tracking-[0.3em] text-[10px] sm:text-[11px] font-medium text-[#38131E]/75">
               Our Indore Store
             </p>
 
-            <h2 className="font-serif text-[clamp(2rem,4vw,3.3rem)] text-[#38131E] leading-[1.08]">
+            <h2
+              data-reveal="heading"
+              className="font-serif text-[clamp(2rem,4vw,3.3rem)] text-[#38131E] leading-[1.08]"
+            >
               Drop by,{" "}
               <span className="italic font-normal">say hello.</span>
             </h2>
@@ -80,12 +83,12 @@ export default function StoreStory() {
                 "Revakalp is an Indore store bringing together sarees, lehengas, Indo-Western pieces, and everyday tees — online and in Rajendra Nagar."}
             </p>
 
-            <div className="pt-3 flex flex-wrap gap-3">
-              <EditorialButton to="/about" variant="primary">
+            <div className="pt-3 flex flex-col sm:flex-row flex-wrap gap-3">
+              <EditorialButton to="/about" variant="primary" className="w-full sm:w-auto">
                 <span>Our Story</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
-              <EditorialButton to="/contact" variant="secondary">
+              <EditorialButton to="/contact" variant="secondary" className="w-full sm:w-auto">
                 <span>Get in Touch</span>
               </EditorialButton>
             </div>

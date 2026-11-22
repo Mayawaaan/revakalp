@@ -124,20 +124,16 @@ export default function Header({ tone }) {
         }`}
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-[72px] flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-[72px] flex items-center justify-between gap-2 sm:gap-4">
           {/* Official Brand Logo */}
           <Link
             to="/"
             aria-label="REVAKALP Home"
-            className="flex items-center shrink-0 py-1"
+            className="flex items-center min-w-0 shrink py-1"
           >
             <BrandMark
               variant={isDark ? "headerDark" : "headerLight"}
-              className="h-6 sm:h-7 md:h-8 w-auto max-[340px]:hidden"
-            />
-            <BrandMark
-              variant={isDark ? "iconDark" : "iconLight"}
-              className="hidden max-[340px]:block h-8 w-8 rounded-[2px]"
+              className="h-5 min-[380px]:h-6 sm:h-7 md:h-8 w-auto max-w-[128px] min-[380px]:max-w-[155px] sm:max-w-[210px]"
             />
           </Link>
 
@@ -255,12 +251,12 @@ export default function Header({ tone }) {
           </nav>
 
           {/* Right Action Controls */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setShowSearch(true)}
               aria-label="Open product search"
-              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors cursor-pointer ${iconCls}`}
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors cursor-pointer ${iconCls}`}
             >
               <Search className="w-[18px] h-[18px]" strokeWidth={1.65} />
             </button>
@@ -268,12 +264,12 @@ export default function Header({ tone }) {
             <NavLink
               to="/wishlist"
               aria-label={`Wishlist (${wishlistCount} saved items)`}
-              className={`relative w-10 h-10 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors ${iconCls}`}
+              className={`relative w-9 h-9 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors ${iconCls}`}
             >
               <Heart className="w-[18px] h-[18px]" strokeWidth={1.65} />
               {wishlistCount > 0 && (
                 <span
-                  className={`absolute top-1.5 right-1.5 text-[10px] font-semibold min-w-[16px] h-4 px-1 flex items-center justify-center rounded-[2px] border ${badgeCls}`}
+                  className={`absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-[10px] font-semibold min-w-[16px] h-4 px-1 flex items-center justify-center rounded-[2px] border ${badgeCls}`}
                 >
                   {wishlistCount}
                 </span>
@@ -283,12 +279,12 @@ export default function Header({ tone }) {
             <NavLink
               to="/cart"
               aria-label={`Shopping bag (${cartCount} items)`}
-              className={`relative w-10 h-10 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors ${iconCls}`}
+              className={`relative w-9 h-9 sm:w-11 sm:h-11 rounded-[2px] flex items-center justify-center transition-colors ${iconCls}`}
             >
               <ShoppingBag className="w-[18px] h-[18px]" strokeWidth={1.65} />
               {cartCount > 0 && (
                 <span
-                  className={`absolute top-1.5 right-1.5 text-[10px] font-semibold min-w-[16px] h-4 px-1 flex items-center justify-center rounded-[2px] border ${badgeCls}`}
+                  className={`absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-[10px] font-semibold min-w-[16px] h-4 px-1 flex items-center justify-center rounded-[2px] border ${badgeCls}`}
                 >
                   {cartCount}
                 </span>
@@ -386,15 +382,110 @@ export default function Header({ tone }) {
             {/* Mobile Drawer Trigger */}
             <button
               type="button"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open navigation menu"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileOpen}
-              className={`lg:hidden w-11 h-11 rounded-[2px] flex items-center justify-center transition-colors cursor-pointer ${iconCls}`}
+              className={`lg:hidden inline-flex items-center justify-center gap-1.5 h-9 sm:h-10 px-2.5 sm:px-3 rounded-[2px] border transition-colors cursor-pointer ${
+                isDark
+                  ? "border-[#D4AF63]/45 text-[#F7F1E5] hover:bg-white/10"
+                  : "border-[#38131E]/25 text-[#38131E] hover:bg-[#38131E]/8"
+              }`}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
+              <span className="text-[10px] uppercase tracking-[0.16em] font-semibold hidden min-[370px]:inline">
+                Menu
+              </span>
             </button>
           </div>
         </div>
+
+        {/* Mobile & Tablet Quick Navigation Strip */}
+        <nav
+          aria-label="Mobile quick navigation"
+          className={`lg:hidden border-t overflow-x-auto scrollbar-hide ${
+            isDark
+              ? "border-[#D4AF63]/20 bg-[#2B0E17]/95"
+              : "border-[#38131E]/10 bg-[#F7F1E5]/95"
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 h-10 flex items-center gap-4 sm:gap-6 text-[10.5px] uppercase tracking-[0.18em] font-medium whitespace-nowrap">
+            <NavLink
+              to="/shop/saree"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive || location.pathname.startsWith("/shop/saree")
+                    ? "border-[#D4AF63]"
+                    : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Sarees
+            </NavLink>
+            <NavLink
+              to="/shop/lehenga/all"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Lehengas
+            </NavLink>
+            <NavLink
+              to="/shop/indo-western/all"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Indo-Western
+            </NavLink>
+            <NavLink
+              to="/shop/printed-tees/all"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Printed Tees
+            </NavLink>
+            <NavLink
+              to="/heritage"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive || location.pathname.startsWith("/heritage")
+                    ? "border-[#D4AF63]"
+                    : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Heritage
+            </NavLink>
+            <NavLink
+              to="/shop"
+              end
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Collections
+            </NavLink>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `py-1 border-b transition-colors ${
+                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                } ${navTextCls}`
+              }
+            >
+              Our Store
+            </NavLink>
+          </div>
+        </nav>
 
         {/* Desktop MegaMenu */}
         <MegaMenu

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { checkReducedMotion } from "../components/motion/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,15 +16,11 @@ export const getLenis = () => lenisInstance;
 
 /**
  * Initializes Lenis as the sole smooth-scroll driver and synchronizes
- * it with GSAP's ticker and ScrollTrigger. Honors prefers-reduced-motion.
+ * it with GSAP's ticker and ScrollTrigger.
  */
 const useLenis = () => {
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
-
-    const mq = window.matchMedia
-      ? window.matchMedia("(prefers-reduced-motion: reduce)")
-      : null;
 
     let tickerFn = null;
     let currentLenis = null;
@@ -43,18 +40,17 @@ const useLenis = () => {
 
     const setup = () => {
       teardown();
-      if (mq?.matches) {
-        // Under reduced motion, keep native instant browser scrolling
+      if (checkReducedMotion()) {
         ScrollTrigger.refresh();
         return;
       }
 
       const lenis = new Lenis({
-        duration: 1.15,
+        duration: 1.1,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         wheelMultiplier: 1,
-        touchMultiplier: 1.6,
+        touchMultiplier: 1.5,
         infinite: false,
       });
 
@@ -75,10 +71,10 @@ const useLenis = () => {
     setup();
 
     const handleChange = () => setup();
-    mq?.addEventListener("change", handleChange);
+    window.addEventListener("rk-reduced-motion-change", handleChange);
 
     return () => {
-      mq?.removeEventListener("change", handleChange);
+      window.removeEventListener("rk-reduced-motion-change", handleChange);
       teardown();
     };
   }, []);

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const reviewSchema = new mongoose.Schema(
   {
     userId: {
@@ -25,6 +26,21 @@ const reviewSchema = new mongoose.Schema(
       type: String,
       enum: ["positive", "neutral", "negative"],
       default: "neutral",
+    },
+    sentimentConfidence: {
+      type: Number,
+      min: 0,
+      max: 1,
+      default: null,
+    },
+    sentimentProbabilities: {
+      negative: { type: Number },
+      neutral: { type: Number },
+      positive: { type: Number },
+    },
+    sentimentSource: {
+      type: String,
+      default: "",
     },
   },
   { timestamps: true }

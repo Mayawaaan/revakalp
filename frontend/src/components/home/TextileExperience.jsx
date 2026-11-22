@@ -77,7 +77,7 @@ export default function TextileExperience() {
     <section
       ref={sectionRef}
       aria-label="The Revakalp Textile Heritage Gateway"
-      className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-20 sm:py-28 border-b border-[#D4AF63]/30"
+      className="relative overflow-hidden bg-[#2B0E17] text-[#F7F1E5] py-14 sm:py-24 lg:py-28 border-b border-[#D4AF63]/30"
     >
       {/* Interactive GLSL Textile Shader Backdrop */}
       <div className="absolute inset-0 pointer-events-none">
@@ -108,7 +108,10 @@ export default function TextileExperience() {
             Indian Textile Guide
           </p>
 
-          <h2 className="font-serif text-[clamp(2.25rem,4.5vw,3.75rem)] text-[#F7F1E5] leading-[1.06]">
+          <h2
+            data-reveal="heading"
+            className="font-serif text-[clamp(2.25rem,4.5vw,3.75rem)] text-[#F7F1E5] leading-[1.06]"
+          >
             Six weaves,{" "}
             <span className="italic font-normal text-[#F1D889]">
               six stories.
@@ -119,7 +122,7 @@ export default function TextileExperience() {
           <div
             role="tablist"
             aria-label="Inspect regional textile weaves"
-            className="flex flex-wrap gap-2 pt-1"
+            className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 pt-1"
           >
             {HERITAGE_TRADITIONS.map((trad) => {
               const selected = trad.slug === activeTradition.slug;
@@ -130,7 +133,7 @@ export default function TextileExperience() {
                   type="button"
                   aria-selected={selected}
                   onClick={() => setActiveSlug(trad.slug)}
-                  className={`px-3.5 py-2 rounded-[2px] text-[11px] uppercase tracking-[0.16em] border transition-colors cursor-pointer ${
+                  className={`shrink-0 px-3.5 py-2 rounded-[2px] text-[11px] uppercase tracking-[0.16em] border transition-colors cursor-pointer ${
                     selected
                       ? "bg-[#D4AF63] text-[#2B0E17] border-[#F1D889] font-semibold"
                       : "bg-[#2B0E17]/75 text-[#F7F1E5]/85 border-[#D4AF63]/35 hover:border-[#F1D889]"
@@ -143,7 +146,7 @@ export default function TextileExperience() {
           </div>
 
           {/* Active Tradition Reading Plate */}
-          <div className="p-6 rounded-[2px] bg-[#2B0E17]/82 backdrop-blur-xs border border-[#D4AF63]/35 space-y-4 max-w-2xl">
+          <div className="p-4 sm:p-6 rounded-[2px] bg-[#2B0E17]/82 backdrop-blur-xs border border-[#D4AF63]/35 space-y-4 max-w-2xl">
             <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.2em] text-[#F1D889]">
               <span>
                 {activeTradition.region} — {activeTradition.subRegion}
@@ -161,13 +164,17 @@ export default function TextileExperience() {
               {activeTradition.summary}
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-3">
-              <EditorialButton to="/heritage" variant="gold">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3">
+              <EditorialButton to="/heritage" variant="gold" className="w-full sm:w-auto">
                 <span>Explore Textile Guide</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
 
-              <EditorialButton to={`/heritage/${activeTradition.slug}`} variant="outlineDark">
+              <EditorialButton
+                to={`/heritage/${activeTradition.slug}`}
+                variant="outlineDark"
+                className="w-full sm:w-auto"
+              >
                 <span>Read the {activeTradition.name} Story</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
@@ -177,7 +184,7 @@ export default function TextileExperience() {
 
         {/* Right Optical Silk Dossier Card */}
         <div className="lg:col-span-5 flex flex-col justify-between gap-4">
-          <div className="p-6 sm:p-7 rounded-[2px] bg-[#2B0E17]/72 backdrop-blur-xs border border-[#D4AF63]/35 space-y-5">
+          <div className="p-5 sm:p-7 rounded-[2px] bg-[#2B0E17]/72 backdrop-blur-xs border border-[#D4AF63]/35 space-y-5">
             <div className="flex items-center justify-between border-b border-[#D4AF63]/20 pb-3">
               <span className="text-[10px] uppercase tracking-[0.24em] text-[#F1D889]">
                 Weave Preview · {activeTradition.name}
