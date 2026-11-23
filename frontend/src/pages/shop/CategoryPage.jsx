@@ -11,7 +11,7 @@ import {
   ACTIVE_STOREFRONT_CATEGORIES,
   MENS_STOREFRONT_CATEGORIES,
   matchesCategory,
-  getProductImage,
+  getCategoryTileArt,
   getAvailableStock,
 } from "../../config/storefrontCategories";
 import { useSeoMeta } from "../../utils/seo";
@@ -58,24 +58,23 @@ const CategoryPage = () => {
               const matching = (products || []).filter(
                 (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
               );
-              const liveImg = matching.length > 0 ? getProductImage(matching[0]) : "";
-              const imgSrc = liveImg || cat.fallbackArt;
+              const imgSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
 
               return (
                 <Link
                   key={cat.id}
                   to={cat.route}
-                  className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
+                  className="group relative aspect-[9/16] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
                 >
                   <img
                     src={imgSrc}
-                    alt={liveImg ? cat.label : `${cat.label} illustrative artwork`}
+                    alt={`${cat.label} category tile`}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/90 via-[#2B0E17]/25 to-transparent"
+                    className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2B0E17]/95 via-[#2B0E17]/40 to-transparent"
                   />
                   <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 text-[#F7F1E5]">
                     <div className="min-w-0">
@@ -104,25 +103,40 @@ const CategoryPage = () => {
             className="mb-8"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {MENS_STOREFRONT_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                to={cat.route}
-                className="group rounded-[2px] bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/35 hover:border-[#F1D889] p-5 sm:p-7 flex flex-col justify-between min-h-[140px] sm:min-h-[180px] transition-colors"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889] font-medium">
-                    Coming Soon
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-[#F1D889] group-hover:translate-x-1 transition-transform" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-2xl sm:text-3xl leading-tight">{cat.label}</h3>
-                  <p className="text-xs text-[#F7F1E5]/70 mt-1.5">{cat.subtitle}</p>
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
+            {MENS_STOREFRONT_CATEGORIES.map((cat) => {
+              const tileSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
+              return (
+                <Link
+                  key={cat.id}
+                  to={cat.route}
+                  className="group relative aspect-[9/16] rounded-[2px] overflow-hidden bg-[#2B0E17] text-[#F7F1E5] border border-[#D4AF63]/35 hover:border-[#F1D889] flex items-end transition-colors"
+                >
+                  {tileSrc && (
+                    <img
+                      src={tileSrc}
+                      alt={`${cat.label} coming soon tile`}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-contain opacity-80 transition-transform duration-700 group-hover:scale-[1.02]"
+                    />
+                  )}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2B0E17]/95 via-[#2B0E17]/50 to-transparent"
+                  />
+                  <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="block text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#F1D889] font-medium mb-1">
+                        Coming Soon
+                      </span>
+                      <h3 className="font-serif text-xl sm:text-3xl leading-tight">{cat.label}</h3>
+                      <p className="text-xs text-[#F7F1E5]/70 mt-1 hidden sm:block">{cat.subtitle}</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
@@ -160,40 +174,46 @@ const CategoryPage = () => {
             <LoadingSkeleton count={4} />
           ) : collections?.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
-              {collections.map((collection) => (
-                <Link
-                  to={`/shop/${collection.id}`}
-                  key={collection._id || collection.id}
-                  className="group relative aspect-[4/5] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
-                >
-                  <img
-                    src={collection.image}
-                    alt={collection.name}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/88 via-[#2B0E17]/25 to-transparent"
-                  />
-                  <div className="relative z-10 w-full p-3.5 sm:p-5 flex items-end justify-between gap-2 sm:gap-3 text-[#F7F1E5]">
-                    <div className="min-w-0">
-                      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1">
-                        Collection
-                      </p>
-                      <h3 className="font-serif text-lg sm:text-2xl leading-tight truncate">
-                        {collection.name}
-                      </h3>
-                      {collection.description && (
-                        <p className="text-xs text-[#F7F1E5]/75 mt-1 line-clamp-2 hidden sm:block">
-                          {collection.description}
+              {collections.map((collection) => {
+                const tileImg = getCategoryTileArt(
+                  collection.id || collection.name,
+                  collection.image
+                );
+                return (
+                  <Link
+                    to={`/shop/${collection.id}`}
+                    key={collection._id || collection.id}
+                    className="group relative aspect-[9/16] rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#38131E]/15 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
+                  >
+                    <img
+                      src={tileImg}
+                      alt={collection.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2B0E17]/95 via-[#2B0E17]/40 to-transparent"
+                    />
+                    <div className="relative z-10 w-full p-3.5 sm:p-5 flex items-end justify-between gap-2 sm:gap-3 text-[#F7F1E5]">
+                      <div className="min-w-0">
+                        <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889] mb-1">
+                          Collection
                         </p>
-                      )}
+                        <h3 className="font-serif text-lg sm:text-2xl leading-tight truncate">
+                          {collection.name}
+                        </h3>
+                        {collection.description && (
+                          <p className="text-xs text-[#F7F1E5]/75 mt-1 line-clamp-2 hidden sm:block">
+                            {collection.description}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
                     </div>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="rk-surface-card p-8 text-center">

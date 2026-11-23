@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export default function ImageWithFallback({
   src,
-  fallbackSrc = "/campaign/category-sarees.png",
+  fallbackSrc = "/category-tiles/sarees.png",
   alt = "",
   className = "",
   loading = "lazy",

@@ -82,14 +82,14 @@ const PastEditions = () => {
                   >
                     <Link
                       to={`/product/${resolvedId}`}
-                      className="relative aspect-[3/4] bg-[#2B0E17]/10 overflow-hidden block"
+                      className="relative aspect-[9/16] bg-[#EFE6D5] overflow-hidden block"
                     >
                       {imgUrl ? (
                         <img
                           src={imgUrl}
                           alt={item.name}
                           loading="lazy"
-                          className="w-full h-full object-cover opacity-90"
+                          className="w-full h-full object-contain opacity-90"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs uppercase tracking-widest text-[#38131E]/60">

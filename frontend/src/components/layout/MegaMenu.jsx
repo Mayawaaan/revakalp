@@ -102,12 +102,12 @@ export default function MegaMenu({
                   <Link
                     to="/shop/saree/all"
                     onClick={onClose}
-                    className="group block relative aspect-[4/3] overflow-hidden rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/40"
+                    className="group block relative aspect-[9/16] max-h-72 mx-auto overflow-hidden rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/40"
                   >
                     <img
-                      src="/campaign/category-sarees.png"
+                      src="/category-tiles/sarees.png"
                       alt="Revakalp Sarees collection"
-                      className="w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#2B0E17]/85 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3 text-[#F7F1E5]">

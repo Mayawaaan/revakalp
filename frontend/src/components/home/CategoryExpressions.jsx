@@ -7,70 +7,61 @@ import {
   ACTIVE_STOREFRONT_CATEGORIES,
   MENS_STOREFRONT_CATEGORIES,
   matchesCategory,
-  getProductImage,
+  getCategoryTileArt,
   getAvailableStock,
 } from "../../config/storefrontCategories";
 
 export default function CategoryExpressions() {
   const { products, loading } = useStore();
 
-  const leadCategories = ACTIVE_STOREFRONT_CATEGORIES.slice(0, 2); // Sarees, Lehengas
-  const secondaryCategories = ACTIVE_STOREFRONT_CATEGORIES.slice(2); // Indo-Western, Printed Tees
-
-  const renderCategoryTile = (cat, aspectClass) => {
+  const renderCategoryTile = (cat) => {
     const matching = (products || []).filter(
       (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
     );
-    const liveImg = matching.length > 0 ? getProductImage(matching[0]) : "";
-    const imgSrc = liveImg || cat.fallbackArt;
-    const isIllustrative = !liveImg;
+    const imgSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
 
     return (
       <Link
         key={cat.id}
         to={cat.route}
         data-reveal="card"
-        className={`group relative overflow-hidden rounded-[2px] bg-[#2B0E17] border border-[#38131E]/18 hover:border-[#D4AF63] transition-colors duration-500 flex items-end ${aspectClass}`}
+        className="group relative aspect-[9/16] w-full overflow-hidden rounded-[2px] bg-[#2B0E17] border border-[#38131E]/18 hover:border-[#D4AF63] transition-colors duration-500 flex items-end"
       >
         <img
           src={imgSrc}
-          alt={
-            isIllustrative
-              ? `${cat.label} illustrative category artwork`
-              : `${cat.label} featured style`
-          }
+          alt={`${cat.label} collection tile`}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-88"
+          className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
         />
 
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-[#2B0E17] via-[#2B0E17]/30 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2B0E17]/95 via-[#2B0E17]/45 to-transparent"
         />
 
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-3 border border-[#D4AF63]/0 group-hover:border-[#D4AF63]/50 transition-colors duration-500"
+          className="pointer-events-none absolute inset-2.5 sm:inset-3 border border-[#D4AF63]/0 group-hover:border-[#D4AF63]/50 transition-colors duration-500"
         />
 
-        <div className="relative z-10 w-full p-4 sm:p-6 flex items-end justify-between gap-3 sm:gap-4 text-[#F7F1E5]">
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889]">
+        <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 sm:gap-4 text-[#F7F1E5]">
+          <div className="space-y-1 min-w-0">
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.22em] text-[#F1D889] truncate">
               {loading
                 ? "Loading…"
                 : matching.length > 0
                 ? `${matching.length} ${matching.length === 1 ? "piece" : "pieces"}`
                 : "Explore"}
             </p>
-            <h3 className="font-serif text-2xl sm:text-3xl leading-tight">
+            <h3 className="font-serif text-xl sm:text-3xl leading-tight">
               {cat.label}
             </h3>
             <p className="text-xs text-[#F7F1E5]/75 hidden sm:block">
               {cat.subtitle}
             </p>
           </div>
-          <ArrowRight className="w-5 h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
         </div>
       </Link>
     );
@@ -97,57 +88,58 @@ export default function CategoryExpressions() {
           </Link>
         </div>
 
-        {/* Asymmetric Top Architectural Row: Sarees + Lehengas */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
-          <div className="lg:col-span-7" data-reveal="image">
-            {leadCategories[0] &&
-              renderCategoryTile(
-                leadCategories[0],
-                "aspect-[4/4.3] sm:aspect-[16/10] w-full"
-              )}
-          </div>
-          <div className="lg:col-span-5" data-reveal="image">
-            {leadCategories[1] &&
-              renderCategoryTile(
-                leadCategories[1],
-                "aspect-[4/4.3] sm:aspect-[16/10] lg:aspect-auto lg:h-full min-h-[260px] sm:min-h-[300px] w-full"
-              )}
-          </div>
-        </div>
-
-        {/* Secondary Duo: Indo-Western & Printed Tees */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-          {secondaryCategories.map((cat) =>
-            renderCategoryTile(cat, "aspect-[4/3] sm:aspect-[16/10] w-full")
-          )}
+        {/* 9:16 Category Tiles: Sarees, Lehengas, Indo-Western, Printed Tees */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+          {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => renderCategoryTile(cat))}
         </div>
 
         {/* Empty Men's Section Strip: Suits, Kurta Pajama, Jodhpuri */}
-        <div className="pt-2 space-y-4">
+        <div className="pt-4 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <p className="text-[11px] uppercase tracking-[0.26em] font-semibold text-[#38131E]/75">
               Men&apos;s Section · Coming Soon
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
-            {MENS_STOREFRONT_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                to={cat.route}
-                className="group rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/30 hover:border-[#F1D889] p-4 sm:p-6 flex items-end justify-between gap-4 transition-colors"
-              >
-                <div className="space-y-1.5">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#F1D889]">
-                    Men&apos;s Section · Coming Soon
-                  </p>
-                  <h3 className="font-serif text-2xl text-[#F7F1E5] leading-tight">
-                    {cat.label}
-                  </h3>
-                  <p className="text-xs text-[#F7F1E5]/70">{cat.subtitle}</p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
+            {MENS_STOREFRONT_CATEGORIES.map((cat) => {
+              const tileSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
+              return (
+                <Link
+                  key={cat.id}
+                  to={cat.route}
+                  data-reveal="card"
+                  className="group relative aspect-[9/16] w-full overflow-hidden rounded-[2px] bg-[#2B0E17] border border-[#D4AF63]/30 hover:border-[#F1D889] flex items-end transition-colors"
+                >
+                  {tileSrc && (
+                    <img
+                      src={tileSrc}
+                      alt={`${cat.label} coming soon tile`}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-contain opacity-80 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    />
+                  )}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2B0E17]/95 via-[#2B0E17]/50 to-transparent"
+                  />
+                  <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 sm:gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889]">
+                        Men&apos;s Section · Coming Soon
+                      </p>
+                      <h3 className="font-serif text-xl sm:text-2xl text-[#F7F1E5] leading-tight">
+                        {cat.label}
+                      </h3>
+                      <p className="text-xs text-[#F7F1E5]/70 hidden sm:block">
+                        {cat.subtitle}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

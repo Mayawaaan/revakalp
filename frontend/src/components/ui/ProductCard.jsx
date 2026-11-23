@@ -83,7 +83,7 @@ export default function ProductCard({
   return (
     <article data-reveal="card" className="group flex flex-col">
       {/* Architectural Plate Frame */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-[2px] bg-[#EFE6D5] border border-[#38131E]/12 group-hover:border-[#D4AF63] transition-colors duration-500">
+      <div className="relative aspect-[9/16] overflow-hidden rounded-[2px] bg-[#EFE6D5] border border-[#38131E]/12 group-hover:border-[#D4AF63] transition-colors duration-500">
         <Link
           to={`/product/${productId}`}
           aria-label={`View ${name}`}
@@ -92,14 +92,14 @@ export default function ProductCard({
           <ImageWithFallback
             src={primaryImage}
             alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
           />
           {hoverImage && hoverImage !== primaryImage && (
             <ImageWithFallback
               src={hoverImage}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              className="absolute inset-0 w-full h-full object-contain bg-[#EFE6D5] opacity-0 group-hover:opacity-100 transition-opacity duration-700"
             />
           )}
         </Link>

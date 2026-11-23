@@ -65,13 +65,13 @@ export default function PrintedTeesFeature() {
               </div>
             ) : (
               <div className="relative rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/40 p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
-                <div className="w-full sm:w-48 aspect-[4/5] rounded-[2px] overflow-hidden bg-[#F7F1E5] shrink-0 border border-[#D4AF63]/35">
+                <div className="w-full sm:w-48 aspect-[9/16] rounded-[2px] overflow-hidden bg-[#2B0E17] shrink-0 border border-[#D4AF63]/35">
                   <img
-                    src="/campaign/category-printed-tees.png"
+                    src="/category-tiles/printed-t-shirts.png"
                     alt="Illustrative graphic art for Revakalp Printed Tees category"
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="space-y-3 text-left">

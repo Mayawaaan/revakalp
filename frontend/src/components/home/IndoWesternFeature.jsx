@@ -68,13 +68,13 @@ export default function IndoWesternFeature() {
               </div>
             ) : (
               <div className="rounded-[2px] overflow-hidden bg-[#2B0E17] border border-[#D4AF63]/40 p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-[#F7F1E5]">
-                <div className="w-full sm:w-48 aspect-[4/5] rounded-[2px] overflow-hidden bg-[#38131E] shrink-0 border border-[#D4AF63]/35">
+                <div className="w-full sm:w-48 aspect-[9/16] rounded-[2px] overflow-hidden bg-[#38131E] shrink-0 border border-[#D4AF63]/35">
                   <img
-                    src="/campaign/category-lehengas.png"
+                    src="/category-tiles/indo-western.png"
                     alt="Revakalp Indo-Western collection preview"
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover opacity-90"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="space-y-3 text-left">

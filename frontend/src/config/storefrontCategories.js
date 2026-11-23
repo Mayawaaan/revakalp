@@ -12,7 +12,7 @@ export const STOREFRONT_CATEGORIES = [
     route: "/shop/saree",
     allRoute: "/shop/saree/all",
     aliases: ["saree", "sarees"],
-    fallbackArt: "/campaign/category-sarees.png",
+    fallbackArt: "/category-tiles/sarees.png",
     section: "featured",
     emptySection: false,
   },
@@ -23,7 +23,7 @@ export const STOREFRONT_CATEGORIES = [
     route: "/shop/lehenga/all",
     allRoute: "/shop/lehenga/all",
     aliases: ["lehenga", "lehengas", "lengha", "lenghas", "bridal lehenga"],
-    fallbackArt: "/campaign/category-lehengas.png",
+    fallbackArt: "/category-tiles/lehengas.png",
     section: "featured",
     emptySection: false,
   },
@@ -43,7 +43,7 @@ export const STOREFRONT_CATEGORIES = [
       "cape set",
       "co-ord",
     ],
-    fallbackArt: "/campaign/category-lehengas.png",
+    fallbackArt: "/category-tiles/indo-western.png",
     section: "featured",
     emptySection: false,
   },
@@ -63,7 +63,7 @@ export const STOREFRONT_CATEGORIES = [
       "tshirt",
       "t-shirts",
     ],
-    fallbackArt: "/campaign/category-printed-tees.png",
+    fallbackArt: "/category-tiles/printed-t-shirts.png",
     section: "featured",
     emptySection: false,
   },
@@ -74,7 +74,7 @@ export const STOREFRONT_CATEGORIES = [
     route: "/shop/suit/all",
     allRoute: "/shop/suit/all",
     aliases: ["suit", "suits", "mens suit", "men suit"],
-    fallbackArt: "",
+    fallbackArt: "/category-tiles/suits.png",
     section: "men",
     emptySection: true,
   },
@@ -85,7 +85,7 @@ export const STOREFRONT_CATEGORIES = [
     route: "/shop/kurta/all",
     allRoute: "/shop/kurta/all",
     aliases: ["kurta", "kurtas", "kurta pajama", "kurta-pajama"],
-    fallbackArt: "",
+    fallbackArt: "/category-tiles/kurta-pajamas.png",
     section: "men",
     emptySection: true,
   },
@@ -96,7 +96,7 @@ export const STOREFRONT_CATEGORIES = [
     route: "/shop/jodhpuri/all",
     allRoute: "/shop/jodhpuri/all",
     aliases: ["jodhpuri", "bandhgala"],
-    fallbackArt: "",
+    fallbackArt: "/category-tiles/suits.png",
     section: "men",
     emptySection: true,
   },
@@ -309,4 +309,53 @@ export const getEffectivePrice = (product) => {
     return Math.round(price - (price * discount) / 100);
   }
   return price;
+};
+
+const CATEGORY_TILE_MAP = {
+  saree: "/category-tiles/sarees.png",
+  sarees: "/category-tiles/sarees.png",
+  lehenga: "/category-tiles/lehengas.png",
+  lehengas: "/category-tiles/lehengas.png",
+  "indo-western": "/category-tiles/indo-western.png",
+  indowestern: "/category-tiles/indo-western.png",
+  "printed-tees": "/category-tiles/printed-t-shirts.png",
+  "printed-t-shirts": "/category-tiles/printed-t-shirts.png",
+  "printed-tee": "/category-tiles/printed-t-shirts.png",
+  tee: "/category-tiles/printed-t-shirts.png",
+  tees: "/category-tiles/printed-t-shirts.png",
+  tshirt: "/category-tiles/printed-t-shirts.png",
+  "t-shirt": "/category-tiles/printed-t-shirts.png",
+  "t-shirts": "/category-tiles/printed-t-shirts.png",
+  suit: "/category-tiles/suits.png",
+  suits: "/category-tiles/suits.png",
+  kurta: "/category-tiles/kurta-pajamas.png",
+  kurtas: "/category-tiles/kurta-pajamas.png",
+  "kurta-pajama": "/category-tiles/kurta-pajamas.png",
+  "kurta-pajamas": "/category-tiles/kurta-pajamas.png",
+  jodhpuri: "/category-tiles/suits.png",
+  jewelry: "/category-tiles/jewelry.png",
+  jewellery: "/category-tiles/jewelry.png",
+};
+
+export const getCategoryTileArt = (idOrName = "", fallback = "") => {
+  const slug = normalizeSlug(idOrName);
+  if (CATEGORY_TILE_MAP[slug]) return CATEGORY_TILE_MAP[slug];
+  for (const [key, art] of Object.entries(CATEGORY_TILE_MAP)) {
+    if (slug.includes(key)) return art;
+  }
+  return fallback || "/category-tiles/sarees.png";
+};
+
+export const getSareeTypeTileArt = (slugOrName = "", fallback = "") => {
+  const slug = normalizeSlug(slugOrName);
+  if (!slug || slug === "all" || slug.includes("all-saree")) {
+    return "/saree-tiles/all-sarees.png";
+  }
+  if (slug.includes("banarasi")) {
+    return "/saree-tiles/banarasi-sarees.png";
+  }
+  if (slug.includes("pashmina")) {
+    return "/saree-tiles/pashmina-sarees.png";
+  }
+  return fallback || "/saree-tiles/all-sarees.png";
 };

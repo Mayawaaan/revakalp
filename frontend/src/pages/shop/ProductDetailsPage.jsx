@@ -440,7 +440,7 @@ const ProductDetailsPage = () => {
                 }}
                 onMouseLeave={() => setZoomOrigin((prev) => ({ ...prev, active: false }))}
                 onClick={() => setLightboxOpen(true)}
-                className="relative aspect-[3/4] w-full overflow-hidden cursor-zoom-in bg-[#F7F1E5]/40"
+                className="relative aspect-[9/16] w-full overflow-hidden cursor-zoom-in bg-[#F7F1E5]/40"
               >
                 {activeImage && (
                   <img
@@ -449,7 +449,7 @@ const ProductDetailsPage = () => {
                     style={{
                       transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                     }}
-                    className={`w-full h-full object-cover transition-transform duration-300 ${
+                    className={`w-full h-full object-contain transition-transform duration-300 ${
                       zoomOrigin.active ? "md:scale-150" : "scale-100"
                     }`}
                   />
