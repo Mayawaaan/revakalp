@@ -33,10 +33,13 @@ const refreshAccessToken = async () => {
 export const apiFetch = async (endpoint, options = {}, _isRetry = false) => {
   const token = getToken();
 
+  const hasJsonBody =
+    options.body !== undefined &&
+    options.body !== null &&
+    !(options.body instanceof FormData);
+
   const headers = {
-    ...(options.body instanceof FormData
-      ? {}
-      : { "Content-Type": "application/json" }),
+    ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
 
     ...(token && token !== "undefined"
       ? { Authorization: `Bearer ${token}` }

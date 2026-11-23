@@ -53,9 +53,39 @@ export function timingSafeEqualHex(a, b) {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
-export function parseAllowedOrigins(raw) {
-  return String(raw || "")
-    .split(",")
-    .map((origin) => origin.trim())
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://revakalp.vercel.app",
+  "https://revakalp.com",
+  "https://www.revakalp.com",
+  "http://localhost:5173",
+  "https://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+
+const VERCEL_PREVIEW_RE = /^https:\/\/revakalp(?:-[a-z0-9-]+)?\.vercel\.app$/i;
+
+export function normalizeOrigin(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "")
+    .replace(/\/+$/, "");
+}
+
+export function parseAllowedOrigins(...rawSources) {
+  const combined = [
+    ...DEFAULT_ALLOWED_ORIGINS,
+    ...rawSources.flatMap((raw) => String(raw || "").split(",")),
+  ]
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
+
+  return Array.from(new Set(combined));
+}
+
+export function isAllowedOrigin(origin, allowedOrigins = []) {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) return false;
+  if (allowedOrigins.includes(normalized)) return true;
+  if (VERCEL_PREVIEW_RE.test(normalized)) return true;
+  return false;
 }

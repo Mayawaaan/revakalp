@@ -7,7 +7,7 @@ import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import xssLib from "xss-clean/lib/xss.js";
 import { connectDB } from "./src/lib/db.js";
-import { parseAllowedOrigins } from "./src/lib/security.js";
+import { isAllowedOrigin, parseAllowedOrigins } from "./src/lib/security.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import collectionRoutes from "./src/routes/collection.routes.js";
 import cartRoutes from "./src/routes/cart.routes.js";
@@ -47,31 +47,39 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-const allowedOrigins = parseAllowedOrigins(process.env.CORS_ORIGIN);
-if (allowedOrigins.length === 0 && process.env.NODE_ENV !== "production") {
-  console.warn("CORS_ORIGIN not set; allowing browser origins in non-production mode.");
-}
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.length === 0 && process.env.NODE_ENV !== "production") {
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      const err = new Error("Origin not allowed by CORS");
-      err.statusCode = 403;
-      return callback(err, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 600,
-  })
+const allowedOrigins = parseAllowedOrigins(
+  process.env.CORS_ORIGIN,
+  process.env.FRONTEND_URL
 );
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (isAllowedOrigin(origin, allowedOrigins)) {
+      return callback(null, true);
+    }
+    if (process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+    const err = new Error("Origin not allowed by CORS");
+    err.statusCode = 403;
+    return callback(err, false);
+  },
+  credentials: true,
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Cache-Control",
+    "Pragma",
+    "Accept",
+    "X-Requested-With",
+  ],
+  optionsSuccessStatus: 204,
+  maxAge: 600,
+};
+
+app.use(cors(corsOptions));
 
 app.use(
   helmet({
