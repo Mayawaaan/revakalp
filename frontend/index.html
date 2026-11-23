@@ -70,10 +70,23 @@
           }
 
           var rawApi = "%VITE_API_URL%";
-          var apiBase =
-            rawApi && rawApi.indexOf("VITE_API_URL") === -1
-              ? rawApi.replace(/\/$/, "")
+          var cleanApi =
+            rawApi &&
+            rawApi.indexOf("VITE_API_URL") === -1 &&
+            rawApi !== "undefined" &&
+            rawApi !== "null"
+              ? rawApi.replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "")
               : "";
+          var isLocalHost =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1";
+          var isLocalApi = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(cleanApi);
+          var apiBase =
+            cleanApi && (!isLocalApi || isLocalHost)
+              ? cleanApi
+              : isLocalHost
+                ? "http://localhost:5000"
+                : "https://revakalp-2461.onrender.com";
           window.__RK_SETTINGS_PROMISE__ = fetch(apiBase + "/api/settings", {
             cache: "no-store",
             credentials: "include"

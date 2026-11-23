@@ -3,6 +3,8 @@
  * Never transmits passwords, addresses, phone numbers, raw search strings, or tokens.
  */
 
+import { API_BASE } from "./apiBase";
+
 const CONSENT_KEY = "revakalp_analytics_consent";
 const CONSENT_META_KEY = "revakalp_consent_meta";
 const CONSENT_VERSION = "2025-dpdpa-v1";
@@ -122,7 +124,7 @@ export function trackEvent(eventName, payload = {}) {
       window.gtag("event", eventName, payload);
     }
 
-    const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+    const baseUrl = API_BASE;
     const numericVal = Number(payload.value ?? payload.price ?? 0);
     const body = {
       eventName,

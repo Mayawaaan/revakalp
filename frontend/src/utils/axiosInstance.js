@@ -1,8 +1,9 @@
 import axios from "axios";
 import { getToken, setToken, clearToken } from "./token";
+import { API_BASE } from "./apiBase";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_BASE,
   withCredentials: true,   // 🍪 send httpOnly refresh cookie automatically
 });
 

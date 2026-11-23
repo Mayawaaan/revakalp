@@ -1,6 +1,5 @@
 import { getToken, setToken, clearToken } from "../utils/token";
-
-const API_BASE = import.meta.env.VITE_API_URL;
+import { API_BASE } from "../utils/apiBase";
 
 /* ─────────────────────────────────────────────
    REFRESH HELPER (singleton promise to avoid double-refresh)

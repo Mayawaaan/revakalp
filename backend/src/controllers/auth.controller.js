@@ -29,17 +29,29 @@ import { sendEmail } from "../lib/sendEmail.js";
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
-const COOKIE_OPTS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
-  maxAge: 4 * 24 * 60 * 60 * 1000,
+const isCrossSiteHttps = (res) =>
+  process.env.NODE_ENV === "production" ||
+  Boolean(process.env.RENDER) ||
+  res?.req?.secure === true ||
+  res?.req?.headers?.["x-forwarded-proto"] === "https";
+
+const getCookieOpts = (res) => {
+  const secure = isCrossSiteHttps(res);
+  return {
+    httpOnly: true,
+    secure,
+    sameSite: secure ? "none" : "lax",
+    maxAge: 4 * 24 * 60 * 60 * 1000,
+  };
 };
 
-const CLEAR_COOKIE_OPTS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+const getClearCookieOpts = (res) => {
+  const secure = isCrossSiteHttps(res);
+  return {
+    httpOnly: true,
+    secure,
+    sameSite: secure ? "none" : "lax",
+  };
 };
 
 const cleanupTempFile = (file) => {
@@ -60,7 +72,7 @@ const issueTokens = async (user, res) => {
   user.refreshTokens = [...(user.refreshTokens || []), hashedRefresh].slice(-5);
   await user.save({ validateBeforeSave: false });
 
-  res.cookie("refreshToken", refreshToken, COOKIE_OPTS);
+  res.cookie("refreshToken", refreshToken, getCookieOpts(res));
 
   return accessToken;
 };
@@ -201,7 +213,7 @@ export const refreshAccessToken = async (req, res) => {
     if (tokenIndex === -1) {
       user.refreshTokens = [];
       await user.save({ validateBeforeSave: false });
-      res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
+      res.clearCookie("refreshToken", getClearCookieOpts(res));
       return res
         .status(401)
         .json({ message: "Refresh token reuse detected. Please log in again." });
@@ -216,7 +228,7 @@ export const refreshAccessToken = async (req, res) => {
     user.refreshTokens = [...user.refreshTokens, hashedNew].slice(-5);
     await user.save({ validateBeforeSave: false });
 
-    res.cookie("refreshToken", newRefreshToken, COOKIE_OPTS);
+    res.cookie("refreshToken", newRefreshToken, getCookieOpts(res));
 
     return res.status(200).json({ token: newAccessToken });
   } catch (error) {
@@ -246,7 +258,7 @@ export const logout = async (req, res) => {
       }
     }
 
-    res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
+    res.clearCookie("refreshToken", getClearCookieOpts(res));
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Logout error:", error.message);
@@ -702,7 +714,7 @@ export const deleteMyAccount = async (req, res) => {
     ]);
 
     await User.findByIdAndDelete(userId);
-    res.clearCookie("refreshToken", CLEAR_COOKIE_OPTS);
+    res.clearCookie("refreshToken", getClearCookieOpts(res));
 
     return res.status(200).json({
       success: true,
