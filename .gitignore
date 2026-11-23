@@ -27,6 +27,7 @@ dist-ssr
 .env.local
 .env.development.local
 .env.test.local
+.env.prod
 
 # Archives & brand kit source
 *.zip
