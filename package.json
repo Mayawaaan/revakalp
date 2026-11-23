@@ -4,7 +4,9 @@
   "description": "",
   "main": "backend/server.js",
   "scripts": {
-    "dev": "node -e \"import('child_process').then(({spawn})=>{const cmd=process.env.RENDER||process.env.NODE_ENV==='production'?'node backend/server.js':'npx concurrently \\\"nodemon backend/server.js\\\" \\\"npm run dev --prefix frontend\\\" \\\"cd ml && venv\\\\Scripts\\\\uvicorn.exe main:app\\\"';const c=spawn(cmd,{stdio:'inherit',shell:true});c.on('exit',code=>process.exit(code??0));})\"",
+    "dev": "node -e \"if(process.env.RENDER||process.env.NODE_ENV==='production'){import('./backend/server.js')}else{import('child_process').then(({spawn})=>{const c=spawn('npm',['run','dev:local'],{stdio:'inherit',shell:true});c.on('exit',code=>process.exit(code??0));})}\"",
+    "dev:local": "concurrently \"nodemon backend/server.js\" \"npm run dev --prefix frontend\" \"cd ml && venv\\Scripts\\uvicorn.exe main:app\"",
+    "dev:web": "concurrently \"nodemon backend/server.js\" \"npm run dev --prefix frontend\"",
     "build": "npm install --prefix frontend && npm run build --prefix frontend",
     "start": "node backend/server.js"
   },
