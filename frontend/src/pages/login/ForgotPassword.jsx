@@ -13,14 +13,29 @@ const ForgotPassword = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      showToast("Please enter your email address", "error");
+      return;
+    }
     setSubmitting(true);
     try {
-      const response = await axios.post("/api/auth/forgot-password", { email });
-      showToast(response.data.message, "success");
-      localStorage.setItem("resetEmail", email);
-      navigate("/reset-password");
+      const response = await axios.post("/api/auth/forgot-password", {
+        email: normalizedEmail,
+      });
+      showToast(
+        response.data?.message || "Verification OTP sent to your email",
+        "success"
+      );
+      localStorage.setItem("resetEmail", normalizedEmail);
+      navigate("/reset-password", { state: { email: normalizedEmail } });
     } catch (error) {
-      showToast(error.response?.data?.message || "Failed to send OTP", "error");
+      const errData = error.response?.data;
+      const errMsg =
+        typeof errData === "string"
+          ? errData
+          : errData?.message || "Failed to send OTP. Please try again.";
+      showToast(errMsg, "error");
     } finally {
       setSubmitting(false);
     }

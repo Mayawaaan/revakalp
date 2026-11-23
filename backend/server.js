@@ -124,7 +124,7 @@ const apiLimiter = rateLimit({
   max: 400,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: { message: "Too many requests from this IP, please try again after 15 minutes" },
 });
 
 const authLimiter = rateLimit({
@@ -132,7 +132,7 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many authentication attempts, please try again shortly",
+  message: { message: "Too many authentication attempts, please try again shortly" },
 });
 
 const paymentLimiter = rateLimit({
@@ -140,7 +140,7 @@ const paymentLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many payment attempts, please wait a few minutes before retrying",
+  message: { message: "Too many payment attempts, please wait a few minutes before retrying" },
 });
 
 const couponLimiter = rateLimit({
@@ -148,7 +148,7 @@ const couponLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many coupon checks, please try again shortly",
+  message: { message: "Too many coupon checks, please try again shortly" },
 });
 
 const grievanceLimiter = rateLimit({
@@ -156,7 +156,7 @@ const grievanceLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many grievance submissions from this IP, please wait an hour",
+  message: { message: "Too many grievance submissions from this IP, please wait an hour" },
 });
 
 const mlLimiter = rateLimit({
@@ -164,7 +164,7 @@ const mlLimiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many ML analysis requests, please try again shortly",
+  message: { message: "Too many ML analysis requests, please try again shortly" },
 });
 
 app.use("/api", apiLimiter);
