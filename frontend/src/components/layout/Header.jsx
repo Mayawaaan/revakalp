@@ -124,36 +124,36 @@ export default function Header({ tone }) {
         }`}
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-[72px] flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-6 xl:px-8 h-14 sm:h-[72px] flex items-center justify-between gap-2 lg:gap-4">
           {/* Official Brand Logo */}
           <Link
             to="/"
             aria-label="REVAKALP Home"
-            className="flex items-center min-w-0 shrink py-1"
+            className="flex items-center shrink-0 py-1"
           >
             <BrandMark
               variant={isDark ? "headerDark" : "headerLight"}
-              className="h-5 min-[380px]:h-6 sm:h-7 md:h-8 w-auto max-w-[128px] min-[380px]:max-w-[155px] sm:max-w-[210px]"
+              className="h-5 sm:h-6 xl:h-7 w-auto shrink-0"
             />
           </Link>
 
           {/* Desktop Navigation */}
           <nav
             aria-label="Primary storefront navigation"
-            className="hidden lg:flex items-center gap-5 xl:gap-7 text-[11px] tracking-[0.2em] uppercase font-medium"
+            className="hidden lg:flex items-center justify-center gap-2.5 xl:gap-5 2xl:gap-6 text-[10px] xl:text-[11px] tracking-[0.1em] xl:tracking-[0.15em] uppercase font-medium"
           >
             <div className="relative" onMouseEnter={() => setActiveMegaMenu("sarees")}>
               <Link
                 to="/shop/saree"
                 onFocus={() => setActiveMegaMenu("sarees")}
-                className={`inline-flex items-center gap-1 py-2 border-b transition-colors whitespace-nowrap ${
+                className={`inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b transition-colors whitespace-nowrap ${
                   location.pathname.startsWith("/shop/saree")
                     ? "border-[#D4AF63]"
                     : "border-transparent hover:border-[#D4AF63]/60"
                 } ${navTextCls}`}
               >
                 <span>Sarees</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                <ChevronDown className="w-3 h-3 xl:w-3.5 xl:h-3.5 opacity-70 shrink-0" />
               </Link>
             </div>
 
@@ -187,10 +187,10 @@ export default function Header({ tone }) {
                   setActiveMegaMenu((prev) => (prev === "men" ? null : "men"))
                 }
                 onFocus={() => setActiveMegaMenu("men")}
-                className={`inline-flex items-center gap-1 py-2 border-b border-transparent hover:border-[#D4AF63]/60 transition-colors uppercase tracking-[0.2em] whitespace-nowrap cursor-pointer ${navTextCls}`}
+                className={`inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b border-transparent hover:border-[#D4AF63]/60 transition-colors uppercase tracking-[0.1em] xl:tracking-[0.15em] whitespace-nowrap cursor-pointer ${navTextCls}`}
               >
                 <span>Men</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                <ChevronDown className="w-3 h-3 xl:w-3.5 xl:h-3.5 opacity-70 shrink-0" />
               </button>
             </div>
 
@@ -210,7 +210,7 @@ export default function Header({ tone }) {
                 to="/heritage"
                 onFocus={() => setActiveMegaMenu("heritage")}
                 className={({ isActive }) =>
-                  `inline-flex items-center gap-1 py-2 border-b transition-colors whitespace-nowrap ${
+                  `inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b transition-colors whitespace-nowrap ${
                     isActive || location.pathname.startsWith("/heritage")
                       ? "border-[#D4AF63] text-[#F1D889]"
                       : "border-transparent hover:border-[#D4AF63]/60"
@@ -218,7 +218,7 @@ export default function Header({ tone }) {
                 }
               >
                 <span>Heritage</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                <ChevronDown className="w-3 h-3 xl:w-3.5 xl:h-3.5 opacity-70 shrink-0" />
               </NavLink>
             </div>
 
@@ -228,13 +228,13 @@ export default function Header({ tone }) {
                 end
                 onFocus={() => setActiveMegaMenu("collections")}
                 className={({ isActive }) =>
-                  `inline-flex items-center gap-1 py-2 border-b transition-colors whitespace-nowrap ${
+                  `inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b transition-colors whitespace-nowrap ${
                     isActive ? "border-[#D4AF63]" : "border-transparent hover:border-[#D4AF63]/60"
                   } ${navTextCls}`
                 }
               >
                 <span>Collections</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                <ChevronDown className="w-3 h-3 xl:w-3.5 xl:h-3.5 opacity-70 shrink-0" />
               </NavLink>
             </div>
 
@@ -251,7 +251,7 @@ export default function Header({ tone }) {
           </nav>
 
           {/* Right Action Controls */}
-          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 xl:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setShowSearch(true)}
@@ -368,7 +368,7 @@ export default function Header({ tone }) {
               ) : (
                 <Link
                   to="/login"
-                  className={`inline-flex items-center justify-center min-h-[40px] px-5 py-2 rounded-[2px] text-[11px] uppercase tracking-[0.18em] font-medium border transition-colors ${
+                  className={`inline-flex items-center justify-center min-h-[38px] xl:min-h-[40px] px-3.5 xl:px-5 py-2 rounded-[2px] text-[10.5px] xl:text-[11px] uppercase tracking-[0.16em] xl:tracking-[0.18em] font-medium border transition-colors ${
                     isDark
                       ? "bg-[#D4AF63] text-[#2B0E17] border-[#D4AF63] hover:bg-[#F1D889]"
                       : "bg-[#38131E] text-[#F7F1E5] border-[#38131E] hover:bg-[#2B0E17] hover:border-[#D4AF63]"

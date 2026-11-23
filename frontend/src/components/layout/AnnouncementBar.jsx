@@ -8,7 +8,7 @@ export default function AnnouncementBar() {
       role="region"
       aria-label="Store notice"
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 min-h-8 py-1 flex items-center justify-center sm:justify-between text-[9.5px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.24em] uppercase">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 xl:px-8 min-h-8 py-1 flex items-center justify-center sm:justify-between text-[9.5px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.24em] uppercase">
         <p className="text-center text-[#F7F1E5]/90 font-medium truncate">
           Weaving Life Into Time <span className="text-[#D4AF63] mx-2">·</span> Indore
         </p>

@@ -32,7 +32,7 @@ export default function BrandMark({
       aria-hidden={decorative ? true : undefined}
       loading="eager"
       decoding="async"
-      className={`block max-w-full object-contain select-none ${className}`.trim()}
+      className={`block object-contain select-none ${className}`.trim()}
       {...props}
     />
   );
