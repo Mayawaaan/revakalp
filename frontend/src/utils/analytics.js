@@ -1,11 +1,12 @@
 /**
  * Revakalp Consent-Aware Storefront Analytics Dictionary (DPDPA 2023 Opt-In)
- * Never transmits passwords, addresses, phone numbers, or tokens.
+ * Never transmits passwords, addresses, phone numbers, raw search strings, or tokens.
  */
 
 const CONSENT_KEY = "revakalp_analytics_consent";
 const CONSENT_META_KEY = "revakalp_consent_meta";
 const CONSENT_VERSION = "2025-dpdpa-v1";
+const SESSION_KEY = "rk_anon_sid";
 
 const ALLOWED_EVENTS = new Set([
   "view_item_list",
@@ -24,6 +25,28 @@ const ALLOWED_EVENTS = new Set([
   "shop_sale_recorded",
   "lead_contact_started",
 ]);
+
+function getAnonymousSessionId() {
+  if (typeof window === "undefined") return "";
+  try {
+    let sid = window.sessionStorage?.getItem(SESSION_KEY);
+    if (!sid) {
+      let rand = "";
+      if (window.crypto?.getRandomValues) {
+        const bytes = new Uint8Array(8);
+        window.crypto.getRandomValues(bytes);
+        rand = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+      } else {
+        rand = `${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+      }
+      sid = `rk_${rand}`.slice(0, 48);
+      window.sessionStorage?.setItem(SESSION_KEY, sid);
+    }
+    return sid;
+  } catch {
+    return "";
+  }
+}
 
 export function getConsentState() {
   if (typeof window === "undefined") return null;
@@ -97,6 +120,28 @@ export function trackEvent(eventName, payload = {}) {
     window.dataLayer.push(eventRecord);
     if (typeof window.gtag === "function") {
       window.gtag("event", eventName, payload);
+    }
+
+    const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+    const numericVal = Number(payload.value ?? payload.price ?? 0);
+    const body = {
+      eventName,
+      sessionId: getAnonymousSessionId(),
+      itemId: String(payload.itemId || payload.productId || "").slice(0, 64),
+      category: String(payload.category || payload.subCategory || "").slice(0, 64),
+      value: Number.isFinite(numericVal) && numericVal >= 0 ? numericVal : 0,
+      channel: "web",
+    };
+
+    try {
+      fetch(`${baseUrl}/api/analytics/event`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {
+      // Non-blocking telemetry failure must never disrupt shopping
     }
   }
 }

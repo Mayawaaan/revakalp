@@ -9,13 +9,20 @@ import useStore from "../../store/store";
 
 /* ─── Constants ──────────────────────────────────────────── */
 const STATUS_OPTIONS = [
-  "Processing", "Confirmed", "Preparing",
-  "Shipped", "Out for Delivery", "Delivered",
-  "Cancelled", "Returned",
+  "PendingPayment",
+  "Processing",
+  "Confirmed",
+  "Preparing",
+  "Shipped",
+  "Out for Delivery",
+  "Delivered",
+  "Cancelled",
+  "Returned",
 ];
 
 const statusStyle = (status) => {
   const map = {
+    "PendingPayment":  { badge: "bg-stone-100 text-stone-700 border-stone-300",     icon: Clock,         dot: "bg-stone-400"  },
     "Processing":      { badge: "bg-yellow-50 text-yellow-700 border-yellow-200",  icon: Clock,         dot: "bg-yellow-400" },
     "Confirmed":       { badge: "bg-blue-50 text-blue-700 border-blue-200",         icon: CheckCircle2,  dot: "bg-blue-400"   },
     "Preparing":       { badge: "bg-orange-50 text-orange-700 border-orange-200",   icon: Package,       dot: "bg-orange-400" },
@@ -29,10 +36,48 @@ const statusStyle = (status) => {
 };
 
 /* ─── Order Detail Drawer ─────────────────────────────────── */
-const OrderDrawer = ({ order, loading, onClose, onStatusChange, updatingId }) => {
+const OrderDrawer = ({
+  order,
+  loading,
+  onClose,
+  onStatusChange,
+  onReturnDecision,
+  updatingId,
+}) => {
+  const [carrier, setCarrier] = useState(order?.carrier || "");
+  const [trackingNumber, setTrackingNumber] = useState(order?.trackingNumber || "");
+  const [statusNote, setStatusNote] = useState("");
+  const [returnReason, setReturnReason] = useState("");
+  const [processingReturn, setProcessingReturn] = useState(false);
+
+  useEffect(() => {
+    setCarrier(order?.carrier || "");
+    setTrackingNumber(order?.trackingNumber || "");
+    setStatusNote("");
+    setReturnReason("");
+  }, [order?._id, order?.carrier, order?.trackingNumber]);
+
   if (!order) return null;
   const style = statusStyle(order.status);
   const StatusIcon = style.icon;
+
+  const handleSaveTracking = (e) => {
+    e.preventDefault();
+    onStatusChange(order._id, order.status, {
+      carrier: carrier.trim(),
+      trackingNumber: trackingNumber.trim(),
+      note: statusNote.trim() || undefined,
+    });
+  };
+
+  const handleReturnClick = async (decision) => {
+    setProcessingReturn(true);
+    try {
+      await onReturnDecision(order._id, decision, returnReason.trim());
+    } finally {
+      setProcessingReturn(false);
+    }
+  };
 
   return (
     <>
@@ -231,22 +276,101 @@ const OrderDrawer = ({ order, loading, onClose, onStatusChange, updatingId }) =>
             </div>
           )}
 
-          {/* Tracking info */}
-          {(order.trackingNumber || order.carrier) && (
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-wider text-[#7A6A6E] font-semibold">Tracking</p>
-              <div className="bg-white border border-[#38131E]/15 rounded-2xl p-4 text-sm space-y-1">
-                {order.carrier && <p className="text-[#1A1718]"><span className="text-[#7A6A6E]">Carrier: </span>{order.carrier}</p>}
-                {order.trackingNumber && <p className="text-[#1A1718] font-mono"><span className="text-[#7A6A6E]">Tracking #: </span>{order.trackingNumber}</p>}
-                {order.estimatedDelivery && (
-                  <p className="text-[#1A1718]">
-                    <span className="text-[#7A6A6E]">ETA: </span>
-                    {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { dateStyle: "long" })}
+          {/* Tracking info + Admin Editor */}
+          <form onSubmit={handleSaveTracking} className="space-y-2">
+            <p className="text-xs uppercase tracking-wider text-[#7A6A6E] font-semibold">
+              Shipping &amp; Tracking
+            </p>
+            <div className="bg-white border border-[#38131E]/15 rounded-2xl p-4 text-sm space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  value={carrier}
+                  onChange={(e) => setCarrier(e.target.value)}
+                  placeholder="Carrier (e.g. Delhivery, BlueDart)"
+                  className="border border-[#38131E]/20 rounded-xl px-3 py-2 text-xs text-[#1A1718] bg-white"
+                />
+                <input
+                  value={trackingNumber}
+                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  placeholder="AWB / Tracking Number"
+                  className="border border-[#38131E]/20 rounded-xl px-3 py-2 text-xs font-mono text-[#1A1718] bg-white"
+                />
+              </div>
+              <input
+                value={statusNote}
+                onChange={(e) => setStatusNote(e.target.value)}
+                placeholder="Optional timeline note for customer"
+                className="w-full border border-[#38131E]/20 rounded-xl px-3 py-2 text-xs text-[#1A1718] bg-white"
+              />
+              <div className="flex items-center justify-between gap-2">
+                {order.estimatedDelivery ? (
+                  <p className="text-xs text-[#7A6A6E]">
+                    ETA:{" "}
+                    {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", {
+                      dateStyle: "medium",
+                    })}
                   </p>
+                ) : (
+                  <span />
                 )}
+                <button
+                  type="submit"
+                  disabled={updatingId === order._id}
+                  className="px-4 py-1.5 rounded-full bg-[#38131E] text-[#F7F1E5] text-xs font-medium hover:bg-[#2B0E17] cursor-pointer disabled:opacity-50"
+                >
+                  Save Tracking
+                </button>
               </div>
             </div>
-          )}
+          </form>
+
+          {/* Return Inspection Controls */}
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-wider text-[#7A6A6E] font-semibold">
+              Return Inspection Decision
+            </p>
+            <div className="bg-white border border-[#38131E]/15 rounded-2xl p-4 space-y-3 text-xs">
+              {order.returnRequest?.inspectionStatus && (
+                <p className="text-[#38131E] font-medium">
+                  Current inspection:{" "}
+                  <span className="font-mono">{order.returnRequest.inspectionStatus}</span>
+                  {order.returnRequest.restocked ? " (Restocked)" : ""}
+                </p>
+              )}
+              <input
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+                placeholder="Inspection note / reason"
+                className="w-full border border-[#38131E]/20 rounded-xl px-3 py-2 text-xs text-[#1A1718] bg-white"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={processingReturn}
+                  onClick={() => handleReturnClick("approved_restock")}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  Approve &amp; Restock
+                </button>
+                <button
+                  type="button"
+                  disabled={processingReturn}
+                  onClick={() => handleReturnClick("approved_damaged")}
+                  className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  Approve (Damaged)
+                </button>
+                <button
+                  type="button"
+                  disabled={processingReturn}
+                  onClick={() => handleReturnClick("rejected")}
+                  className="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-200 font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  Reject Return
+                </button>
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
@@ -281,25 +405,42 @@ const ViewOrders = () => {
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  const handleStatusChange = async (orderId, status) => {
+  const handleStatusChange = async (orderId, status, extra = {}) => {
     setUpdatingId(orderId);
     // Optimistic update on list
-    setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, status } : o));
+    setOrders((prev) => prev.map((o) => (o._id === orderId ? { ...o, status, ...extra } : o)));
     // Also update in drawer if open
     if (selectedOrder?._id === orderId) {
-      setSelectedOrder((prev) => prev ? { ...prev, status } : prev);
+      setSelectedOrder((prev) => (prev ? { ...prev, status, ...extra } : prev));
     }
     try {
-      const res = await axios.put(`/api/admin/orders/${orderId}/status`, { status });
+      const res = await axios.put(`/api/admin/orders/${orderId}/status`, {
+        status,
+        ...extra,
+      });
       // Replace with server response (includes updated statusHistory)
-      setOrders((prev) => prev.map((o) => o._id === orderId ? res.data : o));
+      setOrders((prev) => prev.map((o) => (o._id === orderId ? res.data : o)));
       if (selectedOrder?._id === orderId) setSelectedOrder(res.data);
-      showToast("Order status updated", "success");
-    } catch {
-      showToast("Failed to update order status", "error");
+      showToast("Order updated", "success");
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Failed to update order status", "error");
       fetchOrders();
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleReturnDecision = async (orderId, decision, reason) => {
+    try {
+      const res = await axios.post(`/api/admin/orders/${orderId}/return-decision`, {
+        decision,
+        reason,
+      });
+      setOrders((prev) => prev.map((o) => (o._id === orderId ? res.data : o)));
+      if (selectedOrder?._id === orderId) setSelectedOrder(res.data);
+      showToast("Return decision recorded", "success");
+    } catch (err) {
+      showToast(err?.response?.data?.message || "Failed to process return decision", "error");
     }
   };
 
@@ -615,6 +756,7 @@ const ViewOrders = () => {
           loading={drawerLoading}
           onClose={() => setSelectedOrder(null)}
           onStatusChange={handleStatusChange}
+          onReturnDecision={handleReturnDecision}
           updatingId={updatingId}
         />
       )}

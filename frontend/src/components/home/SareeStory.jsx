@@ -17,7 +17,7 @@ export default function SareeStory() {
     (p) => Number(p?.stock) > 0 && matchesCategory(p, "saree")
   );
   const featuredImg =
-    sareeProducts.length > 0 ? getProductImage(sareeProducts[0]) : "/campaign/category-sarees.png";
+    sareeProducts.length > 0 ? getProductImage(sareeProducts[0]) : "/category-tiles/sarees.png";
   const isIllustrative = sareeProducts.length === 0;
 
   return (

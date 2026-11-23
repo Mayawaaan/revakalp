@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { X, ChevronDown, Heart, ShoppingBag, Search, User as UserIcon, LogOut, Shield } from "lucide-react";
 import BrandMark from "../brand/BrandMark";
-import { HERITAGE_TRADITIONS } from "../../data/heritageTraditions";
+import { FEATURED_HERITAGE_TRADITIONS } from "../../data/heritageTraditions";
+import { isRedundantAllEntry } from "../../config/storefrontCategories";
 
 export default function MobileNav({
   open,
@@ -17,6 +18,9 @@ export default function MobileNav({
 }) {
   const closeBtnRef = useRef(null);
   const [expanded, setExpanded] = useState(null);
+  const visibleSareeTypes = (sareeTypes || []).filter(
+    (t) => !isRedundantAllEntry(t, "saree")
+  );
 
   useEffect(() => {
     if (!open) return undefined;
@@ -127,9 +131,9 @@ export default function MobileNav({
                     onClick={() => onNavigate("/heritage")}
                     className="w-full min-h-[40px] text-left px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#38131E] font-semibold bg-[#EFE6D5] rounded-[2px]"
                   >
-                    Explore All Traditions
+                    Explore All 29 States
                   </button>
-                  {HERITAGE_TRADITIONS.map((trad) => (
+                  {FEATURED_HERITAGE_TRADITIONS.map((trad) => (
                     <button
                       key={trad.slug}
                       type="button"
@@ -172,7 +176,7 @@ export default function MobileNav({
                   >
                     Saree Categories
                   </button>
-                  {sareeTypes.slice(0, 6).map((t) => (
+                  {visibleSareeTypes.slice(0, 6).map((t) => (
                     <button
                       key={t.slug || t._id}
                       type="button"

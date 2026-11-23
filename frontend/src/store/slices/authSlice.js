@@ -2,7 +2,7 @@ import { setToken, clearToken, getToken } from "../../utils/token";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
-export const createAuthSlice = (set, get) => ({
+export const createAuthSlice = (set) => ({
   user: null,
   token: getToken(),
   authReady: false,
@@ -102,7 +102,7 @@ export const createAuthSlice = (set, get) => ({
         set({ user: null, token: null, authReady: true });
       }
 
-    } catch (error) {
+    } catch {
       clearToken();
       set({ user: null, token: null, authReady: true });
     }

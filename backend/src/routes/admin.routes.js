@@ -4,14 +4,22 @@ import { protectAdminRoute } from "../middlewares/admin.middleware.js";
 import { getAllUsers, updateUserRole, deleteUser } from "../controllers/adminControllers/admin.user.controller.js";
 import { createCollection, updateCollection, deleteCollection, getAllCollectionsAdmin } from "../controllers/adminControllers/admin.collection.controller.js";
 import { createType, updateType, deleteType, getAllTypes } from "../controllers/adminControllers/admin.type.controller.js";
-import { getAnalytics, getRevenueAnalytics, getOrdersByStatus, getUsersAnalytics, getProductsByCategory, getSentimentAnalytics } from "../controllers/adminControllers/admin.analytics.controller.js";
+import {
+  getAnalytics,
+  getRevenueAnalytics,
+  getOrdersByStatus,
+  getUsersAnalytics,
+  getProductsByCategory,
+  getSentimentAnalytics,
+  getDeepAnalytics,
+} from "../controllers/adminControllers/admin.analytics.controller.js";
 import { getSettings, updateSettings } from "../controllers/adminControllers/admin.settings.controller.js";
 import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin, getAdminProductById, deleteAllProducts } from "../controllers/adminControllers/admin.product.controller.js";
 import { getAllOrders, getOrderById, updateOrderStatus, recordReturnDecision } from "../controllers/adminControllers/admin.order.controller.js";
 import { createCoupon, updateCoupon, deleteCoupon, getAllCoupons } from "../controllers/adminControllers/admin.coupon.controller.js";
 import { getInventorySnapshot, recordPosSale, adjustStock, uploadAdminMedia } from "../controllers/adminControllers/admin.inventory.controller.js";
 import { getAllCampaignsAdmin, createCampaign, updateCampaign, deleteCampaign } from "../controllers/adminControllers/admin.cms.controller.js";
-import { adminGetGrievances } from "../controllers/compliance.controller.js";
+import { adminGetGrievances, adminUpdateGrievance } from "../controllers/compliance.controller.js";
 import upload from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
@@ -39,6 +47,7 @@ router.get("/types", protectRoute, protectAdminRoute, getAllTypes);
 
 // Admin analytics routes
 router.get("/analytics", protectRoute, protectAdminRoute, getAnalytics);
+router.get("/analytics/deep", protectRoute, protectAdminRoute, getDeepAnalytics);
 router.get("/analytics/revenue", protectRoute, protectAdminRoute, getRevenueAnalytics);
 router.get("/analytics/orders-by-status", protectRoute, protectAdminRoute, getOrdersByStatus);
 router.get("/analytics/users", protectRoute, protectAdminRoute, getUsersAnalytics);
@@ -85,5 +94,6 @@ router.delete("/coupons/:id", protectRoute, protectAdminRoute, deleteCoupon);
 
 // Admin grievance & compliance log
 router.get("/grievances", protectRoute, protectAdminRoute, adminGetGrievances);
+router.put("/grievances/:id", protectRoute, protectAdminRoute, adminUpdateGrievance);
 
 export default router;

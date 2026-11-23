@@ -1,0 +1,30 @@
+# REVAKALP
+
+> Revakalp is an Indian ethnic and contemporary clothing boutique founded in 2014 in Indore, Madhya Pradesh, offering curated regional handloom sarees, bridal lehengas, Indo-Western outfits, and everyday printed tees online and in-store.
+
+## Brand & Boutique Facts
+- Legal Trade Name: Revakalp (Founder: Anjali Katare)
+- Location: 231-231, Shop No. 2, Dhanwantri Nagar, Rajendra Nagar, Indore, Madhya Pradesh 452012, India
+- Hours: Monday to Saturday, 10:30 AM – 8:30 PM IST
+- Contact: contact@revakalp.com | +91 91096-76562
+- Fulfillment: Pan-India shipping (dispatched within 3–5 business days) and Indore retail store fulfillment
+
+## Shop Collections
+- [All Collections](https://revakalp.com/shop): Curated ethnic and contemporary edits available in store and online.
+- [Sarees Overview](https://revakalp.com/shop/saree): Browse regional weaves including Maheshwari, Chanderi, Banarasi, Kanjivaram, Paithani, and Pashmina.
+- [All Sarees Catalog](https://revakalp.com/shop/saree/all): Complete in-stock saree selection.
+- [Lehengas](https://revakalp.com/shop/lehenga/all): Bridal and celebration lehengas.
+- [Indo-Western](https://revakalp.com/shop/indo-western/all): Fusion silhouettes, drape skirts, and structured festive sets.
+- [Printed Tees](https://revakalp.com/shop/printed-tees/all): Relaxed cotton graphic tees for everyday wear.
+
+## Indian Textile Atlas (29 State Saree Dossiers)
+- [29-State Heritage Atlas & 3D Weave Explorer](https://revakalp.com/heritage): Official Survey of India map paired with detailed state weaving histories and real-time 3D cloth drape studies.
+- [Extended Catalog & Full 29-State Manifest](https://revakalp.com/llms-full.txt): Full markdown summary of all regional weave dossiers and store policies.
+
+## Customer Care & Statutory Policies
+- [Frequently Asked Questions](https://revakalp.com/faq): Authenticity, weave specifics, delivery timelines, sizing, and COD availability.
+- [Delivery & Shipping](https://revakalp.com/delivery-information): Dispatch SLAs, Indore store pickup/waivers, and live order tracking.
+- [Returns & Exchanges](https://revakalp.com/returns-exchanges): 7-day return/exchange window for unworn garments with original tags and unboxing verification.
+- [About Revakalp](https://revakalp.com/about): Store story since 2014 and handpicked quality inspection process.
+- [Contact Us](https://revakalp.com/contact): Direct store address, WhatsApp/phone, and inquiry channel.
+- [Grievance Redressal](https://revakalp.com/grievance-redressal): Statutory Consumer Protection (E-Commerce) Rules, 2020 grievance redressal desk.

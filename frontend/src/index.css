@@ -1,5 +1,6 @@
 @import "./styles/revakalp-brand-tokens.css";
 @import "tailwindcss";
+@import "./styles/revakalp-themes.css";
 @source not "./links_report.json";
 @source not "./pages/shop/SareeTypesPage.jsx";
 
@@ -16,28 +17,22 @@
   --font-sans: var(--revakalp-body-font);
 }
 
-:root {
-  --revakalp-alabaster: #FBF7EE;
-  --revakalp-linen: #EFE6D5;
-  --revakalp-hairline: rgba(56, 19, 30, 0.14);
-  --revakalp-gold-hairline: rgba(212, 175, 99, 0.35);
-}
-
 @layer base {
   html {
-    background-color: var(--revakalp-ivory);
-    color: var(--revakalp-ink);
+    background-color: var(--rk-bg);
+    color: var(--rk-ink);
     font-family: var(--revakalp-body-font);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-padding-top: 6rem;
+    scrollbar-color: var(--rk-accent) var(--rk-bg);
     max-width: 100%;
     overflow-x: clip;
   }
 
   body {
-    background-color: var(--revakalp-ivory);
-    color: var(--revakalp-ink);
+    background-color: var(--rk-bg);
+    color: var(--rk-ink);
     font-family: var(--revakalp-body-font);
     max-width: 100%;
     overflow-x: clip;
@@ -48,8 +43,13 @@
   }
 
   ::selection {
-    background-color: var(--revakalp-burgundy);
-    color: var(--revakalp-ivory);
+    background-color: var(--rk-primary);
+    color: var(--rk-on-primary);
+  }
+
+  html[data-mode="dark"] ::selection {
+    background-color: var(--rk-accent);
+    color: var(--rk-on-accent);
   }
 
   a:focus-visible,
@@ -58,7 +58,7 @@
   select:focus-visible,
   textarea:focus-visible,
   [tabindex]:focus-visible {
-    outline: 2px solid var(--revakalp-gold);
+    outline: 2px solid var(--rk-accent);
     outline-offset: 2px;
   }
 }
@@ -79,16 +79,21 @@
 
 .rk-hairline-gold {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 99, 0.65) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--rk-accent) 65%, transparent) 50%,
+    transparent 100%
+  );
 }
 
 .rk-editorial-frame {
-  border: 1px solid var(--revakalp-hairline);
-  background-color: var(--revakalp-alabaster);
+  border: 1px solid var(--rk-border);
+  background-color: var(--rk-surface);
   border-radius: 2px;
 }
 
-/* Shared form controls (official brand palette) */
+/* Shared form controls synced via theme tokens */
 .input-floating {
   @apply w-full h-14 px-4 pt-5 pb-2 rounded-[2px]
          bg-[#FBF7EE] border border-[#38131E]/22
@@ -110,7 +115,7 @@
   @apply inline-flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[46px] px-4 sm:px-7 py-2.5 sm:py-3 rounded-[2px] max-w-full text-center
          bg-[#38131E] text-[#F7F1E5] text-[11px] sm:text-xs font-medium tracking-[0.14em] sm:tracking-[0.2em] uppercase
          border border-[#38131E] transition-all duration-300
-         hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[0_12px_30px_-14px_rgba(43,14,23,0.7)]
+         hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[var(--rk-shadow-lg)]
          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
 }
 
@@ -135,7 +140,7 @@
 }
 
 .rk-surface-card {
-  @apply bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] shadow-[0_14px_40px_-28px_rgba(43,14,23,0.32)];
+  @apply bg-[#FBF7EE] border border-[#38131E]/14 rounded-[2px] shadow-[var(--rk-shadow)];
 }
 
 .rk-chip {

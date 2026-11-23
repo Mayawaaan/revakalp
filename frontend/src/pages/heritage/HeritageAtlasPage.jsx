@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search, X, MapPin } from "lucide-react";
 import useStore from "../../store/store";
 import Breadcrums from "../../components/globalComponents/Breadcrums";
 import SectionHeading from "../../components/ui/SectionHeading";
@@ -13,12 +13,17 @@ import useReveal from "../../components/motion/useReveal";
 import { useSeoMeta } from "../../utils/seo";
 import {
   HERITAGE_TRADITIONS,
+  HERITAGE_ZONES,
   matchTraditionProducts,
 } from "../../data/heritageTraditions";
 
 const HeritageAtlasPage = () => {
   const { products, loading } = useStore();
-  const [activeSlug, setActiveSlug] = useState(HERITAGE_TRADITIONS[0].slug);
+  const [activeSlug, setActiveSlug] = useState(
+    HERITAGE_TRADITIONS[0]?.slug || "maheshwari"
+  );
+  const [activeZone, setActiveZone] = useState("All");
+  const [query, setQuery] = useState("");
   const [mapFocused, setMapFocused] = useState(false);
   const pageRef = useRef(null);
   const reducedMotion = useReducedMotion();
@@ -26,9 +31,9 @@ const HeritageAtlasPage = () => {
   useReveal(pageRef, reducedMotion);
 
   useSeoMeta({
-    title: "Indian Textile Guide",
+    title: "Indian Textile Atlas · All 29 States",
     description:
-      "Explore regional Indian textile traditions at Revakalp — Maheshwari, Kosa Silk, Bandhani & Leheriya, Kanjivaram, Paithani, and Pashmina.",
+      "Explore regional saree & handloom textile traditions from every Indian state at Revakalp — official map, Markdown textile dossiers, and 3D micro-weave previews.",
     canonicalPath: "/heritage",
   });
 
@@ -38,6 +43,20 @@ const HeritageAtlasPage = () => {
       HERITAGE_TRADITIONS[0],
     [activeSlug]
   );
+
+  const filteredTraditions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return HERITAGE_TRADITIONS.filter((t) => {
+      if (activeZone !== "All" && t.zone !== activeZone) return false;
+      if (!q) return true;
+      return (
+        t.state.toLowerCase().includes(q) ||
+        t.name.toLowerCase().includes(q) ||
+        t.sareeTitle.toLowerCase().includes(q) ||
+        t.subRegion.toLowerCase().includes(q)
+      );
+    });
+  }, [activeZone, query]);
 
   const activeMatches = useMemo(
     () => matchTraditionProducts(products, activeTradition),
@@ -75,28 +94,39 @@ const HeritageAtlasPage = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           <div className="lg:col-span-7 space-y-5 sm:space-y-6">
             <p className="uppercase tracking-[0.34em] text-[10px] sm:text-[11px] font-medium text-[#F1D889]">
-              Indian Textile Guide
+              Indian Textile Guide · {HERITAGE_TRADITIONS.length} Regional Dossiers
             </p>
 
             <h1 className="font-serif text-[clamp(2.25rem,5.2vw,4.6rem)] leading-[1.03] tracking-tight text-[#F7F1E5]">
               Stories Woven
               <span className="block italic font-normal text-[#F1D889] mt-1">
-                Across India.
+                Across Every State.
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-[#F7F1E5]/82 leading-relaxed max-w-2xl">
-              From Maheshwar on the Narmada to the valleys of Kashmir, every Indian weave
-              carries a place and rhythm of its own. Explore six traditions we love — their
-              origins, motifs, and care — then see what&apos;s in store.
+              From Maheshwar along the Narmada to Srinagar, Sualkuchi, Kanchipuram,
+              and Patan — explore sarees and regional handloom weaves from across{" "}
+              <strong className="text-[#F1D889] font-medium">
+                {HERITAGE_TRADITIONS.length} Indian states &amp; valleys
+              </strong>{" "}
+              with authentic state mapping and tactile 3D thread inspection.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3">
-              <EditorialButton href="#interactive-atlas" variant="gold" className="w-full sm:w-auto">
-                <span>Explore the Map</span>
+              <EditorialButton
+                href="#interactive-atlas"
+                variant="gold"
+                className="w-full sm:w-auto"
+              >
+                <span>Explore the India Map</span>
               </EditorialButton>
 
-              <EditorialButton to="/shop/saree/all" variant="outlineDark" className="w-full sm:w-auto">
+              <EditorialButton
+                to="/shop/saree/all"
+                variant="outlineDark"
+                className="w-full sm:w-auto"
+              >
                 <span>Browse Sarees</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
@@ -105,11 +135,13 @@ const HeritageAtlasPage = () => {
 
           <div className="lg:col-span-5">
             <HeritageFabricCanvas
-              preset={activeTradition.shaderPreset}
-              traditionName={activeTradition.name}
-              motifKind={activeTradition.motifs[0]?.svgKind}
-              swatches={activeTradition.paletteSwatches}
-              className="h-60 sm:h-80"
+              preset={activeTradition?.shaderPreset}
+              traditionName={activeTradition?.name}
+              motifKind={activeTradition?.motifs[0]?.svgKind}
+              swatches={activeTradition?.paletteSwatches}
+              weaveStructure={activeTradition?.weaveStructure}
+              loomType={activeTradition?.loomType}
+              className="h-64 sm:h-84"
             />
           </div>
         </div>
@@ -119,23 +151,73 @@ const HeritageAtlasPage = () => {
         <Breadcrums />
 
         {/* ── INTERACTIVE MAP STAGE ── */}
-        <section id="interactive-atlas" aria-label="Interactive Textile Map of India">
-          <SectionHeading
-            eyebrow="Across the Map"
-            title="Pick a"
-            accentWord="tradition"
-            subtitle="Tap any region on the map, or choose a weave below, to see where it comes from and look closely at the fabric."
-            align="left"
-            className="mb-8"
-          />
+        <section
+          id="interactive-atlas"
+          aria-label="Official Interactive Textile Map of India"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6">
+            <SectionHeading
+              eyebrow="Across India"
+              title="Pick any state"
+              accentWord="tradition"
+              subtitle="Click any state directly on the map, or filter by zone below, to inspect its saree dossier and 3D micro-weave."
+              align="left"
+            />
 
+            {/* State / Weave Search Input */}
+            <div className="relative w-full lg:w-72 shrink-0">
+              <Search className="w-4 h-4 text-[#38131E]/55 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search state or saree…"
+                aria-label="Filter states or saree traditions"
+                className="w-full h-10 pl-9 pr-8 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/22 text-xs text-[#1A1718] placeholder:text-[#1A1718]/45 focus:outline-none focus:border-[#D4AF63]"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear filter"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#38131E]/60 hover:text-[#38131E] cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Zone Filter Tabs */}
+          <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 mb-4">
+            {HERITAGE_ZONES.map((zone) => {
+              const count =
+                zone === "All"
+                  ? HERITAGE_TRADITIONS.length
+                  : HERITAGE_TRADITIONS.filter((t) => t.zone === zone).length;
+              const isSelected = activeZone === zone;
+              return (
+                <button
+                  key={zone}
+                  type="button"
+                  onClick={() => setActiveZone(zone)}
+                  className={`rk-chip shrink-0 ${isSelected ? "rk-chip-active" : ""}`}
+                >
+                  <span>{zone}</span>
+                  <span className="text-[10px] opacity-70">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* State Quick Selector Strip */}
           <div
             role="tablist"
-            aria-label="Select Indian textile tradition"
-            className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 mb-6"
+            aria-label="Select Indian state textile tradition"
+            className="flex flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-2 gap-1.5 mb-6"
           >
-            {HERITAGE_TRADITIONS.map((trad) => {
-              const selected = trad.slug === activeTradition.slug;
+            {filteredTraditions.map((trad) => {
+              const selected = trad.slug === activeTradition?.slug;
               return (
                 <button
                   key={trad.slug}
@@ -143,124 +225,157 @@ const HeritageAtlasPage = () => {
                   type="button"
                   aria-selected={selected}
                   onClick={() => handleSelectTradition(trad.slug)}
-                  className={`rk-chip shrink-0 ${selected ? "rk-chip-active" : ""}`}
+                  className={`shrink-0 px-3 py-1.5 rounded-[2px] text-[10.5px] uppercase tracking-[0.12em] border transition-colors cursor-pointer ${
+                    selected
+                      ? "bg-[#D4AF63] text-[#2B0E17] border-[#D4AF63] font-semibold"
+                      : "bg-[#FBF7EE] text-[#38131E] border-[#38131E]/18 hover:border-[#D4AF63]"
+                  }`}
                 >
-                  <span>{trad.name}</span>
+                  {trad.state} · {trad.name}
                 </button>
               );
             })}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-            <div className="lg:col-span-7 min-h-[300px] sm:min-h-[480px]">
+            <div className="lg:col-span-7 min-h-[340px] sm:min-h-[540px]">
               <IndiaHeritageMap
-                activeSlug={activeTradition.slug}
+                activeSlug={activeTradition?.slug}
                 onSelect={handleSelectTradition}
                 zoomToActive={mapFocused}
                 onToggleZoom={() => setMapFocused((prev) => !prev)}
               />
             </div>
 
-            <div className="lg:col-span-5 rk-surface-card p-5 sm:p-8 flex flex-col justify-between gap-5 sm:gap-6">
-              <div className="space-y-5">
-                <div className="flex items-center justify-between border-b border-[#38131E]/12 pb-3 text-[10px] uppercase tracking-[0.22em] text-[#38131E]/70">
-                  <span className="font-semibold text-[#38131E]">
-                    {activeTradition.region}
-                  </span>
-                </div>
+            {activeTradition && (
+              <div className="lg:col-span-5 rk-surface-card p-5 sm:p-8 flex flex-col justify-between gap-5 sm:gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#38131E]/12 pb-3 text-[10px] uppercase tracking-[0.22em] text-[#38131E]/70">
+                    <span className="font-semibold text-[#38131E] inline-flex items-center gap-1.5">
+                      <MapPin className="w-3 h-3 text-[#D4AF63]" />
+                      {activeTradition.state}
+                    </span>
+                    <span>{activeTradition.zone} India</span>
+                  </div>
 
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/60 mb-1">
-                    {activeTradition.subRegion}
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-[#38131E]/60 mb-1">
+                      {activeTradition.subRegion}
+                    </p>
+                    <h2 className="font-serif text-3xl sm:text-4xl text-[#38131E]">
+                      {activeTradition.name}
+                    </h2>
+                    <p className="text-xs text-[#38131E]/75 mt-1 font-medium">
+                      {activeTradition.sareeTitle}
+                    </p>
+                  </div>
+
+                  <p className="font-serif italic text-lg text-[#38131E]/85">
+                    &ldquo;{activeTradition.tagline}&rdquo;
                   </p>
-                  <h2 className="font-serif text-3xl sm:text-4xl text-[#38131E]">
-                    {activeTradition.name}
-                  </h2>
-                </div>
 
-                <p className="font-serif italic text-lg text-[#38131E]/85">
-                  &ldquo;{activeTradition.tagline}&rdquo;
-                </p>
-
-                <p className="text-sm text-[#1A1718]/80 leading-relaxed">
-                  {activeTradition.summary}
-                </p>
-
-                <div className="space-y-2 pt-2">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#38131E]/65 font-semibold">
-                    Signature Motifs
+                  <p className="text-sm text-[#1A1718]/80 leading-relaxed">
+                    {activeTradition.summary}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {activeTradition.motifs.map((m) => (
-                      <span
-                        key={m.id}
-                        className="px-3 py-1 bg-[#EFE6D5] border border-[#38131E]/14 text-xs text-[#38131E]"
-                      >
-                        {m.name}
+
+                  {/* Weave Architecture Strip */}
+                  <div className="grid grid-cols-1 gap-2 p-3 rounded-[2px] bg-[#EFE6D5] border border-[#38131E]/12 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase tracking-[0.16em] text-[#38131E]/65">
+                        Weave
                       </span>
-                    ))}
+                      <span className="font-medium text-[#38131E] text-right">
+                        {activeTradition.weaveStructure}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase tracking-[0.16em] text-[#38131E]/65">
+                        Loom
+                      </span>
+                      <span className="text-[#1A1718]/85 text-right">
+                        {activeTradition.loomType}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#38131E]/65 font-semibold">
+                      Signature Motifs
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {activeTradition.motifs.map((m) => (
+                        <span
+                          key={m.id}
+                          className="px-3 py-1 bg-[#EFE6D5] border border-[#38131E]/14 text-xs text-[#38131E]"
+                        >
+                          {m.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-5 border-t border-[#38131E]/12 space-y-3">
+                  <p className="text-xs text-[#38131E]/80 font-medium">
+                    In store now:{" "}
+                    <strong className="text-[#38131E]">
+                      {activeMatches.length > 0
+                        ? `${activeMatches.length} ${
+                            activeMatches.length === 1 ? "piece" : "pieces"
+                          } available`
+                        : "Explore full dossier or browse sarees"}
+                    </strong>
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <EditorialButton
+                      to={`/heritage/${activeTradition.slug}`}
+                      variant="primary"
+                      className="flex-1"
+                    >
+                      <span>Read Full Dossier</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </EditorialButton>
+
+                    <EditorialButton
+                      to={activeTradition.shopRoute}
+                      variant="secondary"
+                      className="flex-1"
+                    >
+                      <span>Browse Sarees</span>
+                    </EditorialButton>
                   </div>
                 </div>
               </div>
-
-              <div className="pt-5 border-t border-[#38131E]/12 space-y-3">
-                <p className="text-xs text-[#38131E]/80 font-medium">
-                  In store now:{" "}
-                  <strong className="text-[#38131E]">
-                    {activeMatches.length > 0
-                      ? `${activeMatches.length} ${activeMatches.length === 1 ? "piece" : "pieces"} available`
-                      : "None in store right now — browse all sarees"}
-                  </strong>
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <EditorialButton
-                    to={`/heritage/${activeTradition.slug}`}
-                    variant="primary"
-                    className="flex-1"
-                  >
-                    <span>Read the Story</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </EditorialButton>
-
-                  <EditorialButton
-                    to={activeTradition.shopRoute}
-                    variant="secondary"
-                    className="flex-1"
-                  >
-                    <span>See Available Pieces</span>
-                  </EditorialButton>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
-        {/* ── SIX TRADITION CHAPTER PLATES ── */}
-        <section aria-label="Six Regional Textile Stories">
+        {/* ── ALL STATE CHAPTER PLATES ── */}
+        <section aria-label="State Textile Stories Directory">
           <SectionHeading
-            eyebrow="Explore All Six"
-            title="Six Indian"
-            accentWord="Traditions"
-            subtitle="Read about where each weave began, what to look for, and how to keep it looking its best."
+            eyebrow={`State Archive (${filteredTraditions.length})`}
+            title="Sarees Across"
+            accentWord="India"
+            subtitle="Detailed heritage dossiers authored per state — history, weaving centers, yarn characteristics, loom method, and preservation notes."
             align="left"
             className="mb-8"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {HERITAGE_TRADITIONS.map((trad) => {
+            {filteredTraditions.map((trad) => {
               const count = matchTraditionProducts(products, trad).length;
               return (
                 <Link
                   key={trad.slug}
                   to={`/heritage/${trad.slug}`}
                   data-reveal="card"
-                  className="group rk-surface-card p-6 sm:p-7 hover:border-[#D4AF63] transition-colors flex flex-col justify-between gap-6"
+                  className="group rk-surface-card p-6 sm:p-7 hover:border-[#D4AF63] transition-colors flex flex-col justify-between gap-5"
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-3.5">
                     <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-[#38131E]/65">
                       <span className="font-semibold text-[#38131E]">
-                        {trad.region}
+                        {trad.index} · {trad.state}
                       </span>
                       <div className="flex items-center gap-1">
                         {trad.paletteSwatches.map((hex) => (
@@ -274,19 +389,22 @@ const HeritageAtlasPage = () => {
                       </div>
                     </div>
 
-                    <h3 className="font-serif text-3xl text-[#38131E] group-hover:text-[#2B0E17]">
-                      {trad.name}
-                    </h3>
+                    <div>
+                      <h3 className="font-serif text-2xl sm:text-3xl text-[#38131E] group-hover:text-[#2B0E17]">
+                        {trad.name}
+                      </h3>
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-[#38131E]/60 mt-1">
+                        {trad.subRegion}
+                      </p>
+                    </div>
 
-                    <p className="text-xs sm:text-sm text-[#1A1718]/78 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-[#1A1718]/78 leading-relaxed line-clamp-3">
                       {trad.summary}
                     </p>
                   </div>
 
                   <div className="pt-4 border-t border-[#38131E]/12 flex items-center justify-between text-xs uppercase tracking-[0.16em] font-medium text-[#38131E]">
-                    <span>
-                      {count > 0 ? `${count} available` : "Read story"}
-                    </span>
+                    <span>{count > 0 ? `${count} in stock` : "Read dossier"}</span>
                     <ArrowRight className="w-4 h-4 text-[#D4AF63] group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
@@ -333,9 +451,9 @@ const HeritageAtlasPage = () => {
               A note from our store
             </p>
             <p className="text-sm text-[#F7F1E5]/82 leading-relaxed">
-              Revakalp is an Indore boutique that selects garments from across India rather
-              than weaving them ourselves. Exact fabric details, measurements, and blouse
-              inclusions are always listed on each piece.
+              Revakalp is an Indore boutique that selects garments from across India
+              rather than weaving them ourselves. Exact fabric details, measurements,
+              and blouse inclusions are always listed on each piece.
             </p>
           </div>
           <EditorialButton to="/past-editions" variant="gold">

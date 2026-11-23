@@ -13,11 +13,15 @@ import {
   matchesCategory,
   getCategoryTileArt,
   getAvailableStock,
+  isRedundantAllEntry,
 } from "../../config/storefrontCategories";
 import { useSeoMeta } from "../../utils/seo";
 
 const CategoryPage = () => {
   const { collections, products, loading } = useStore();
+  const visibleCollections = (collections || []).filter(
+    (c) => !isRedundantAllEntry(c, "collection")
+  );
 
   useSeoMeta({
     title: "Collections",
@@ -172,9 +176,9 @@ const CategoryPage = () => {
 
           {loading && !collections?.length ? (
             <LoadingSkeleton count={4} />
-          ) : collections?.length > 0 ? (
+          ) : visibleCollections.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
-              {collections.map((collection) => {
+              {visibleCollections.map((collection) => {
                 const tileImg = getCategoryTileArt(
                   collection.id || collection.name,
                   collection.image

@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import NewsletterBox from "../../components/homepage/NewsletterBox";
 import BrandMark from "../../components/brand/BrandMark";
 import EditorialButton from "../../components/ui/EditorialButton";
 import PageHero from "../../components/globalComponents/PageHero";
 import useStore from "../../store/store";
+import { buildOrganizationSchema, useSeoMeta } from "../../utils/seo";
 
 const About = () => {
   const settings = useStore((s) => s.settings);
@@ -11,6 +12,27 @@ const About = () => {
     settings?.address?.trim() ||
     "231-231, Shop No. 2, Dhanwantri Nagar, Rajendra Nagar, Indore, Madhya Pradesh – 452012";
   const phone = settings?.phone?.trim() || "9109676562";
+
+  const aboutJsonLd = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return [
+      {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        name: "About REVAKALP · Indore Store Since 2014",
+        url: origin ? `${origin}/about` : undefined,
+      },
+      buildOrganizationSchema(origin, settings),
+    ];
+  }, [settings]);
+
+  useSeoMeta({
+    title: "Our Story · Indore Boutique Since 2014",
+    description:
+      "Founded in 2014 in Rajendra Nagar, Indore by Anjali Katare — learn how Revakalp inspects and curates Indian handloom sarees, lehengas, and contemporary wear.",
+    canonicalPath: "/about",
+    jsonLd: aboutJsonLd,
+  });
 
   return (
     <div className="bg-[#F7F1E5] text-[#1A1718]">

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Check } from "lucide-react";
 import PageHero from "../../components/globalComponents/PageHero";
 import NewsletterBox from "../../components/homepage/NewsletterBox";
 import EditorialButton from "../../components/ui/EditorialButton";
 import useStore from "../../store/store";
+import { buildOrganizationSchema, useSeoMeta } from "../../utils/seo";
 
 export default function Contact() {
   const settings = useStore((s) => s.settings);
@@ -15,6 +16,27 @@ export default function Contact() {
     "231-231, Shop No. 2, Dhanwantri Nagar, Rajendra Nagar, Indore, Madhya Pradesh – 452012";
   const phone = settings?.phone?.trim() || "+91 91096-76562";
   const email = settings?.supportEmail?.trim() || "contact@revakalp.com";
+
+  const contactJsonLd = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return [
+      {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        name: "Contact REVAKALP · Rajendra Nagar, Indore",
+        url: origin ? `${origin}/contact` : undefined,
+      },
+      buildOrganizationSchema(origin, settings),
+    ];
+  }, [settings]);
+
+  useSeoMeta({
+    title: "Contact Us · Indore Boutique",
+    description:
+      "Reach Revakalp in Rajendra Nagar, Indore for saree sizing, fabric inquiries, bridal shopping visits, or order support.",
+    canonicalPath: "/contact",
+    jsonLd: contactJsonLd,
+  });
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });

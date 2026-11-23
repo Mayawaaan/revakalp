@@ -1,0 +1,1059 @@
+/* ==========================================================================
+ * REVAKALP Color-Grading & 9-Scheme × Light/Dark Theme Architecture
+ * Schemes: royal-burgundy (default) | emerald-banaras | indigo-jaipur
+ *          saffron-udaipur | peacock-kanchipuram | jamuni-mysore
+ *          rose-chanderi | sandalwood-maheshwar | obsidian-kashi
+ * Modes:   light (default) | dark
+ * Controlled via <html data-theme="..." data-mode="..."> from Admin Settings
+ * ========================================================================== */
+
+/* Common token aliases bound dynamically on every html[data-theme] */
+html[data-theme],
+:root {
+  --revakalp-burgundy: var(--rk-primary);
+  --revakalp-burgundy-deep: var(--rk-primary-deep);
+  --revakalp-gold: var(--rk-accent);
+  --revakalp-gold-highlight: var(--rk-accent-bright);
+  --revakalp-ivory: var(--rk-bg);
+  --revakalp-ink: var(--rk-ink);
+  --revakalp-alabaster: var(--rk-surface);
+  --revakalp-linen: var(--rk-surface-alt);
+  --revakalp-hairline: var(--rk-border);
+  --revakalp-gold-hairline: color-mix(in srgb, var(--rk-accent) 36%, transparent);
+}
+
+:root {
+  --rk-bg: #f6f6f4;
+  --rk-surface: #ffffff;
+  --rk-surface-alt: #ecece8;
+  --rk-ink: #161618;
+  --rk-primary: #222226;
+  --rk-primary-deep: #141416;
+  --rk-accent: #b8a47c;
+  --rk-accent-bright: #d4c4a1;
+  --rk-on-primary: #f6f6f4;
+  --rk-on-accent: #141416;
+  --rk-border: rgba(22, 22, 24, 0.14);
+  --rk-shadow: 0 14px 40px -28px rgba(0, 0, 0, 0.22);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(0, 0, 0, 0.34);
+  --rk-grade-filter: none;
+}
+
+/* Prevent un-themed first paint for brand-new visitors while /api/settings resolves */
+html[data-theme-pending="true"],
+html[data-theme-pending="true"] body {
+  background-color: #141416 !important;
+  color: #f6f6f4 !important;
+}
+html[data-theme-pending="true"] #root {
+  opacity: 0;
+}
+
+/* Scheme 1: Royal Burgundy */
+html[data-theme="royal-burgundy"] {
+  --rk-bg: #f7f1e5;
+  --rk-surface: #fbf7ee;
+  --rk-surface-alt: #efe6d5;
+  --rk-ink: #1a1718;
+  --rk-primary: #38131e;
+  --rk-primary-deep: #2b0e17;
+  --rk-accent: #d4af63;
+  --rk-accent-bright: #f1d889;
+  --rk-on-primary: #f7f1e5;
+  --rk-on-accent: #2b0e17;
+  --rk-border: rgba(56, 19, 30, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(43, 14, 23, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(43, 14, 23, 0.48);
+  --rk-grade-filter: contrast(1.02) saturate(1.03);
+}
+
+html[data-theme="royal-burgundy"][data-mode="dark"] {
+  --rk-bg: #13080c;
+  --rk-surface: #1d0d13;
+  --rk-surface-alt: #28121b;
+  --rk-ink: #f5ede0;
+  --rk-primary: #38131e;
+  --rk-primary-deep: #1a090f;
+  --rk-accent: #dfba6b;
+  --rk-accent-bright: #f3dc96;
+  --rk-on-primary: #f7f1e5;
+  --rk-on-accent: #1a090f;
+  --rk-border: rgba(223, 186, 107, 0.22);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.72);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.84);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 2: Emerald Banaras (Deep Forest Emerald & Burnished Gold) */
+html[data-theme="emerald-banaras"] {
+  --rk-bg: #f3f5ee;
+  --rk-surface: #fafaf5;
+  --rk-surface-alt: #e5eae0;
+  --rk-ink: #141c19;
+  --rk-primary: #0f3b2e;
+  --rk-primary-deep: #09261d;
+  --rk-accent: #cfa653;
+  --rk-accent-bright: #eed484;
+  --rk-on-primary: #f3f5ee;
+  --rk-on-accent: #09261d;
+  --rk-border: rgba(15, 59, 46, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(9, 38, 29, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(9, 38, 29, 0.48);
+  --rk-grade-filter: contrast(1.02) saturate(1.04) hue-rotate(-2deg);
+}
+
+html[data-theme="emerald-banaras"][data-mode="dark"] {
+  --rk-bg: #081310;
+  --rk-surface: #0f201b;
+  --rk-surface-alt: #162d26;
+  --rk-ink: #eef2eb;
+  --rk-primary: #0f3b2e;
+  --rk-primary-deep: #071913;
+  --rk-accent: #dfb864;
+  --rk-accent-bright: #f3da8f;
+  --rk-on-primary: #eef2eb;
+  --rk-on-accent: #071913;
+  --rk-border: rgba(223, 184, 100, 0.22);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.72);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.84);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 3: Indigo Jaipur (Royal Neel Indigo & Marigold Brass) */
+html[data-theme="indigo-jaipur"] {
+  --rk-bg: #f4f2ec;
+  --rk-surface: #faf9f4;
+  --rk-surface-alt: #e6e4dc;
+  --rk-ink: #151822;
+  --rk-primary: #1b2948;
+  --rk-primary-deep: #101a30;
+  --rk-accent: #d3a34e;
+  --rk-accent-bright: #f2d388;
+  --rk-on-primary: #f4f2ec;
+  --rk-on-accent: #101a30;
+  --rk-border: rgba(27, 41, 72, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(16, 26, 48, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(16, 26, 48, 0.48);
+  --rk-grade-filter: contrast(1.03) saturate(1.02);
+}
+
+html[data-theme="indigo-jaipur"][data-mode="dark"] {
+  --rk-bg: #0a0f1a;
+  --rk-surface: #121b2e;
+  --rk-surface-alt: #1a2640;
+  --rk-ink: #f0efea;
+  --rk-primary: #1b2948;
+  --rk-primary-deep: #0b1222;
+  --rk-accent: #e2b660;
+  --rk-accent-bright: #f5da92;
+  --rk-on-primary: #f0efea;
+  --rk-on-accent: #0b1222;
+  --rk-border: rgba(226, 182, 96, 0.22);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 4: Saffron Udaipur (Terracotta Sindoor, Marigold & Sandstone Ivory) */
+html[data-theme="saffron-udaipur"] {
+  --rk-bg: #faf3e8;
+  --rk-surface: #fffaf1;
+  --rk-surface-alt: #f1e2cc;
+  --rk-ink: #211510;
+  --rk-primary: #7c2d12;
+  --rk-primary-deep: #521c0a;
+  --rk-accent: #d99226;
+  --rk-accent-bright: #f5c663;
+  --rk-on-primary: #faf3e8;
+  --rk-on-accent: #3d1406;
+  --rk-border: rgba(124, 45, 18, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(82, 28, 10, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(82, 28, 10, 0.48);
+  --rk-grade-filter: contrast(1.02) saturate(1.05) sepia(0.05);
+}
+
+html[data-theme="saffron-udaipur"][data-mode="dark"] {
+  --rk-bg: #160b07;
+  --rk-surface: #23120c;
+  --rk-surface-alt: #311910;
+  --rk-ink: #f8efe2;
+  --rk-primary: #7c2d12;
+  --rk-primary-deep: #2b0f06;
+  --rk-accent: #e6a63c;
+  --rk-accent-bright: #f8cf76;
+  --rk-on-primary: #f8efe2;
+  --rk-on-accent: #2b0f06;
+  --rk-border: rgba(230, 166, 60, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 5: Peacock Kanchipuram (Mayura Temple Teal & Zari Copper-Gold) */
+html[data-theme="peacock-kanchipuram"] {
+  --rk-bg: #eff5f4;
+  --rk-surface: #f7fbfa;
+  --rk-surface-alt: #deebe9;
+  --rk-ink: #111d1f;
+  --rk-primary: #0d444d;
+  --rk-primary-deep: #072b31;
+  --rk-accent: #c89643;
+  --rk-accent-bright: #ebd083;
+  --rk-on-primary: #eff5f4;
+  --rk-on-accent: #072b31;
+  --rk-border: rgba(13, 68, 77, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(7, 43, 49, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(7, 43, 49, 0.48);
+  --rk-grade-filter: contrast(1.02) saturate(1.04);
+}
+
+html[data-theme="peacock-kanchipuram"][data-mode="dark"] {
+  --rk-bg: #071316;
+  --rk-surface: #0e2227;
+  --rk-surface-alt: #153239;
+  --rk-ink: #eaf3f4;
+  --rk-primary: #0d444d;
+  --rk-primary-deep: #061b1f;
+  --rk-accent: #d9aa56;
+  --rk-accent-bright: #f2d88e;
+  --rk-on-primary: #eaf3f4;
+  --rk-on-accent: #061b1f;
+  --rk-border: rgba(217, 170, 86, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 6: Jamuni Mysore (Imperial Aubergine Silk & Champagne Zari) */
+html[data-theme="jamuni-mysore"] {
+  --rk-bg: #f6f1f6;
+  --rk-surface: #fcf9fc;
+  --rk-surface-alt: #e9dfeb;
+  --rk-ink: #1b141f;
+  --rk-primary: #3d1946;
+  --rk-primary-deep: #260e2d;
+  --rk-accent: #cfa158;
+  --rk-accent-bright: #f1d691;
+  --rk-on-primary: #f6f1f6;
+  --rk-on-accent: #260e2d;
+  --rk-border: rgba(61, 25, 70, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(38, 14, 45, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(38, 14, 45, 0.48);
+  --rk-grade-filter: contrast(1.03) saturate(1.03);
+}
+
+html[data-theme="jamuni-mysore"][data-mode="dark"] {
+  --rk-bg: #120916;
+  --rk-surface: #1d0f24;
+  --rk-surface-alt: #2a1634;
+  --rk-ink: #f3ecf5;
+  --rk-primary: #3d1946;
+  --rk-primary-deep: #17091c;
+  --rk-accent: #deb268;
+  --rk-accent-bright: #f4dc9c;
+  --rk-on-primary: #f3ecf5;
+  --rk-on-accent: #17091c;
+  --rk-border: rgba(222, 178, 104, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 7: Rose Chanderi (Heirloom Gulabi Rosewood & Antique Rose Gold) */
+html[data-theme="rose-chanderi"] {
+  --rk-bg: #faf1f2;
+  --rk-surface: #fff9fa;
+  --rk-surface-alt: #f1e0e3;
+  --rk-ink: #211518;
+  --rk-primary: #6b2238;
+  --rk-primary-deep: #491525;
+  --rk-accent: #c98f6b;
+  --rk-accent-bright: #ecc2a4;
+  --rk-on-primary: #faf1f2;
+  --rk-on-accent: #491525;
+  --rk-border: rgba(107, 34, 56, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(73, 21, 37, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(73, 21, 37, 0.48);
+  --rk-grade-filter: contrast(1.02) saturate(1.02);
+}
+
+html[data-theme="rose-chanderi"][data-mode="dark"] {
+  --rk-bg: #160a0e;
+  --rk-surface: #231017;
+  --rk-surface-alt: #311720;
+  --rk-ink: #f7ecee;
+  --rk-primary: #6b2238;
+  --rk-primary-deep: #260b14;
+  --rk-accent: #dba07b;
+  --rk-accent-bright: #f2c9ae;
+  --rk-on-primary: #f7ecee;
+  --rk-on-accent: #260b14;
+  --rk-border: rgba(219, 160, 123, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 8: Sandalwood Maheshwar (Narmada Teak, Burnished Brass & Tussar Linen) */
+html[data-theme="sandalwood-maheshwar"] {
+  --rk-bg: #f5efe6;
+  --rk-surface: #fbf7f0;
+  --rk-surface-alt: #e7dccb;
+  --rk-ink: #1e1812;
+  --rk-primary: #4a2f1d;
+  --rk-primary-deep: #2f1d11;
+  --rk-accent: #c49545;
+  --rk-accent-bright: #e9c97e;
+  --rk-on-primary: #f5efe6;
+  --rk-on-accent: #2f1d11;
+  --rk-border: rgba(74, 47, 29, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(47, 29, 17, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(47, 29, 17, 0.48);
+  --rk-grade-filter: contrast(1.02) sepia(0.06);
+}
+
+html[data-theme="sandalwood-maheshwar"][data-mode="dark"] {
+  --rk-bg: #130e09;
+  --rk-surface: #1f1710;
+  --rk-surface-alt: #2c2117;
+  --rk-ink: #f3ece1;
+  --rk-primary: #4a2f1d;
+  --rk-primary-deep: #1c120b;
+  --rk-accent: #d6a856;
+  --rk-accent-bright: #efd28c;
+  --rk-on-primary: #f3ece1;
+  --rk-on-accent: #1c120b;
+  --rk-border: rgba(214, 168, 86, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.74);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.86);
+  --rk-grade-filter: brightness(0.94) contrast(1.05);
+}
+
+/* Scheme 9: Obsidian Kashi (Charcoal Obsidian Silk & Champagne Gold) */
+html[data-theme="obsidian-kashi"] {
+  --rk-bg: #f4f3f0;
+  --rk-surface: #fbfbfa;
+  --rk-surface-alt: #e6e4df;
+  --rk-ink: #141414;
+  --rk-primary: #1c1c1f;
+  --rk-primary-deep: #0e0e10;
+  --rk-accent: #c7a763;
+  --rk-accent-bright: #ead192;
+  --rk-on-primary: #f4f3f0;
+  --rk-on-accent: #0e0e10;
+  --rk-border: rgba(28, 28, 31, 0.16);
+  --rk-shadow: 0 14px 40px -28px rgba(14, 14, 16, 0.34);
+  --rk-shadow-lg: 0 24px 56px -24px rgba(14, 14, 16, 0.48);
+  --rk-grade-filter: contrast(1.04) saturate(0.96);
+}
+
+html[data-theme="obsidian-kashi"][data-mode="dark"] {
+  --rk-bg: #0b0b0d;
+  --rk-surface: #141417;
+  --rk-surface-alt: #1e1e23;
+  --rk-ink: #f2f1ed;
+  --rk-primary: #222227;
+  --rk-primary-deep: #0d0d10;
+  --rk-accent: #d8b870;
+  --rk-accent-bright: #f1d99c;
+  --rk-on-primary: #f2f1ed;
+  --rk-on-accent: #0d0d10;
+  --rk-border: rgba(216, 184, 112, 0.24);
+  --rk-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.8);
+  --rk-shadow-lg: 0 28px 64px -22px rgba(0, 0, 0, 0.9);
+  --rk-grade-filter: brightness(0.94) contrast(1.06);
+}
+
+/* Atomic single-frame switching (prevents staggered paint transitions when theme flips) */
+html.rk-theme-instant *,
+html.rk-theme-instant *::before,
+html.rk-theme-instant *::after {
+  transition: none !important;
+}
+
+html[data-reduced-motion="true"] * {
+  transition-duration: 0.01ms !important;
+}
+
+.rk-media-grade img,
+img.rk-graded-media {
+  filter: var(--rk-grade-filter);
+}
+
+/* ==========================================================================
+ * 1. BACKGROUND UTILITY BRIDGE (Solid + Opacity + Neutral Surfaces)
+ * ========================================================================== */
+
+html[data-theme] [class~="bg-[#F7F1E5]"] {
+  background-color: var(--rk-bg) !important;
+}
+html[data-theme] [class~="bg-[#F7F1E5]/96"],
+html[data-theme] [class~="bg-[#F7F1E5]/95"] {
+  background-color: color-mix(in srgb, var(--rk-bg) 95%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#F7F1E5]/92"],
+html[data-theme] [class~="bg-[#F7F1E5]/90"],
+html[data-theme] [class~="bg-[#F7F1E5]/88"] {
+  background-color: color-mix(in srgb, var(--rk-bg) 90%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#F7F1E5]/70"],
+html[data-theme] [class~="bg-[#F7F1E5]/60"] {
+  background-color: color-mix(in srgb, var(--rk-surface) 75%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#F7F1E5]/50"],
+html[data-theme] [class~="bg-[#F7F1E5]/40"] {
+  background-color: color-mix(in srgb, var(--rk-surface) 55%, transparent) !important;
+}
+
+html[data-theme] [class~="bg-[#FBF7EE]"] {
+  background-color: var(--rk-surface) !important;
+}
+html[data-theme] [class~="bg-[#EFE6D5]"] {
+  background-color: var(--rk-surface-alt) !important;
+}
+html[data-theme] [class~="bg-[#EFE6D5]/65"] {
+  background-color: color-mix(in srgb, var(--rk-surface-alt) 68%, transparent) !important;
+}
+
+/* Backdrops & dark overlays adapt natively to active primary-deep */
+html[data-theme] [class~="bg-[#1A1718]/90"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 92%, #000000) !important;
+}
+html[data-theme] [class~="bg-[#1A1718]/70"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 72%, rgba(0, 0, 0, 0.72)) !important;
+}
+html[data-theme] [class~="bg-[#1A1718]/65"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 66%, rgba(0, 0, 0, 0.66)) !important;
+}
+html[data-theme] [class~="bg-[#1A1718]/50"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 52%, rgba(0, 0, 0, 0.52)) !important;
+}
+
+/* Elevate neutral white/stone cards in Dark Mode & alternate schemes */
+html[data-theme]:not([data-theme="royal-burgundy"]) [class~="bg-white"],
+html[data-mode="dark"] [class~="bg-white"],
+html[data-mode="dark"] [class~="bg-neutral-50"],
+html[data-mode="dark"] [class~="bg-stone-50"],
+html[data-mode="dark"] [class~="bg-stone-100"],
+html[data-mode="dark"] [class~="bg-gray-100"] {
+  background-color: var(--rk-surface) !important;
+}
+
+html[data-theme]:not([data-theme="royal-burgundy"]) [class~="bg-white/95"],
+html[data-theme]:not([data-theme="royal-burgundy"]) [class~="bg-white/90"],
+html[data-theme]:not([data-theme="royal-burgundy"]) [class~="bg-white/85"],
+html[data-theme]:not([data-theme="royal-burgundy"]) [class~="bg-white/80"],
+html[data-mode="dark"] [class~="bg-white/95"],
+html[data-mode="dark"] [class~="bg-white/90"],
+html[data-mode="dark"] [class~="bg-white/85"],
+html[data-mode="dark"] [class~="bg-white/80"] {
+  background-color: color-mix(in srgb, var(--rk-surface) 92%, transparent) !important;
+}
+
+/* Primary & Deep Backgrounds */
+html[data-theme] [class~="bg-[#38131E]"] {
+  background-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="bg-[#38131E]/85"] {
+  background-color: color-mix(in srgb, var(--rk-primary) 86%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#38131E]/20"],
+html[data-theme] [class~="bg-[#38131E]/15"] {
+  background-color: color-mix(in srgb, var(--rk-primary) 18%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#38131E]/12"],
+html[data-theme] [class~="bg-[#38131E]/10"] {
+  background-color: color-mix(in srgb, var(--rk-primary) 12%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#38131E]/8"],
+html[data-theme] [class~="bg-[#38131E]/6"],
+html[data-theme] [class~="bg-[#38131E]/5"] {
+  background-color: color-mix(in srgb, var(--rk-primary) 7%, transparent) !important;
+}
+
+html[data-theme] [class~="bg-[#2B0E17]"] {
+  background-color: var(--rk-primary-deep) !important;
+}
+html[data-theme] [class~="bg-[#2B0E17]/95"],
+html[data-theme] [class~="bg-[#2B0E17]/92"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 93%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#2B0E17]/88"],
+html[data-theme] [class~="bg-[#2B0E17]/85"],
+html[data-theme] [class~="bg-[#2B0E17]/82"],
+html[data-theme] [class~="bg-[#2B0E17]/80"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 84%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#2B0E17]/75"],
+html[data-theme] [class~="bg-[#2B0E17]/72"] {
+  background-color: color-mix(in srgb, var(--rk-primary-deep) 74%, transparent) !important;
+}
+
+html[data-theme] [class~="bg-[#D4AF63]"] {
+  background-color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="bg-[#D4AF63]/30"],
+html[data-theme] [class~="bg-[#D4AF63]/25"] {
+  background-color: color-mix(in srgb, var(--rk-accent) 26%, transparent) !important;
+}
+html[data-theme] [class~="bg-[#F1D889]"] {
+  background-color: var(--rk-accent-bright) !important;
+}
+
+/* ==========================================================================
+ * 2. GRADIENT STOPS BRIDGE (Tailwind v4 @property <color> compatible)
+ * ========================================================================== */
+
+html[data-theme] [class~="from-[#2B0E17]"] {
+  --tw-gradient-from: var(--rk-primary-deep) !important;
+}
+html[data-theme] [class~="from-[#38131E]"] {
+  --tw-gradient-from: var(--rk-primary) !important;
+}
+html[data-theme] [class~="from-[#2B0E17]/95"] {
+  --tw-gradient-from: color-mix(in srgb, var(--rk-primary-deep) 95%, transparent) !important;
+}
+html[data-theme] [class~="from-[#2B0E17]/85"] {
+  --tw-gradient-from: color-mix(in srgb, var(--rk-primary-deep) 85%, transparent) !important;
+}
+html[data-theme] [class~="from-[#2B0E17]/75"] {
+  --tw-gradient-from: color-mix(in srgb, var(--rk-primary-deep) 75%, transparent) !important;
+}
+html[data-theme] [class~="from-[#2B0E17]/60"] {
+  --tw-gradient-from: color-mix(in srgb, var(--rk-primary-deep) 60%, transparent) !important;
+}
+
+html[data-theme] [class~="via-[#38131E]"] {
+  --tw-gradient-via: var(--rk-primary) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]"] {
+  --tw-gradient-via: var(--rk-primary-deep) !important;
+}
+html[data-theme] [class~="via-[#D4AF63]"] {
+  --tw-gradient-via: var(--rk-accent) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]/88"] {
+  --tw-gradient-via: color-mix(in srgb, var(--rk-primary-deep) 88%, transparent) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]/82"] {
+  --tw-gradient-via: color-mix(in srgb, var(--rk-primary-deep) 82%, transparent) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]/50"] {
+  --tw-gradient-via: color-mix(in srgb, var(--rk-primary-deep) 50%, transparent) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]/45"] {
+  --tw-gradient-via: color-mix(in srgb, var(--rk-primary-deep) 45%, transparent) !important;
+}
+html[data-theme] [class~="via-[#2B0E17]/40"] {
+  --tw-gradient-via: color-mix(in srgb, var(--rk-primary-deep) 40%, transparent) !important;
+}
+
+html[data-theme] [class~="to-[#2B0E17]"] {
+  --tw-gradient-to: var(--rk-primary-deep) !important;
+}
+html[data-theme] [class~="to-[#2B0E17]/45"] {
+  --tw-gradient-to: color-mix(in srgb, var(--rk-primary-deep) 45%, transparent) !important;
+}
+html[data-theme] [class~="to-[#38131E]"] {
+  --tw-gradient-to: var(--rk-primary) !important;
+}
+html[data-theme] [class~="to-[#D4AF63]"] {
+  --tw-gradient-to: var(--rk-accent) !important;
+}
+
+html[data-theme] [class~="from-[#fffafc]"] {
+  --tw-gradient-from: var(--rk-surface) !important;
+}
+html[data-theme] [class~="via-[#fff1f4]"] {
+  --tw-gradient-via: var(--rk-bg) !important;
+}
+html[data-theme] [class~="to-[#ffe6ee]"] {
+  --tw-gradient-to: var(--rk-surface-alt) !important;
+}
+
+/* ==========================================================================
+ * 3. TEXT COLOR & OPACITY BRIDGE (LIGHT MODE)
+ * ========================================================================== */
+
+html[data-theme] [class~="text-[#1A1718]"] {
+  color: var(--rk-ink) !important;
+}
+html[data-theme] [class~="text-[#1A1718]/85"],
+html[data-theme] [class~="text-[#1A1718]/82"],
+html[data-theme] [class~="text-[#1A1718]/80"] {
+  color: color-mix(in srgb, var(--rk-ink) 82%, transparent) !important;
+}
+html[data-theme] [class~="text-[#1A1718]/78"],
+html[data-theme] [class~="text-[#1A1718]/75"],
+html[data-theme] [class~="text-[#1A1718]/72"],
+html[data-theme] [class~="text-[#1A1718]/70"] {
+  color: color-mix(in srgb, var(--rk-ink) 74%, transparent) !important;
+}
+html[data-theme] [class~="text-[#1A1718]/65"],
+html[data-theme] [class~="text-[#1A1718]/60"],
+html[data-theme] [class~="text-[#1A1718]/55"],
+html[data-theme] [class~="text-[#1A1718]/50"],
+html[data-theme] [class~="text-[#1A1718]/45"] {
+  color: color-mix(in srgb, var(--rk-ink) 56%, transparent) !important;
+}
+
+html[data-theme] [class~="text-[#38131E]"],
+html[data-theme] [class~="text-[#2B0E17]"] {
+  color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="text-[#38131E]/85"],
+html[data-theme] [class~="text-[#38131E]/80"],
+html[data-theme] [class~="text-[#38131E]/75"] {
+  color: color-mix(in srgb, var(--rk-primary) 80%, transparent) !important;
+}
+html[data-theme] [class~="text-[#38131E]/70"],
+html[data-theme] [class~="text-[#38131E]/65"],
+html[data-theme] [class~="text-[#38131E]/60"] {
+  color: color-mix(in srgb, var(--rk-primary) 65%, transparent) !important;
+}
+html[data-theme] [class~="text-[#38131E]/55"],
+html[data-theme] [class~="text-[#38131E]/50"],
+html[data-theme] [class~="text-[#38131E]/40"] {
+  color: color-mix(in srgb, var(--rk-primary) 48%, transparent) !important;
+}
+html[data-theme] [class~="text-[#38131E]/30"],
+html[data-theme] [class~="text-[#38131E]/25"],
+html[data-theme] [class~="text-[#38131E]/20"] {
+  color: color-mix(in srgb, var(--rk-primary) 26%, transparent) !important;
+}
+
+html[data-theme] [class~="text-[#5C4E52]"],
+html[data-theme] [class~="text-[#7A6A6E]"] {
+  color: color-mix(in srgb, var(--rk-ink) 68%, transparent) !important;
+}
+html[data-theme] [class~="text-[#9A7A3A]"] {
+  color: color-mix(in srgb, var(--rk-accent) 78%, var(--rk-ink)) !important;
+}
+
+html[data-theme] [class~="text-[#D4AF63]"] {
+  color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="text-[#D4AF63]/35"] {
+  color: color-mix(in srgb, var(--rk-accent) 35%, transparent) !important;
+}
+html[data-theme] [class~="text-[#F1D889]"] {
+  color: var(--rk-accent-bright) !important;
+}
+html[data-theme] [class~="text-[#F1D889]/95"],
+html[data-theme] [class~="text-[#F1D889]/90"] {
+  color: color-mix(in srgb, var(--rk-accent-bright) 92%, transparent) !important;
+}
+html[data-theme] [class~="text-[#F1D889]/85"],
+html[data-theme] [class~="text-[#F1D889]/80"] {
+  color: color-mix(in srgb, var(--rk-accent-bright) 82%, transparent) !important;
+}
+
+html[data-theme] [class~="text-[#F7F1E5]"] {
+  color: var(--rk-on-primary) !important;
+}
+html[data-theme] [class~="text-[#F7F1E5]/95"],
+html[data-theme] [class~="text-[#F7F1E5]/92"],
+html[data-theme] [class~="text-[#F7F1E5]/90"],
+html[data-theme] [class~="text-[#F7F1E5]/88"],
+html[data-theme] [class~="text-[#F7F1E5]/85"] {
+  color: color-mix(in srgb, var(--rk-on-primary) 90%, transparent) !important;
+}
+html[data-theme] [class~="text-[#F7F1E5]/82"],
+html[data-theme] [class~="text-[#F7F1E5]/80"],
+html[data-theme] [class~="text-[#F7F1E5]/78"],
+html[data-theme] [class~="text-[#F7F1E5]/75"] {
+  color: color-mix(in srgb, var(--rk-on-primary) 78%, transparent) !important;
+}
+html[data-theme] [class~="text-[#F7F1E5]/70"],
+html[data-theme] [class~="text-[#F7F1E5]/65"],
+html[data-theme] [class~="text-[#F7F1E5]/60"],
+html[data-theme] [class~="text-[#F7F1E5]/45"] {
+  color: color-mix(in srgb, var(--rk-on-primary) 62%, transparent) !important;
+}
+
+/* ==========================================================================
+ * 4. DARK MODE CONTRAST OVERRIDES
+ * ========================================================================== */
+
+html[data-mode="dark"] body,
+html[data-mode="dark"] [class~="text-[#1A1718]"] {
+  color: var(--rk-ink) !important;
+}
+html[data-mode="dark"] [class~="text-[#1A1718]/85"],
+html[data-mode="dark"] [class~="text-[#1A1718]/82"],
+html[data-mode="dark"] [class~="text-[#1A1718]/80"],
+html[data-mode="dark"] [class~="text-[#1A1718]/78"],
+html[data-mode="dark"] [class~="text-[#1A1718]/75"],
+html[data-mode="dark"] [class~="text-[#1A1718]/72"],
+html[data-mode="dark"] [class~="text-[#1A1718]/70"] {
+  color: color-mix(in srgb, var(--rk-ink) 80%, transparent) !important;
+}
+html[data-mode="dark"] [class~="text-[#1A1718]/65"],
+html[data-mode="dark"] [class~="text-[#1A1718]/60"],
+html[data-mode="dark"] [class~="text-[#1A1718]/55"],
+html[data-mode="dark"] [class~="text-[#1A1718]/50"],
+html[data-mode="dark"] [class~="text-[#1A1718]/45"] {
+  color: color-mix(in srgb, var(--rk-ink) 60%, transparent) !important;
+}
+
+html[data-mode="dark"] [class~="text-[#38131E]"],
+html[data-mode="dark"] [class~="text-[#2B0E17]"] {
+  color: var(--rk-accent-bright) !important;
+}
+html[data-mode="dark"] [class~="text-[#38131E]/85"],
+html[data-mode="dark"] [class~="text-[#38131E]/80"],
+html[data-mode="dark"] [class~="text-[#38131E]/75"],
+html[data-mode="dark"] [class~="text-[#38131E]/70"] {
+  color: color-mix(in srgb, var(--rk-accent-bright) 80%, transparent) !important;
+}
+html[data-mode="dark"] [class~="text-[#38131E]/65"],
+html[data-mode="dark"] [class~="text-[#38131E]/60"],
+html[data-mode="dark"] [class~="text-[#38131E]/55"],
+html[data-mode="dark"] [class~="text-[#38131E]/50"] {
+  color: color-mix(in srgb, var(--rk-accent-bright) 64%, transparent) !important;
+}
+html[data-mode="dark"] [class~="text-[#38131E]/40"],
+html[data-mode="dark"] [class~="text-[#38131E]/30"],
+html[data-mode="dark"] [class~="text-[#38131E]/25"],
+html[data-mode="dark"] [class~="text-[#38131E]/20"] {
+  color: color-mix(in srgb, var(--rk-accent-bright) 34%, transparent) !important;
+}
+
+html[data-mode="dark"] [class~="text-[#5C4E52]"],
+html[data-mode="dark"] [class~="text-[#7A6A6E]"],
+html[data-mode="dark"] [class~="text-gray-600"],
+html[data-mode="dark"] [class~="text-gray-800"],
+html[data-mode="dark"] [class~="text-stone-700"] {
+  color: color-mix(in srgb, var(--rk-ink) 78%, transparent) !important;
+}
+html[data-mode="dark"] [class~="text-[#9A7A3A]"] {
+  color: var(--rk-accent-bright) !important;
+}
+
+/* Preserve bright gold/ivory text on primary containers (e.g., Wishlisted heart buttons, badges) */
+html[data-mode="dark"] [class~="bg-[#38131E]"]:not(header):not([class*="text-[#F1D889]"]):not([class*="text-[#D4AF63]"]) {
+  background-color: var(--rk-primary) !important;
+  color: var(--rk-on-primary) !important;
+}
+html[data-mode="dark"] [class~="bg-[#38131E]"][class~="text-[#F1D889]"] {
+  background-color: var(--rk-primary) !important;
+  color: var(--rk-accent-bright) !important;
+}
+
+/* Protect dark text inside solid accent buttons & active badges in Dark Mode */
+html[data-mode="dark"] [class~="bg-[#D4AF63]"],
+html[data-mode="dark"] [class~="bg-[#D4AF63]"] *,
+html[data-mode="dark"] [class~="bg-[#F1D889]"],
+html[data-mode="dark"] [class~="bg-[#F1D889]"] *,
+html[data-mode="dark"] .rk-btn-gold,
+html[data-mode="dark"] .rk-btn-gold * {
+  color: var(--rk-on-accent) !important;
+}
+
+/* ==========================================================================
+ * 5. BORDERS, SHADOWS, RINGS, DIVIDERS, PLACEHOLDERS & INTERACTIONS
+ * ========================================================================== */
+
+html[data-theme] [class*="border-[#D4AF63]"] {
+  border-color: color-mix(in srgb, var(--rk-accent) 44%, transparent) !important;
+}
+html[data-theme] [class~="border-[#D4AF63]/0"] {
+  border-color: transparent !important;
+}
+html[data-theme] [class~="border-[#D4AF63]"],
+html[data-theme] [class~="border-[#F1D889]"] {
+  border-color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="border-t-[#D4AF63]"] {
+  border-top-color: var(--rk-accent) !important;
+}
+
+html[data-theme] [class*="border-[#38131E]"]:not([class*="lg:border-[#38131E]"]),
+html[data-mode="dark"] [class~="border-gray-200"],
+html[data-mode="dark"] [class~="border-gray-300"],
+html[data-mode="dark"] [class~="border-stone-300"] {
+  border-color: var(--rk-border) !important;
+}
+html[data-theme] [class~="border-[#38131E]"] {
+  border-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="border-t-[#38131E]"] {
+  border-top-color: var(--rk-primary) !important;
+}
+html[data-mode="dark"] [class~="border-[#38131E]"] {
+  border-color: var(--rk-accent) !important;
+}
+html[data-mode="dark"] [class~="border-t-[#38131E]"] {
+  border-top-color: var(--rk-accent) !important;
+}
+
+@media (min-width: 1024px) {
+  html[data-theme] [class~="lg:border-[#38131E]/14"] {
+    border-color: var(--rk-border) !important;
+  }
+  html[data-theme] [class~="lg:divide-[#38131E]/14"] > :not(:last-child) {
+    border-color: var(--rk-border) !important;
+  }
+}
+
+html[data-theme] [class*="divide-[#38131E]"]:not([class*="lg:divide-[#38131E]"]) > :not(:last-child) {
+  border-color: var(--rk-border) !important;
+}
+
+html[data-theme] [class~="ring-[#D4AF63]"],
+html[data-theme] [class~="focus:ring-[#D4AF63]"]:focus {
+  --tw-ring-color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="ring-[#D4AF63]/60"] {
+  --tw-ring-color: color-mix(in srgb, var(--rk-accent) 60%, transparent) !important;
+}
+
+html[data-theme] [class~="fill-[#D4AF63]"] {
+  fill: var(--rk-accent) !important;
+}
+html[data-theme] [class~="accent-[#38131E]"] {
+  accent-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="accent-[#D4AF63]"] {
+  accent-color: var(--rk-accent) !important;
+}
+
+/* Shadows synced away from rgba(43,14,23,...) burgundy drop-shadows */
+html[data-theme] [class~="shadow-[0_14px_40px_-28px_rgba(43,14,23,0.32)]"] {
+  box-shadow: var(--rk-shadow) !important;
+}
+html[data-theme] [class~="shadow-[0_28px_60px_-24px_rgba(43,14,23,0.45)]"] {
+  box-shadow: var(--rk-shadow-lg) !important;
+}
+html[data-theme] [class~="hover:shadow-[0_12px_30px_-14px_rgba(43,14,23,0.7)]"]:hover,
+html[data-theme] [class~="hover:shadow-[0_14px_34px_-16px_rgba(43,14,23,0.75)]"]:hover {
+  box-shadow: var(--rk-shadow-lg) !important;
+}
+
+/* Focus States */
+html[data-theme] [class~="focus:bg-[#38131E]"]:focus {
+  background-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="focus:text-[#F7F1E5]"]:focus {
+  color: var(--rk-on-primary) !important;
+}
+html[data-theme] [class~="focus:border-[#38131E]"]:focus {
+  border-color: var(--rk-primary) !important;
+}
+html[data-mode="dark"] [class~="focus:border-[#38131E]"]:focus,
+html[data-theme] [class~="focus:border-[#D4AF63]"]:focus {
+  border-color: var(--rk-accent) !important;
+}
+
+/* Placeholders */
+html[data-theme] [class~="placeholder-[#1A1718]/40"]::placeholder,
+html[data-theme] [class~="placeholder-[#1A1718]/45"]::placeholder,
+html[data-theme] [class~="placeholder:text-[#1A1718]/45"]::placeholder,
+html[data-theme] [class~="placeholder-[#7A6A6E]/60"]::placeholder {
+  color: color-mix(in srgb, var(--rk-ink) 45%, transparent) !important;
+}
+
+/* Hover & Group-Hover Interactions */
+html[data-theme] [class~="hover:bg-[#38131E]"]:hover {
+  background-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="hover:bg-[#2B0E17]"]:hover {
+  background-color: var(--rk-primary-deep) !important;
+}
+html[data-theme] [class~="hover:bg-[#38131E]/8"]:hover,
+html[data-theme] [class~="hover:bg-[#38131E]/5"]:hover {
+  background-color: color-mix(in srgb, var(--rk-primary) 10%, transparent) !important;
+}
+html[data-theme] [class~="hover:bg-[#D4AF63]"]:hover {
+  background-color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="hover:bg-[#F1D889]"]:hover {
+  background-color: var(--rk-accent-bright) !important;
+}
+html[data-theme] [class~="hover:bg-[#EFE6D5]"]:hover,
+html[data-theme] [class~="hover:bg-[#EFE6D5]/70"]:hover {
+  background-color: var(--rk-surface-alt) !important;
+}
+html[data-theme] [class~="hover:bg-[#FBF7EE]"]:hover,
+html[data-theme] [class~="hover:bg-[#F7F1E5]"]:hover {
+  background-color: var(--rk-surface) !important;
+}
+html[data-theme] [class~="hover:bg-[#F7F1E5]/40"]:hover {
+  background-color: color-mix(in srgb, var(--rk-surface) 45%, transparent) !important;
+}
+
+html[data-theme] [class~="hover:text-[#F1D889]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:text-[#F1D889]"] {
+  color: var(--rk-accent-bright) !important;
+}
+html[data-theme] [class~="hover:text-[#D4AF63]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:text-[#D4AF63]"] {
+  color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="hover:text-[#F7F1E5]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:text-[#F7F1E5]"] {
+  color: var(--rk-on-primary) !important;
+}
+html[data-theme] .group:hover [class~="group-hover:text-[#F7F1E5]/80"] {
+  color: color-mix(in srgb, var(--rk-on-primary) 82%, transparent) !important;
+}
+html[data-theme] [class~="hover:text-[#9A7A3A]"]:hover {
+  color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="hover:text-[#2B0E17]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:text-[#2B0E17]"],
+html[data-theme] [class~="hover:text-[#38131E]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:text-[#38131E]"] {
+  color: var(--rk-primary) !important;
+}
+html[data-mode="dark"] [class~="hover:text-[#38131E]"]:hover,
+html[data-mode="dark"] [class~="hover:text-[#2B0E17]"]:hover,
+html[data-mode="dark"] .group:hover [class~="group-hover:text-[#38131E]"],
+html[data-mode="dark"] .group:hover [class~="group-hover:text-[#2B0E17]"] {
+  color: var(--rk-accent-bright) !important;
+}
+html[data-theme] [class~="hover:text-[#2B0E17]"][class*="hover:bg-[#D4AF63]"]:hover,
+html[data-mode="dark"] [class~="hover:text-[#2B0E17]"][class*="hover:bg-[#D4AF63]"]:hover,
+html[data-mode="dark"] [class~="hover:text-[#38131E]"][class*="hover:bg-[#D4AF63]"]:hover {
+  color: var(--rk-on-accent) !important;
+}
+
+html[data-theme] [class~="hover:border-[#D4AF63]"]:hover,
+html[data-theme] .group:hover [class~="group-hover:border-[#D4AF63]"] {
+  border-color: var(--rk-accent) !important;
+}
+html[data-theme] [class~="hover:border-[#D4AF63]/50"]:hover,
+html[data-theme] .group:hover [class~="group-hover:border-[#D4AF63]/50"] {
+  border-color: color-mix(in srgb, var(--rk-accent) 50%, transparent) !important;
+}
+html[data-theme] [class~="hover:border-[#D4AF63]/60"]:hover {
+  border-color: color-mix(in srgb, var(--rk-accent) 60%, transparent) !important;
+}
+html[data-theme] [class~="hover:border-[#D4AF63]/70"]:hover {
+  border-color: color-mix(in srgb, var(--rk-accent) 70%, transparent) !important;
+}
+html[data-theme] [class~="hover:border-[#F1D889]"]:hover {
+  border-color: var(--rk-accent-bright) !important;
+}
+html[data-theme] [class~="hover:border-[#38131E]"]:hover {
+  border-color: var(--rk-primary) !important;
+}
+html[data-theme] [class~="hover:border-[#38131E]/40"]:hover,
+html[data-theme] [class~="hover:border-[#38131E]/50"]:hover {
+  border-color: color-mix(in srgb, var(--rk-primary) 48%, transparent) !important;
+}
+html[data-mode="dark"] [class~="hover:border-[#38131E]"]:hover,
+html[data-mode="dark"] [class~="hover:border-[#38131E]/40"]:hover,
+html[data-mode="dark"] [class~="hover:border-[#38131E]/50"]:hover {
+  border-color: var(--rk-accent) !important;
+}
+
+/* Motif diagram vector color sync */
+html[data-theme] svg [stroke="#D4AF63"] {
+  stroke: var(--rk-accent);
+}
+html[data-theme] svg [fill="#D4AF63"] {
+  fill: var(--rk-accent);
+}
+
+/* ==========================================================================
+ * 6. SHARED EDITORIAL ARCHITECTURAL PRIMITIVES
+ * ========================================================================== */
+
+html[data-theme] .rk-surface-card {
+  background-color: var(--rk-surface) !important;
+  border-color: var(--rk-border) !important;
+  box-shadow: var(--rk-shadow) !important;
+}
+
+html[data-theme] .rk-chip {
+  background-color: var(--rk-surface) !important;
+  border-color: var(--rk-border) !important;
+  color: var(--rk-primary) !important;
+}
+html[data-mode="dark"] .rk-chip {
+  color: var(--rk-ink) !important;
+}
+
+html[data-theme] .rk-chip-active {
+  background-color: var(--rk-primary) !important;
+  border-color: var(--rk-accent) !important;
+  color: var(--rk-accent-bright) !important;
+}
+html[data-mode="dark"] .rk-chip-active {
+  background-color: var(--rk-accent) !important;
+  border-color: var(--rk-accent-bright) !important;
+  color: var(--rk-on-accent) !important;
+}
+
+html[data-theme] .rk-btn-primary {
+  background-color: var(--rk-primary) !important;
+  border-color: var(--rk-accent) !important;
+  color: var(--rk-on-primary) !important;
+}
+html[data-theme] .rk-btn-primary:hover {
+  background-color: var(--rk-primary-deep) !important;
+  border-color: var(--rk-accent-bright) !important;
+  box-shadow: var(--rk-shadow-lg) !important;
+}
+
+html[data-theme] .rk-btn-secondary {
+  border-color: var(--rk-border) !important;
+  color: var(--rk-primary) !important;
+}
+html[data-mode="dark"] .rk-btn-secondary {
+  border-color: color-mix(in srgb, var(--rk-accent) 45%, transparent) !important;
+  color: var(--rk-accent-bright) !important;
+}
+html[data-theme] .rk-btn-secondary:hover {
+  background-color: var(--rk-primary) !important;
+  color: var(--rk-on-primary) !important;
+  border-color: var(--rk-accent) !important;
+}
+
+html[data-theme] .rk-btn-gold {
+  background-color: var(--rk-accent) !important;
+  border-color: var(--rk-accent) !important;
+  color: var(--rk-on-accent) !important;
+}
+html[data-theme] .rk-btn-gold:hover {
+  background-color: var(--rk-accent-bright) !important;
+  border-color: var(--rk-accent-bright) !important;
+}
+
+html[data-theme] .input-floating,
+html[data-theme] select,
+html[data-theme] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme] textarea {
+  background-color: var(--rk-surface);
+  color: var(--rk-ink);
+  border-color: var(--rk-border);
+}
+
+html[data-mode="dark"] .input-floating,
+html[data-mode="dark"] select,
+html[data-mode="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-mode="dark"] textarea {
+  background-color: var(--rk-surface) !important;
+  color: var(--rk-ink) !important;
+  border-color: var(--rk-border) !important;
+}
+
+html[data-mode="dark"] input::placeholder,
+html[data-mode="dark"] textarea::placeholder {
+  color: color-mix(in srgb, var(--rk-ink) 45%, transparent) !important;
+}
+
+html[data-theme] .peer:focus ~ .label-floating {
+  color: var(--rk-primary) !important;
+}
+html[data-theme] .peer:valid ~ .label-floating {
+  color: color-mix(in srgb, var(--rk-primary) 80%, transparent) !important;
+}
+html[data-mode="dark"] .label-floating {
+  color: color-mix(in srgb, var(--rk-ink) 65%, transparent) !important;
+}
+html[data-mode="dark"] .peer:focus ~ .label-floating,
+html[data-mode="dark"] .peer:valid ~ .label-floating {
+  color: var(--rk-accent-bright) !important;
+}

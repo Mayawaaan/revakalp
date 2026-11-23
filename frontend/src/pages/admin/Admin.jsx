@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -9,31 +9,33 @@ import {
   Ticket,
   List,
   BarChart3,
-  Image,
   Settings,
   Menu,
   X,
   LogOut,
   Store,
-  Sparkles,
+  Megaphone,
+  MessageSquareWarning,
+  ExternalLink,
 } from "lucide-react";
 import useStore from "../../store/store";
 import useAuth from "../../hooks/useAuth";
 import BrandMark from "../../components/brand/BrandMark";
+import ThemeSwitcher from "../../components/theme/ThemeSwitcher";
 
 const navLinks = [
   { to: "/admin", end: true, icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/admin/inventory", icon: Store, label: "Inventory / POS" },
+  { to: "/admin/cms", icon: Megaphone, label: "Campaigns & Ads" },
   { to: "/admin/products", icon: Package, label: "Products" },
+  { to: "/admin/inventory", icon: Store, label: "Inventory / POS" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },
-  { to: "/admin/cms", icon: Sparkles, label: "Content CMS" },
-  { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/collections", icon: Layers, label: "Collections" },
   { to: "/admin/types", icon: List, label: "Types" },
   { to: "/admin/coupons", icon: Ticket, label: "Coupons" },
+  { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/grievances", icon: MessageSquareWarning, label: "Grievances" },
   { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
-  { to: "/admin/images", icon: Image, label: "Media" },
-  { to: "/admin/settings", icon: Settings, label: "Settings" },
+  { to: "/admin/settings", icon: Settings, label: "Settings & Theme" },
 ];
 
 const Admin = () => {
@@ -61,7 +63,7 @@ const Admin = () => {
         <div className="flex items-center justify-between px-5 pt-6 pb-5 border-b border-[#D4AF63]/20">
           <div className="space-y-1.5">
             <p className="text-[10px] uppercase tracking-[0.26em] text-[#F1D889] font-semibold">
-              Admin Panel
+              Admin Command Center
             </p>
             <BrandMark variant="headerDark" className="h-5 w-auto" />
           </div>
@@ -75,7 +77,10 @@ const Admin = () => {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-hide" aria-label="Admin navigation">
+        <nav
+          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-hide"
+          aria-label="Admin navigation"
+        >
           {navLinks.map((item) => {
             const Icon = item.icon;
             return (
@@ -116,7 +121,7 @@ const Admin = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8">
+        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8 gap-2">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -130,11 +135,27 @@ const Admin = () => {
             Welcome back, <span className="text-[#38131E] font-semibold">Admin</span>
           </p>
 
-          <div className="flex items-center gap-2 bg-[#F7F1E5] border border-[#D4AF63]/50 rounded-full px-3 py-1.5">
-            <div className="w-6 h-6 rounded-full bg-[#38131E] flex items-center justify-center">
-              <span className="text-[#F1D889] text-[10px] font-bold">A</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 ml-auto">
+            <Link
+              to="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-[#38131E]/20 bg-[#F7F1E5] text-[#38131E] text-xs font-semibold hover:border-[#D4AF63] transition-colors"
+            >
+              <span>View Live Site</span>
+              <ExternalLink size={12} />
+            </Link>
+
+            <ThemeSwitcher />
+
+            <div className="flex items-center gap-2 bg-[#F7F1E5] border border-[#D4AF63]/50 rounded-full px-3 py-1.5">
+              <div className="w-6 h-6 rounded-full bg-[#38131E] flex items-center justify-center">
+                <span className="text-[#F1D889] text-[10px] font-bold">A</span>
+              </div>
+              <span className="text-xs text-[#38131E] font-semibold hidden sm:block">
+                Admin
+              </span>
             </div>
-            <span className="text-xs text-[#38131E] font-semibold hidden sm:block">Admin</span>
           </div>
         </header>
 

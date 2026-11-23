@@ -14,7 +14,7 @@ const PageHero = ({ label, title, subtitle, children }) => (
       className="pointer-events-none absolute inset-0"
       style={{
         background:
-          "radial-gradient(ellipse 65% 60% at 50% 45%, rgba(92,28,48,0.55) 0%, rgba(43,14,23,0.95) 100%)",
+          "radial-gradient(ellipse 65% 60% at 50% 45%, color-mix(in srgb, var(--rk-primary, #38131E) 72%, transparent) 0%, color-mix(in srgb, var(--rk-primary-deep, #2B0E17) 96%, transparent) 100%)",
       }}
     />
 

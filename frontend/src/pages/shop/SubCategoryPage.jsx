@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import useStore from "../../store/store";
@@ -9,7 +9,9 @@ import EditorialButton from "../../components/ui/EditorialButton";
 import {
   getCategoryTileArt,
   getSareeTypeTileArt,
+  isRedundantAllEntry,
 } from "../../config/storefrontCategories";
+import { buildBreadcrumbSchema, useSeoMeta } from "../../utils/seo";
 
 const CATEGORY_META = {
   saree: {
@@ -45,17 +47,25 @@ const SubCategoryPage = () => {
   const normalized = (category || "").toLowerCase();
   const { sareeTypes, suitTypes, kurtaTypes, loading, collections } = useStore();
 
-  if (DIRECT_LIST_ALIASES.has(normalized)) {
-    return <Navigate to={`/shop/${normalized}/all`} replace />;
-  }
+  const isDirectRedirect =
+    DIRECT_LIST_ALIASES.has(normalized) ||
+    (normalized !== "saree" && normalized !== "suit" && normalized !== "kurta");
 
-  let types = [];
-  if (normalized === "saree") types = sareeTypes;
-  else if (normalized === "suit") types = suitTypes;
-  else if (normalized === "kurta") types = kurtaTypes;
-  else {
-    return <Navigate to={`/shop/${normalized || "all"}/all`} replace />;
-  }
+  const types =
+    normalized === "saree"
+      ? sareeTypes
+      : normalized === "suit"
+        ? suitTypes
+        : normalized === "kurta"
+          ? kurtaTypes
+          : [];
+
+  const visibleTypes = (types || []).filter(
+    (t) => !isRedundantAllEntry(t, normalized)
+  );
+  const pluralLabel =
+    { saree: "Sarees", suit: "Suits", kurta: "Kurtas" }[normalized] ||
+    normalized.charAt(0).toUpperCase() + normalized.slice(1);
 
   const matchedCollection = (collections || []).find(
     (c) => c.id?.toLowerCase() === normalized
@@ -65,6 +75,39 @@ const SubCategoryPage = () => {
     subheading: matchedCollection?.description || "Curated styles from Revakalp.",
   };
 
+  const pageJsonLd = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: meta.heading,
+        description: meta.subheading,
+        url: origin ? `${origin}/shop/${normalized}` : undefined,
+      },
+      buildBreadcrumbSchema(origin, [
+        { name: "Home", path: "/" },
+        { name: "Collections", path: "/shop" },
+        { name: pluralLabel, path: `/shop/${normalized}` },
+      ]),
+    ];
+  }, [meta.heading, meta.subheading, normalized, pluralLabel]);
+
+  useSeoMeta({
+    title: meta.heading,
+    description: meta.subheading,
+    canonicalPath: `/shop/${normalized}`,
+    ogImage:
+      normalized === "saree"
+        ? "/saree-tiles/all-sarees.png"
+        : getCategoryTileArt(normalized),
+    jsonLd: isDirectRedirect ? null : pageJsonLd,
+  });
+
+  if (isDirectRedirect) {
+    return <Navigate to={`/shop/${normalized || "all"}/all`} replace />;
+  }
+
   return (
     <div className="bg-[#F7F1E5] min-h-screen">
       <PageHero
@@ -73,7 +116,7 @@ const SubCategoryPage = () => {
         subtitle={meta.subheading}
       >
         <EditorialButton to={`/shop/${normalized}/all`} variant="gold">
-          <span>View All {normalized.charAt(0).toUpperCase() + normalized.slice(1)}</span>
+          <span>View All {pluralLabel}</span>
           <ArrowRight className="w-4 h-4" />
         </EditorialButton>
 
@@ -98,7 +141,7 @@ const SubCategoryPage = () => {
 
         {loading && !types?.length ? (
           <LoadingSkeleton count={6} />
-        ) : types && types.length > 0 ? (
+        ) : visibleTypes.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-6">
             <Link
               to={`/shop/${normalized}/all`}
@@ -110,7 +153,7 @@ const SubCategoryPage = () => {
                     ? "/saree-tiles/all-sarees.png"
                     : getCategoryTileArt(normalized)
                 }
-                alt={`All ${normalized}`}
+                alt={`All ${pluralLabel}`}
                 className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <div
@@ -123,14 +166,14 @@ const SubCategoryPage = () => {
                     Complete Edit
                   </p>
                   <h3 className="font-serif text-lg sm:text-3xl leading-tight">
-                    View All {normalized.charAt(0).toUpperCase() + normalized.slice(1)}
+                    View All {pluralLabel}
                   </h3>
                 </div>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#F1D889] shrink-0 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {types.map((type) => {
+            {visibleTypes.map((type) => {
               const typeImg =
                 normalized === "saree"
                   ? getSareeTypeTileArt(type.slug || type.name, type.image)

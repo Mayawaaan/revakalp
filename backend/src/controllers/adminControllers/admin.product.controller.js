@@ -71,6 +71,18 @@ export const createProduct = async (req, res) => {
 
         const hasSizes = hasSizesRaw === 'true' || hasSizesRaw === true;
         const parsedSizes = hasSizes ? normalizeSizes(sizes) : [];
+        const numericStock = Number(stock);
+
+        let parsedSpecs;
+        if (req.body.specs) {
+            try {
+                parsedSpecs = typeof req.body.specs === "string"
+                    ? JSON.parse(req.body.specs)
+                    : req.body.specs;
+            } catch {
+                parsedSpecs = undefined;
+            }
+        }
 
         if (
             !name ||
@@ -82,9 +94,12 @@ export const createProduct = async (req, res) => {
             !gender ||
             !state ||
             (hasSizes && !parsedSizes?.length) ||
-            !stock
+            stock === undefined ||
+            stock === "" ||
+            !Number.isFinite(numericStock) ||
+            numericStock < 0
         ) {
-            return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({ message: "All required fields must be filled cleanly" });
         }
 
         if (!req.files || req.files.length === 0) {
@@ -99,16 +114,16 @@ export const createProduct = async (req, res) => {
 
         const code = await generateUniqueProductCode(state);
 
-const discountedPrice = discount
-  ? Math.round(price - ((price * discount) / 100))
-  : undefined;
+        const discountedPrice = discount
+            ? Math.round(Number(price) - (Number(price) * Number(discount)) / 100)
+            : undefined;
 
         const newProduct = new Product({
             code,
             name,
             description,
-            price,
-            discount,
+            price: Number(price),
+            discount: discount ? Number(discount) : 0,
             discountedPrice,
             image: imageUrls,
             category,
@@ -118,11 +133,12 @@ const discountedPrice = discount
             state,
             hasSizes,
             sizes: parsedSizes,
-            stock,
+            stock: numericStock,
             date: Date.now(),
-            bestseller,
+            bestseller: bestseller === "true" || bestseller === true,
             print,
-            exclusivity,
+            exclusivity: exclusivity === "true" || exclusivity === true,
+            ...(parsedSpecs && { specs: parsedSpecs }),
         }); 
         // console.log("Creating product with data:", newProduct);
 
@@ -233,29 +249,47 @@ export const updateProduct = async (req, res) => {
         };
 
         if (discount !== undefined) {
-            const currentPrice = price !== undefined ? price : productToUpdate.price;
-            updateFields.discount = discount;
-            updateFields.discountedPrice = discount > 0 ? currentPrice - (currentPrice * discount) / 100 : undefined;
+            const currentPrice = Number(price !== undefined ? price : productToUpdate.price);
+            const numericDiscount = Number(discount) || 0;
+            updateFields.discount = numericDiscount;
+            updateFields.discountedPrice =
+                numericDiscount > 0
+                    ? Math.round(currentPrice - (currentPrice * numericDiscount) / 100)
+                    : undefined;
         }
-        // console.log("Update Fields:", updateFields);
-        
-        let finalImageUrls = existingImages
-            ? Array.isArray(existingImages)
-                ? existingImages
-                : [existingImages]
-                : [];
-                // console.log("Final Image URLs before upload:", finalImageUrls);
-        const imagesToDelete = productToUpdate.image.filter(
-            (url) => !finalImageUrls.includes(url)
+
+        if (req.body.specs !== undefined) {
+            try {
+                updateFields.specs =
+                    typeof req.body.specs === "string"
+                        ? JSON.parse(req.body.specs)
+                        : req.body.specs;
+            } catch {
+                // ignore malformed specs
+            }
+        }
+
+        const hasExistingField = Object.prototype.hasOwnProperty.call(
+            req.body,
+            "existingImages"
         );
-        // console.log("Images to delete:", imagesToDelete);
+        let finalImageUrls = hasExistingField
+            ? Array.isArray(existingImages)
+                ? existingImages.filter(Boolean)
+                : existingImages
+                ? [existingImages]
+                : []
+            : [...(productToUpdate.image || [])];
 
-        for (const imageUrl of imagesToDelete) {
-            const publicId = getPublicIdFromUrl(imageUrl);
-            if (publicId) await deleteImageFromCloudinary(publicId);
+        if (hasExistingField) {
+            const imagesToDelete = (productToUpdate.image || []).filter(
+                (url) => !finalImageUrls.includes(url)
+            );
+            for (const imageUrl of imagesToDelete) {
+                const publicId = getPublicIdFromUrl(imageUrl);
+                if (publicId) await deleteImageFromCloudinary(publicId);
+            }
         }
-        // console.log("Final Image URLs after upload:", finalImageUrls);
-
 
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
@@ -264,8 +298,7 @@ export const updateProduct = async (req, res) => {
                 await fs.unlink(file.path);
             }
         }
-        console.log("Final Image URLs after adding new uploads:", finalImageUrls);
-        if (finalImageUrls.length > 0) {
+        if (hasExistingField || (req.files && req.files.length > 0)) {
             updateFields.image = finalImageUrls;
         }
         // console.log("Update Fields:", updateFields);

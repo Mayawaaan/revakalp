@@ -62,6 +62,12 @@ const grievanceSchema = new mongoose.Schema(
       enum: ["open", "acknowledged", "in_progress", "resolved"],
       default: "open",
     },
+    adminNote: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 1000,
+    },
     acknowledgedAt: {
       type: Date,
       default: Date.now,

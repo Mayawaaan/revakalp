@@ -3,26 +3,130 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>REVAKALP — Curated Ethnic &amp; Contemporary Apparel</title>
+    <title>REVAKALP — Weaving Life Into Time | Handloom Sarees, Lehengas &amp; Ethnic Wear</title>
     <meta
       name="description"
-      content="Revakalp — Sarees, lehengas, Indo-Western styles, and everyday tees curated in Indore."
+      content="Revakalp — Curated Indian handloom sarees, bridal lehengas, Indo-Western outfits, and everyday printed tees from our Rajendra Nagar, Indore boutique."
     />
-    <meta name="theme-color" content="#38131E" />
+    <meta
+      name="keywords"
+      content="Revakalp, handloom sarees India, Maheshwari saree, Banarasi saree, Chanderi saree, Kanjivaram, bridal lehenga, Indore ethnic boutique"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://revakalp.com/" />
+    <meta name="theme-color" content="#141416" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var validS = [
+          "royal-burgundy",
+          "emerald-banaras",
+          "indigo-jaipur",
+          "saffron-udaipur",
+          "peacock-kanchipuram",
+          "jamuni-mysore",
+          "rose-chanderi",
+          "sandalwood-maheshwar",
+          "obsidian-kashi"
+        ];
+        var pendingTimer = null;
+
+        function applyBootTheme(scheme, mode) {
+          if (pendingTimer) {
+            clearTimeout(pendingTimer);
+            pendingTimer = null;
+          }
+          if (scheme && validS.indexOf(scheme) !== -1) {
+            root.dataset.theme = scheme;
+            try {
+              localStorage.setItem("rk-theme-scheme", scheme);
+            } catch (e) {}
+          }
+          var resolvedMode = mode === "dark" ? "dark" : "light";
+          root.dataset.mode = resolvedMode;
+          root.style.colorScheme = resolvedMode;
+          try {
+            if (mode === "dark" || mode === "light") {
+              localStorage.setItem("rk-theme-mode", resolvedMode);
+            }
+          } catch (e) {}
+          delete root.dataset.themePending;
+        }
+
+        try {
+          var cachedS = localStorage.getItem("rk-theme-scheme");
+          var cachedM = localStorage.getItem("rk-theme-mode");
+          if (cachedS && validS.indexOf(cachedS) !== -1) {
+            root.dataset.theme = cachedS;
+            root.dataset.mode = cachedM === "dark" ? "dark" : "light";
+            root.style.colorScheme = root.dataset.mode;
+          } else {
+            root.dataset.themePending = "true";
+            root.dataset.mode = "light";
+            root.style.colorScheme = "light";
+            pendingTimer = setTimeout(function () {
+              delete root.dataset.themePending;
+            }, 2200);
+          }
+
+          var rawApi = "%VITE_API_URL%";
+          var apiBase =
+            rawApi && rawApi.indexOf("VITE_API_URL") === -1
+              ? rawApi.replace(/\/$/, "")
+              : "";
+          window.__RK_SETTINGS_PROMISE__ = fetch(apiBase + "/api/settings", {
+            cache: "no-store",
+            credentials: "include"
+          })
+            .then(function (res) {
+              if (!res.ok) return null;
+              return res.json();
+            })
+            .then(function (data) {
+              if (data && data.themeScheme && validS.indexOf(data.themeScheme) !== -1) {
+                applyBootTheme(data.themeScheme, data.themeMode);
+              } else {
+                delete root.dataset.themePending;
+              }
+              return data;
+            })
+            .catch(function () {
+              delete root.dataset.themePending;
+              return null;
+            });
+        } catch (e) {
+          delete root.dataset.themePending;
+        }
+      })();
+    </script>
 
     <!-- Official Brand Icons & Manifest -->
     <link rel="icon" href="/branding/icons/favicon.ico" sizes="any" />
-    <link rel="icon" href="/branding/icons/revakalp-icon-burgundy-on-ivory.svg" type="image/svg+xml" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141416'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Georgia,serif' font-weight='700' font-size='34' fill='%23F6F6F4'%3ER%3C/text%3E%3C/svg%3E"
+      type="image/svg+xml"
+    />
     <link rel="icon" type="image/png" sizes="32x32" href="/branding/icons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/branding/icons/favicon-16x16.png" />
     <link rel="apple-touch-icon" href="/branding/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/branding/site.webmanifest" />
 
-    <!-- Open Graph -->
+    <!-- Open Graph & Twitter Cards -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="REVAKALP" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:url" content="https://revakalp.com/" />
     <meta property="og:title" content="REVAKALP — Weaving Life Into Time" />
-    <meta property="og:description" content="Ethnic wear and everyday expressions, curated in Indore." />
+    <meta property="og:description" content="Regional Indian handloom sarees, bridal lehengas, Indo-Western styles, and everyday printed tees curated in Indore." />
     <meta property="og:image" content="/branding/social/revakalp-open-graph-1200x630.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="REVAKALP — Weaving Life Into Time" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="REVAKALP — Weaving Life Into Time" />
+    <meta name="twitter:description" content="Regional Indian handloom sarees, bridal lehengas, Indo-Western styles, and everyday printed tees curated in Indore." />
+    <meta name="twitter:image" content="/branding/social/revakalp-open-graph-1200x630.png" />
 
     <!-- Official Brand Typography: EB Garamond (Headings) & Inter (Body/UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import useReducedMotion from "../motion/useReducedMotion";
-import { HERITAGE_TRADITIONS } from "../../data/heritageTraditions";
+import { FEATURED_HERITAGE_TRADITIONS } from "../../data/heritageTraditions";
+import { isRedundantAllEntry } from "../../config/storefrontCategories";
 
 const MotionDiv = motion.div;
 
@@ -14,6 +15,12 @@ export default function MegaMenu({
   onClose,
 }) {
   const reducedMotion = useReducedMotion();
+  const visibleSareeTypes = (sareeTypes || []).filter(
+    (t) => !isRedundantAllEntry(t, "saree")
+  );
+  const visibleCollections = (collections || []).filter(
+    (c) => !isRedundantAllEntry(c, "collection")
+  );
 
   return (
     <AnimatePresence>
@@ -25,7 +32,7 @@ export default function MegaMenu({
           exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
           transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           onMouseLeave={onClose}
-          className="hidden lg:block absolute left-0 right-0 top-full bg-[#F7F1E5] border-b border-[#D4AF63]/45 shadow-[0_28px_60px_-24px_rgba(43,14,23,0.45)] z-50 text-[#1A1718]"
+          className="hidden lg:block absolute left-0 right-0 top-full bg-[#F7F1E5] border-b border-[#D4AF63]/45 shadow-[var(--rk-shadow-lg)] z-50 text-[#1A1718]"
         >
           <div className="max-w-7xl mx-auto px-6 py-9">
             {activeMenu === "sarees" && (
@@ -61,11 +68,11 @@ export default function MegaMenu({
 
                 <div className="col-span-5">
                   <p className="text-[10px] uppercase tracking-[0.28em] text-[#38131E]/65 mb-4">
-                    {sareeTypes.length > 0 ? "Browse Saree Styles" : "Browse by Region"}
+                    {visibleSareeTypes.length > 0 ? "Browse Saree Styles" : "Browse by Region"}
                   </p>
-                  {sareeTypes.length > 0 ? (
+                  {visibleSareeTypes.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2.5">
-                      {sareeTypes.slice(0, 8).map((t) => (
+                      {visibleSareeTypes.slice(0, 8).map((t) => (
                         <Link
                           key={t.slug || t._id}
                           to={`/shop/saree/${t.slug}`}
@@ -81,7 +88,7 @@ export default function MegaMenu({
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-2.5">
-                      {HERITAGE_TRADITIONS.map((trad) => (
+                      {FEATURED_HERITAGE_TRADITIONS.map((trad) => (
                         <Link
                           key={trad.slug}
                           to={trad.shopRoute}
@@ -179,20 +186,20 @@ export default function MegaMenu({
                     Stories Behind the Weaves
                   </h3>
                   <p className="text-sm text-[#1A1718]/75 leading-relaxed mb-6">
-                    Explore six beloved regional traditions — where they come from, their
-                    classic motifs, and how to care for them.
+                    Explore sarees and handloom weaves from all 29 Indian states —
+                    state map, detailed Markdown dossiers, and 3D weave previews.
                   </p>
                   <Link
                     to="/heritage"
                     onClick={onClose}
                     className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-[#38131E] border-b border-[#D4AF63] pb-1"
                   >
-                    Explore the textile guide <ArrowRight className="w-3.5 h-3.5" />
+                    Explore all 29 states <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
                 <div className="col-span-8 grid grid-cols-3 gap-3">
-                  {HERITAGE_TRADITIONS.map((trad) => (
+                  {FEATURED_HERITAGE_TRADITIONS.map((trad) => (
                     <Link
                       key={trad.slug}
                       to={`/heritage/${trad.slug}`}
@@ -249,8 +256,8 @@ export default function MegaMenu({
                     Categories
                   </p>
                   <div className="grid grid-cols-3 gap-3">
-                    {(collections.length > 0
-                      ? collections.map((c) => ({ label: c.name, to: `/shop/${c.id}` }))
+                    {(visibleCollections.length > 0
+                      ? visibleCollections.map((c) => ({ label: c.name, to: `/shop/${c.id}` }))
                       : [
                           { label: "Sarees", to: "/shop/saree" },
                           { label: "Lehengas", to: "/shop/lehenga/all" },

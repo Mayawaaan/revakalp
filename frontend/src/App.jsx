@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import useLenis from "./hooks/useLenis";
 import useReducedMotion from "./components/motion/useReducedMotion";
 import axiosInstance from "./utils/axiosInstance";
@@ -13,6 +13,7 @@ import Toast from "./components/globalComponents/Toast";
 import ScrollToTop from "./components/globalComponents/ScrollToTop";
 import WebsiteLoader from "./components/globalComponents/WebsiteLoader";
 import CookieConsentBanner from "./components/compliance/CookieConsentBanner";
+import PromoPopupAd from "./components/campaigns/PromoPopupAd";
 
 /* ===== Public & Customer Pages ===== */
 import Home from "./pages/home/Home";
@@ -63,12 +64,12 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const ViewOrders = lazy(() => import("./pages/admin/ViewOrders"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ManageCoupons = lazy(() => import("./pages/admin/ManageCoupons"));
-const ImageManagement = lazy(() => import("./pages/admin/ImageManagement"));
 const Settings = lazy(() => import("./pages/admin/Settings"));
 const ManageCollections = lazy(() => import("./pages/admin/ManageCollections"));
 const ManageTypes = lazy(() => import("./pages/admin/ManageTypes"));
 const InventoryPOS = lazy(() => import("./pages/admin/InventoryPOS"));
 const ManageCMS = lazy(() => import("./pages/admin/ManageCMS"));
+const ManageGrievances = lazy(() => import("./pages/admin/ManageGrievances"));
 
 /* ===== Store ===== */
 import useStore from "./store/store";
@@ -80,6 +81,7 @@ const RouteFallback = () => (
 );
 
 const MotionMain = motion.main;
+const MotionDiv = motion.div;
 
 const App = () => {
   useLenis();
@@ -89,10 +91,12 @@ const App = () => {
   const {
     fetchProducts,
     fetchPublicSettings,
+    fetchActiveCampaigns,
     fetchWishlist,
     fetchCart,
     initAuth,
     user,
+    settings,
   } = useStore();
 
   const routeTransitionKey = location.pathname.startsWith("/admin")
@@ -103,8 +107,9 @@ const App = () => {
   useEffect(() => {
     fetchProducts();
     fetchPublicSettings();
+    fetchActiveCampaigns();
     initAuth(axiosInstance);
-  }, [fetchProducts, fetchPublicSettings, initAuth]);
+  }, [fetchProducts, fetchPublicSettings, fetchActiveCampaigns, initAuth]);
 
   /* Load user-dependent data */
   useEffect(() => {
@@ -113,6 +118,44 @@ const App = () => {
       fetchCart();
     }
   }, [user, fetchWishlist, fetchCart]);
+
+  const isAdminOrLoginRoute =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/login");
+  const maintenanceBlocked =
+    Boolean(settings?.maintenanceMode) &&
+    user?.role !== "admin" &&
+    !isAdminOrLoginRoute;
+
+  if (maintenanceBlocked) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#2B0E17] text-[#F7F1E5] px-6 text-center space-y-5">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-[#F1D889]">
+          {settings?.storeName || "Revakalp"} · Indore
+        </p>
+        <h1 className="font-serif text-4xl sm:text-5xl text-[#F7F1E5]">
+          We&apos;ll Be Right Back
+        </h1>
+        <p className="text-sm sm:text-base text-[#F7F1E5]/80 max-w-md leading-relaxed">
+          Our online store is undergoing brief scheduled curation and updates. For
+          urgent assistance, email{" "}
+          <a
+            href={`mailto:${settings?.supportEmail || "contact@revakalp.com"}`}
+            className="text-[#F1D889] underline"
+          >
+            {settings?.supportEmail || "contact@revakalp.com"}
+          </a>
+          .
+        </p>
+        <a
+          href="/login"
+          className="text-[11px] uppercase tracking-[0.2em] text-[#D4AF63] hover:text-[#F1D889] underline"
+        >
+          Admin Sign In
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F1E5] text-[#1A1718]">
@@ -125,21 +168,36 @@ const App = () => {
 
       <WebsiteLoader />
       <Toast />
+
+      {/* Subtle golden top transition accent on route changes */}
+      <MotionDiv
+        key={`bar-${routeTransitionKey}`}
+        aria-hidden="true"
+        initial={{ scaleX: 0, opacity: 0.9 }}
+        animate={{ scaleX: [0, 0.72, 1], opacity: [0.95, 0.95, 0] }}
+        transition={{ duration: reducedMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 h-[2px] z-[180] origin-left pointer-events-none"
+        style={{ backgroundColor: "var(--rk-accent, #D4AF63)" }}
+      />
+
       <Navbar />
       <ScrollToTop />
       <CookieConsentBanner />
+      <PromoPopupAd />
       <SearchBar />
 
-      <MotionMain
-        id="main-content"
-        key={routeTransitionKey}
-        initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: reducedMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex-1"
-      >
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
+      <AnimatePresence mode="wait" initial={false}>
+        <MotionMain
+          id="main-content"
+          key={routeTransitionKey}
+          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
+          transition={{ duration: reducedMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="flex-1"
+        >
+          <Suspense fallback={<RouteFallback />}>
+            <Routes location={location}>
             {/* Public */}
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<CategoryPage />} />
@@ -190,9 +248,9 @@ const App = () => {
                 <Route path="coupons" element={<ManageCoupons />} />
                 <Route path="types" element={<ManageTypes />} />
                 <Route path="analytics" element={<Analytics />} />
-                <Route path="images" element={<ImageManagement />} />
                 <Route path="inventory" element={<InventoryPOS />} />
                 <Route path="cms" element={<ManageCMS />} />
+                <Route path="grievances" element={<ManageGrievances />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
@@ -201,7 +259,8 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </MotionMain>
+        </MotionMain>
+      </AnimatePresence>
 
       <Footer />
     </div>

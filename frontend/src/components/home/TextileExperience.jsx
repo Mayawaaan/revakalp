@@ -8,7 +8,7 @@ import EditorialButton from "../ui/EditorialButton";
 import SceneFallback from "../three/SceneFallback";
 import useReducedMotion, { checkWebGLSupport } from "../motion/useReducedMotion";
 import {
-  HERITAGE_TRADITIONS,
+  FEATURED_HERITAGE_TRADITIONS,
   matchTraditionProducts,
 } from "../../data/heritageTraditions";
 
@@ -20,13 +20,16 @@ export default function TextileExperience() {
   const { products } = useStore();
   const reducedMotion = useReducedMotion();
   const [webglOk, setWebglOk] = useState(checkWebGLSupport);
-  const [activeSlug, setActiveSlug] = useState(HERITAGE_TRADITIONS[0].slug);
+  const [activeSlug, setActiveSlug] = useState(
+    FEATURED_HERITAGE_TRADITIONS[0].slug
+  );
   const sectionRef = useRef(null);
   const progressRef = useRef(0);
 
   const activeTradition = useMemo(
     () =>
-      HERITAGE_TRADITIONS.find((t) => t.slug === activeSlug) || HERITAGE_TRADITIONS[0],
+      FEATURED_HERITAGE_TRADITIONS.find((t) => t.slug === activeSlug) ||
+      FEATURED_HERITAGE_TRADITIONS[0],
     [activeSlug]
   );
 
@@ -65,7 +68,7 @@ export default function TextileExperience() {
       className="absolute inset-0 bg-gradient-to-br from-[#2B0E17] via-[#38131E] to-[#2B0E17]"
     >
       <img
-        src="/campaign/category-lehengas.png"
+        src="/category-tiles/lehengas.png"
         alt=""
         loading="lazy"
         className="w-full h-full object-cover opacity-30 mix-blend-luminosity"
@@ -124,7 +127,7 @@ export default function TextileExperience() {
             aria-label="Inspect regional textile weaves"
             className="flex flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 gap-2 pt-1"
           >
-            {HERITAGE_TRADITIONS.map((trad) => {
+            {FEATURED_HERITAGE_TRADITIONS.map((trad) => {
               const selected = trad.slug === activeTradition.slug;
               return (
                 <button
@@ -166,7 +169,7 @@ export default function TextileExperience() {
 
             <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3">
               <EditorialButton to="/heritage" variant="gold" className="w-full sm:w-auto">
-                <span>Explore Textile Guide</span>
+                <span>Explore 29-State Atlas</span>
                 <ArrowRight className="w-4 h-4" />
               </EditorialButton>
 

@@ -61,7 +61,7 @@ export const apiFetch = async (endpoint, options = {}, _isRetry = false) => {
     }
 
     try {
-      const newToken = await refreshAccessToken();
+      await refreshAccessToken();
       // Retry original request with new token
       return apiFetch(endpoint, options, true);
     } catch {
@@ -77,7 +77,9 @@ export const apiFetch = async (endpoint, options = {}, _isRetry = false) => {
     try {
       const data = await res.json();
       error = data.message || error;
-    } catch {}
+    } catch {
+      /* ignore non-JSON body */
+    }
 
     throw new Error(error);
   }

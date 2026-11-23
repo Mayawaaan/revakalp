@@ -1,5 +1,17 @@
 import mongoose from "mongoose";
 
+export const VALID_THEME_SCHEMES = [
+  "royal-burgundy",
+  "emerald-banaras",
+  "indigo-jaipur",
+  "saffron-udaipur",
+  "peacock-kanchipuram",
+  "jamuni-mysore",
+  "rose-chanderi",
+  "sandalwood-maheshwar",
+  "obsidian-kashi",
+];
+
 const settingsSchema = new mongoose.Schema(
   {
     // Store Settings
@@ -113,6 +125,18 @@ const settingsSchema = new mongoose.Schema(
     countryOfOriginDefault: {
       type: String,
       default: "India",
+    },
+
+    // Storefront Theme & Color Grading
+    themeScheme: {
+      type: String,
+      enum: VALID_THEME_SCHEMES,
+      default: "royal-burgundy",
+    },
+    themeMode: {
+      type: String,
+      enum: ["light", "dark"],
+      default: "light",
     },
   },
   { timestamps: true }

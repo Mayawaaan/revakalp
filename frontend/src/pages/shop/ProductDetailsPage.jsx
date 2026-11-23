@@ -19,7 +19,7 @@ import EditorialButton from "../../components/ui/EditorialButton";
 import EmptyState from "../../components/ui/EmptyState";
 import RelatedProducts from "../../components/products/RelatedProducts";
 import Reviews from "../../components/reviews/Reviews";
-import { useSeoMeta } from "../../utils/seo";
+import { buildBreadcrumbSchema, useSeoMeta } from "../../utils/seo";
 import { trackEvent } from "../../utils/analytics";
 import { getEffectivePrice } from "../../config/storefrontCategories";
 import { findTraditionForProduct } from "../../data/heritageTraditions";
@@ -117,27 +117,73 @@ const ProductDetailsPage = () => {
     const resolved = product._id || product.id;
     const effective = getEffectivePrice(product);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    return {
+    const reviewList = Array.isArray(reviews) ? reviews : [];
+    const ratedCount = reviewList.length;
+    const avgRating =
+      ratedCount > 0
+        ? (
+            reviewList.reduce((acc, r) => acc + Number(r?.rating || 0), 0) /
+            ratedCount
+          ).toFixed(1)
+        : null;
+
+    const productSchema = {
       "@context": "https://schema.org",
       "@type": "Product",
       name: product.name,
       description: product.description || undefined,
       image: images.length ? images : undefined,
-      sku: product.sku || resolved,
+      sku: product.code || product.sku || resolved,
       category: product.category || undefined,
       brand: { "@type": "Brand", name: "REVAKALP" },
+      ...(avgRating
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: avgRating,
+              reviewCount: ratedCount,
+            },
+          }
+        : {}),
       offers: {
         "@type": "Offer",
         priceCurrency: "INR",
         price: effective,
+        itemCondition: "https://schema.org/NewCondition",
         availability:
           availableStock > 0
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
         url: origin ? `${origin}/product/${resolved}` : undefined,
+        hasMerchantReturnPolicy: {
+          "@type": "MerchantReturnPolicy",
+          applicableCountry: "IN",
+          returnPolicyCategory:
+            "https://schema.org/MerchantReturnFiniteReturnWindow",
+          merchantReturnDays: 7,
+        },
       },
     };
-  }, [product, images, availableStock]);
+
+    return [
+      productSchema,
+      buildBreadcrumbSchema(origin, [
+        { name: "Home", path: "/" },
+        { name: "Collections", path: "/shop" },
+        ...(product.category
+          ? [
+              {
+                name: product.category,
+                path: `/shop/${encodeURIComponent(
+                  String(product.category).toLowerCase()
+                )}/all`,
+              },
+            ]
+          : []),
+        { name: product.name, path: `/product/${resolved}` },
+      ]),
+    ];
+  }, [product, images, availableStock, reviews]);
 
   useSeoMeta({
     title: product?.name || "Product Details",
@@ -145,6 +191,20 @@ const ProductDetailsPage = () => {
       ? String(product.description).slice(0, 155)
       : "Discover Revakalp ethnic wear, sarees, lehengas, and festive silhouettes.",
     canonicalPath: productId ? `/product/${productId}` : undefined,
+    ogImage: images[0] || undefined,
+    ogType: product ? "product" : "website",
+    keywords: product
+      ? [
+          product.name,
+          product.category,
+          product.subCategory,
+          product.type,
+          product.state,
+          "Revakalp",
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : undefined,
     jsonLd: seoJsonLd,
   });
 
@@ -607,8 +667,8 @@ const ProductDetailsPage = () => {
                 aria-pressed={Boolean(isWishlisted)}
                 className={`min-h-[46px] px-4 rounded-[2px] border flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   isWishlisted
-                    ? "bg-[#38131E] text-[#F1D889] border-[#38131E]"
-                    : "bg-white text-[#38131E] border-[#38131E]/30 hover:border-[#38131E]"
+                    ? "bg-[#38131E] text-[#F1D889] border-[#D4AF63]"
+                    : "bg-[#FBF7EE] text-[#38131E] border-[#38131E]/30 hover:bg-[#38131E] hover:text-[#F1D889] hover:border-[#D4AF63]"
                 }`}
               >
                 <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />

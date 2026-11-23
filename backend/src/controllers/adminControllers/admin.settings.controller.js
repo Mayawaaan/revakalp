@@ -1,9 +1,17 @@
-import Settings from "../../models/settings.model.js";
+import Settings, { VALID_THEME_SCHEMES } from "../../models/settings.model.js";
+import { writePublishedTheme } from "../../lib/publishedThemeStore.js";
+
+const ALLOWED_THEME_SCHEMES = new Set(VALID_THEME_SCHEMES);
+const ALLOWED_THEME_MODES = new Set(["light", "dark"]);
 
 // Get settings (single document, always returns one)
 export const getSettings = async (req, res) => {
   try {
     const settings = await Settings.getSettings();
+    writePublishedTheme({
+      themeScheme: settings.themeScheme,
+      themeMode: settings.themeMode,
+    });
     res.status(200).json(settings);
   } catch (error) {
     console.error("Error in getSettings:", error.message);
@@ -46,7 +54,22 @@ export const updateSettings = async (req, res) => {
       "grievanceOfficerEmail",
       "grievanceOfficerPhone",
       "countryOfOriginDefault",
+      "themeScheme",
+      "themeMode",
     ];
+
+    if (
+      req.body.themeScheme !== undefined &&
+      !ALLOWED_THEME_SCHEMES.has(req.body.themeScheme)
+    ) {
+      return res.status(400).json({ message: "Invalid themeScheme value" });
+    }
+    if (
+      req.body.themeMode !== undefined &&
+      !ALLOWED_THEME_MODES.has(req.body.themeMode)
+    ) {
+      return res.status(400).json({ message: "Invalid themeMode value" });
+    }
 
     const updates = {};
     allowedFields.forEach((field) => {
@@ -66,6 +89,11 @@ export const updateSettings = async (req, res) => {
 
     Object.assign(settings, updates);
     await settings.save();
+
+    writePublishedTheme({
+      themeScheme: settings.themeScheme,
+      themeMode: settings.themeMode,
+    });
 
     res.status(200).json({
       message: "Settings updated successfully",

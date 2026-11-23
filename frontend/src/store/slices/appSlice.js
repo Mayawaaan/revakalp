@@ -1,5 +1,12 @@
 export const createAppSlice = (set, get) => ({
   /* =========================
+     SITE LOADER LIFECYCLE
+  ========================= */
+  siteLoaded: false,
+
+  setSiteLoaded: (val) => set({ siteLoaded: Boolean(val) }),
+
+  /* =========================
      SEARCH STATE
   ========================= */
   showSearch: false,

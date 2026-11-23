@@ -8,13 +8,18 @@ import {
   FileText,
   Save,
   Loader2,
+  Palette,
+  Sun,
+  Moon,
+  Check,
 } from "lucide-react";
 import useStore from "../../store/store";
+import { useTheme } from "../../context/themeConfig";
 
 const SectionCard = ({ icon, title, children }) => {
   const Icon = icon;
   return (
-    <div className="bg-white border border-[#38131E]/12 rounded-2xl p-6 space-y-5 shadow-xs">
+    <div className="bg-[#FBF7EE] border border-[#38131E]/12 rounded-2xl p-6 space-y-5 shadow-xs">
       <div className="flex items-center gap-3 pb-3 border-b border-[#38131E]/10">
         <div className="w-8 h-8 rounded-lg bg-[#F7F1E5] border border-[#D4AF63]/40 flex items-center justify-center">
           <Icon size={16} className="text-[#38131E]" />
@@ -37,7 +42,7 @@ const Field = ({ label, hint, children }) => (
 );
 
 const inputCls =
-  "w-full border border-[#38131E]/20 rounded-xl px-3.5 py-2.5 text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] bg-white placeholder-[#1A1718]/40";
+  "w-full border border-[#38131E]/20 rounded-xl px-3.5 py-2.5 text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] bg-[#F7F1E5] placeholder-[#1A1718]/40";
 
 const Toggle = ({ name, checked, onChange, disabled, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -70,6 +75,16 @@ const Toggle = ({ name, checked, onChange, disabled, label }) => (
 const Settings = () => {
   const { settings, settingsLoading, fetchSettings, updateSettings, showToast } =
     useStore();
+  const {
+    scheme,
+    mode,
+    schemes,
+    publishedScheme,
+    publishedMode,
+    setScheme,
+    setMode,
+    restorePublishedTheme,
+  } = useTheme();
 
   const [formData, setFormData] = useState({
     storeName: "",
@@ -93,12 +108,18 @@ const Settings = () => {
     grievanceOfficerEmail: "contact@revakalp.com",
     grievanceOfficerPhone: "+91 91096-76562",
     countryOfOriginDefault: "India",
+    themeScheme: settings?.themeScheme || publishedScheme || scheme || "",
+    themeMode: settings?.themeMode || publishedMode || mode || "light",
   });
   const [saving, setSaving] = useState(false);
+  const [publishingTheme, setPublishingTheme] = useState(false);
 
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
+
+  // Revert unpublished local preview if the admin navigates away without publishing
+  useEffect(() => () => restorePublishedTheme(), [restorePublishedTheme]);
 
   useEffect(() => {
     if (settings) {
@@ -135,9 +156,39 @@ const Settings = () => {
           settings.phone ||
           "+91 91096-76562",
         countryOfOriginDefault: settings.countryOfOriginDefault || "India",
+        themeScheme: settings.themeScheme || publishedScheme || "",
+        themeMode: settings.themeMode || publishedMode || "light",
       });
     }
-  }, [settings]);
+  }, [settings, publishedScheme, publishedMode]);
+
+  const handleSelectScheme = (nextScheme) => {
+    setFormData((prev) => ({ ...prev, themeScheme: nextScheme }));
+    setScheme(nextScheme, { persistCache: false });
+  };
+
+  const handleSelectMode = (nextMode) => {
+    setFormData((prev) => ({ ...prev, themeMode: nextMode }));
+    setMode(nextMode, { persistCache: false });
+  };
+
+  const handlePublishTheme = async () => {
+    if (!formData.themeScheme) return;
+    setPublishingTheme(true);
+    try {
+      await updateSettings({
+        themeScheme: formData.themeScheme,
+        themeMode: formData.themeMode,
+      });
+      setScheme(formData.themeScheme, { persistCache: true });
+      setMode(formData.themeMode, { persistCache: true });
+      showToast("Storefront theme published for all visitors", "success");
+    } catch (error) {
+      showToast(error.response?.data?.message || error.message || "Failed to publish theme", "error");
+    } finally {
+      setPublishingTheme(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -147,14 +198,32 @@ const Settings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateSettings(formData);
+      const payload = { ...formData };
+      if (!payload.themeScheme) delete payload.themeScheme;
+      if (!payload.themeMode) delete payload.themeMode;
+      const updated = await updateSettings(payload);
+      if (updated?.themeScheme) {
+        setScheme(updated.themeScheme, { persistCache: true });
+      }
+      if (updated?.themeMode) {
+        setMode(updated.themeMode, { persistCache: true });
+      }
       showToast("Settings saved successfully", "success");
     } catch (error) {
-      showToast(error.response?.data?.message || "Failed to save settings", "error");
+      showToast(error.response?.data?.message || error.message || "Failed to save settings", "error");
     } finally {
       setSaving(false);
     }
   };
+
+  const livePublishedScheme = publishedScheme || settings?.themeScheme || "";
+  const livePublishedMode = publishedMode || settings?.themeMode || "light";
+  const livePublishedMeta = schemes.find((s) => s.id === livePublishedScheme);
+  const hasUnpublishedThemePreview =
+    Boolean(formData.themeScheme) &&
+    Boolean(livePublishedScheme) &&
+    (formData.themeScheme !== livePublishedScheme ||
+      formData.themeMode !== livePublishedMode);
 
   const PageHeader = () => (
     <div>
@@ -184,6 +253,130 @@ const Settings = () => {
       <PageHeader />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="lg:col-span-2">
+          <SectionCard icon={Palette} title="Storefront Theme & Color Grading">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#38131E]/10">
+              <div className="space-y-1.5">
+                <p className="text-sm text-[#1A1718]/80">
+                  Choose the global palette and Light/Dark mode shown across all storefront pages.
+                  Clicking a preset previews it live; publishing makes it the permanent store look for all visitors.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  {livePublishedMeta && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#38131E]/8 border border-[#38131E]/15 text-[#38131E] font-medium">
+                      Live Store Theme: {livePublishedMeta.name} ({livePublishedMode === "dark" ? "Dark" : "Light"})
+                    </span>
+                  )}
+                  {hasUnpublishedThemePreview && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D4AF63]/25 border border-[#D4AF63]/60 text-[#38131E] font-semibold">
+                      Unpublished preview — click Publish Theme Now to make this the store look
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handlePublishTheme}
+                disabled={settingsLoading || publishingTheme}
+                className="rk-btn-gold shrink-0"
+              >
+                {publishingTheme ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" /> Publishing…
+                  </>
+                ) : (
+                  <>
+                    <Check size={14} /> Publish Theme Now
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {schemes.map((item) => {
+                const selected = formData.themeScheme === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleSelectScheme(item.id)}
+                    aria-pressed={selected}
+                    className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      selected
+                        ? "border-[#D4AF63] bg-[#EFE6D5] ring-2 ring-[#D4AF63]/60"
+                        : "border-[#38131E]/15 bg-[#FBF7EE] hover:border-[#D4AF63]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center -space-x-1.5">
+                        {item.swatches.map((hex) => (
+                          <span
+                            key={hex}
+                            className="w-5 h-5 rounded-full border border-white/70 shadow-xs"
+                            style={{ backgroundColor: hex }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {item.mood && (
+                          <span className="px-2 py-0.5 rounded-full border border-[#38131E]/15 text-[10px] uppercase tracking-wider font-medium text-[#38131E]/75">
+                            {item.mood}
+                          </span>
+                        )}
+                        {selected && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#38131E] text-[#F1D889] text-[10px] uppercase tracking-wider font-semibold">
+                            <Check size={11} /> Active
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-serif text-lg text-[#38131E] font-medium">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-[#1A1718]/65 mt-0.5">
+                        {item.tagline}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <span className="text-[11px] uppercase tracking-[0.18em] text-[#38131E]/75 font-semibold">
+                Lighting Mode:
+              </span>
+              <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-[#EFE6D5] border border-[#38131E]/14">
+                <button
+                  type="button"
+                  onClick={() => handleSelectMode("light")}
+                  aria-pressed={formData.themeMode === "light"}
+                  className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                    formData.themeMode === "light"
+                      ? "bg-[#38131E] text-[#F1D889]"
+                      : "text-[#38131E]/75 hover:text-[#38131E]"
+                  }`}
+                >
+                  <Sun size={14} /> Light Mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectMode("dark")}
+                  aria-pressed={formData.themeMode === "dark"}
+                  className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                    formData.themeMode === "dark"
+                      ? "bg-[#D4AF63] text-[#2B0E17]"
+                      : "text-[#38131E]/75 hover:text-[#38131E]"
+                  }`}
+                >
+                  <Moon size={14} /> Dark Mode
+                </button>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
+
         <SectionCard icon={Store} title="Store Settings">
           <Field label="Store Name">
             <input

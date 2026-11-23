@@ -24,7 +24,11 @@ import seoRoutes from "./src/routes/seo.routes.js";
 import complianceRoutes from "./src/routes/compliance.routes.js";
 import mlRoutes from "./src/routes/ml.routes.js";
 import { handleWebhook } from "./src/controllers/payment.controller.js";
-import { getActiveCampaigns } from "./src/controllers/adminControllers/admin.cms.controller.js";
+import {
+  getActiveCampaigns,
+  trackCampaignEvent,
+} from "./src/controllers/adminControllers/admin.cms.controller.js";
+import { recordStorefrontEvent } from "./src/controllers/adminControllers/admin.analytics.controller.js";
 import { razorpay } from "./src/lib/razorpay.js";
 import axios from "axios";
 import fs from "fs";
@@ -167,6 +171,14 @@ const mlLimiter = rateLimit({
   message: { message: "Too many ML analysis requests, please try again shortly" },
 });
 
+const analyticsEventLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 180,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many telemetry events, please slow down" },
+});
+
 app.use("/api", apiLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/signup", authLimiter);
@@ -207,6 +219,8 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/ml", mlLimiter, mlRoutes);
 app.get("/api/cms/active", getActiveCampaigns);
+app.post("/api/cms/:id/track", trackCampaignEvent);
+app.post("/api/analytics/event", analyticsEventLimiter, recordStorefrontEvent);
 app.use("/", seoRoutes);
 
 // Global error handler — never expose internal stack traces to clients

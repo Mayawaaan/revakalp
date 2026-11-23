@@ -9,10 +9,16 @@ gsap.registerPlugin(ScrollTrigger);
  * and hairlines inside containerRef across mobile, tablet, and desktop.
  * Observes DOM mutations so asynchronously loaded catalog cards animate too.
  */
-export default function useReveal(containerRef, reducedMotion = false) {
+export default function useReveal(
+  containerRef,
+  reducedMotion = false,
+  enabled = true
+) {
   useEffect(() => {
     const root = containerRef?.current;
-    if (!root || reducedMotion || typeof window === "undefined") return undefined;
+    if (!root || reducedMotion || !enabled || typeof window === "undefined") {
+      return undefined;
+    }
 
     let rafId = null;
 
@@ -140,5 +146,5 @@ export default function useReveal(containerRef, reducedMotion = false) {
       if (rafId) cancelAnimationFrame(rafId);
       ctx.revert();
     };
-  }, [containerRef, reducedMotion]);
+  }, [containerRef, reducedMotion, enabled]);
 }

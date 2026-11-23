@@ -128,6 +128,45 @@ export const normalizeSlug = (value = "") =>
 export const isEmptyMensCategory = (slug = "") =>
   MENS_EMPTY_ALIASES.has(normalizeSlug(slug));
 
+const REDUNDANT_ALL_SLUGS = new Set([
+  "all",
+  "all-collection",
+  "all-collections",
+  "all-saree",
+  "all-sarees",
+  "all-saree-collection",
+  "all-saree-collections",
+  "view-all",
+  "view-all-saree",
+  "view-all-sarees",
+  "complete-collection",
+]);
+
+export const isRedundantAllEntry = (item, category = "") => {
+  if (!item) return false;
+  const normCat = normalizeSlug(category);
+  const candidates =
+    typeof item === "string" ? [item] : [item.slug, item.id, item.name];
+
+  return candidates.some((raw) => {
+    const slug = normalizeSlug(raw).replace(/-+/g, "-");
+    if (!slug) return false;
+    if (REDUNDANT_ALL_SLUGS.has(slug)) return true;
+    if (normCat) {
+      const catVariants = new Set([
+        `all-${normCat}`,
+        `all-${normCat}s`,
+        `all-${normCat}-collection`,
+        `all-${normCat}-collections`,
+        `view-all-${normCat}`,
+        `view-all-${normCat}s`,
+      ]);
+      if (catVariants.has(slug)) return true;
+    }
+    return false;
+  });
+};
+
 export const REGIONAL_TEXTILE_EDITS = [
   {
     slug: "bandhej",

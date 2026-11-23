@@ -1,6 +1,6 @@
 import { apiFetch } from "../../hooks/useApiHelper";
 
-export const createAdminProductSlice = (set, get) => ({
+export const createAdminProductSlice = (set) => ({
   adminProducts: [],
   adminProductLoading: false,
   adminProductError: null,

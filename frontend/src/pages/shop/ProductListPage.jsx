@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { SlidersHorizontal, X } from "lucide-react";
 import useStore from "../../store/store";
@@ -9,6 +9,7 @@ import FilterDrawer from "../../components/shop/FilterDrawer";
 import SortMenu from "../../components/shop/SortMenu";
 import ProductGrid from "../../components/ui/ProductGrid";
 import EditorialButton from "../../components/ui/EditorialButton";
+import CampaignAdBanner from "../../components/campaigns/CampaignAdBanner";
 import {
   ACTIVE_STOREFRONT_CATEGORIES,
   matchesCategory,
@@ -19,6 +20,7 @@ import {
   normalizeSlug,
 } from "../../config/storefrontCategories";
 import { useSeoMeta } from "../../utils/seo";
+import { trackEvent } from "../../utils/analytics";
 
 const ProductListPage = () => {
   const { category = "all", type = "all" } = useParams();
@@ -163,6 +165,35 @@ const ProductListPage = () => {
     sortBy,
   ]);
 
+  const lastListKeyRef = useRef("");
+  const lastSearchKeyRef = useRef("");
+
+  useEffect(() => {
+    if (loading) return;
+    const key = `${category}::${type}`;
+    if (lastListKeyRef.current === key) return;
+    lastListKeyRef.current = key;
+    trackEvent("view_item_list", {
+      category: String(category || "all"),
+      value: filteredProducts.length,
+    });
+  }, [loading, category, type, filteredProducts.length]);
+
+  useEffect(() => {
+    if (loading || !activeQuery) return;
+    const timer = setTimeout(() => {
+      const key = `${category}::${activeQuery.toLowerCase()}`;
+      if (lastSearchKeyRef.current === key) return;
+      lastSearchKeyRef.current = key;
+      // Do not forward raw search text to preserve user privacy
+      trackEvent("search", {
+        category: String(category || "all"),
+        value: filteredProducts.length,
+      });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [loading, activeQuery, category, filteredProducts.length]);
+
   const toggleSubCategory = (val) => {
     const next = selectedSubCategories.includes(val)
       ? selectedSubCategories.filter((v) => v !== val)
@@ -241,6 +272,8 @@ const ProductListPage = () => {
         title={pageTitle}
         subtitle="Available online and at our Indore store."
       />
+
+      <CampaignAdBanner slot="shop_strip" compact />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <Breadcrums />
@@ -367,7 +400,7 @@ const ProductListPage = () => {
                 onAction: !isMensEmpty && hasActiveChips ? clearAllFilters : undefined,
                 actionTo: isMensEmpty ? "/shop" : hasActiveChips ? undefined : "/shop/all/all",
                 secondaryAction:
-                  !isMensEmpty && category !== "all" ? (
+                  !isMensEmpty && category !== "all" && hasActiveChips ? (
                     <EditorialButton to="/shop/all/all" variant="secondary">
                       All Collections
                     </EditorialButton>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const VARIANT_CLASSES = {
   primary:
-    "bg-[#38131E] text-[#F7F1E5] border-[#38131E] hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[0_14px_34px_-16px_rgba(43,14,23,0.75)]",
+    "bg-[#38131E] text-[#F7F1E5] border-[#38131E] hover:bg-[#2B0E17] hover:border-[#D4AF63] hover:shadow-[var(--rk-shadow-lg)]",
   secondary:
     "bg-transparent text-[#38131E] border-[#38131E]/35 hover:bg-[#38131E] hover:text-[#F7F1E5] hover:border-[#38131E]",
   outlineDark:

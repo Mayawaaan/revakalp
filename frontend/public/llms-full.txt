@@ -1,0 +1,52 @@
+# REVAKALP — Extended Store & 29-State Indian Handloom Manifest
+
+> Complete machine-readable overview of Revakalp's Indore retail & D2C storefront, quality checks, shipping & return policies, and all 29 regional saree heritage dossiers.
+
+## Store Identity & Omnichannel Operations
+- Brand: REVAKALP ("Weaving Life Into Time")
+- Established: 2014, Indore, Madhya Pradesh, India
+- Flagship Address: 231-231, Shop No. 2, Dhanwantri Nagar, Rajendra Nagar, Indore, Madhya Pradesh 452012, India
+- Support Email: contact@revakalp.com
+- Support Phone / WhatsApp: +91 91096-76562
+- Channels: Unified live stock ledger across Web Storefront and Boutique Point of Sale (POS)
+- Payments: Razorpay (UPI, Cards, Netbanking) and Cash on Delivery (when eligible)
+- Delivery SLA: Dispatched within 3–5 business days; live status tracking via `/track/:orderId`
+- Return Policy: 7 days from delivery on unworn items with original tags attached and continuous unboxing video verification
+
+## Category Architecture
+1. Sarees (`/shop/saree`, `/shop/saree/all`): Silk, cotton, organza, zari, handloom & festive drapes.
+2. Lehengas (`/shop/lehenga/all`): Bridal, sangeet, and celebration lehengas.
+3. Indo-Western (`/shop/indo-western/all`): Contemporary silhouettes, cape sets, and festive fusion pieces.
+4. Printed Tees (`/shop/printed-tees/all`): Everyday graphic & comfort cotton tees.
+5. Men's Section (`/shop/suit/all`, `/shop/kurta/all`, `/shop/jodhpuri/all`): Currently marked Coming Soon.
+
+## 29-State Indian Textile Heritage Guides (`/heritage/:slug`)
+- Madhya Pradesh — [Maheshwari Silk-Cotton](https://revakalp.com/heritage/maheshwari)
+- Uttar Pradesh — [Banarasi Brocade](https://revakalp.com/heritage/uttar-pradesh)
+- Tamil Nadu — [Kanjivaram Temple Silk](https://revakalp.com/heritage/kanjivaram)
+- Maharashtra — [Paithani & Nauvari](https://revakalp.com/heritage/paithani)
+- Rajasthan — [Bandhani & Leheriya](https://revakalp.com/heritage/bandhani-leheriya)
+- Jammu & Kashmir — [Pashmina Weaves](https://revakalp.com/heritage/pashmina)
+- Chhattisgarh — [Kosa Tussar Silk](https://revakalp.com/heritage/kosa-silk)
+- West Bengal — [Tant, Baluchari & Jamdani](https://revakalp.com/heritage/west-bengal)
+- Gujarat — [Patola & Ashavali Silk](https://revakalp.com/heritage/gujarat)
+- Assam — [Muga & Pat Silk](https://revakalp.com/heritage/assam)
+- Odisha — [Sambalpuri & Bomkai Ikat](https://revakalp.com/heritage/odisha)
+- Telangana — [Pochampally & Gadwal](https://revakalp.com/heritage/telangana)
+- Andhra Pradesh — [Uppada & Dharmavaram](https://revakalp.com/heritage/andhra-pradesh)
+- Karnataka — [Mysore Crepe & Ilkal](https://revakalp.com/heritage/karnataka)
+- Kerala — [Kasavu Mundum Neriyathum](https://revakalp.com/heritage/kerala)
+- Bihar — [Bhagalpuri Tussar & Madhubani](https://revakalp.com/heritage/bihar)
+- Jharkhand — [Kuchai & Tribal Tussar](https://revakalp.com/heritage/jharkhand)
+- Punjab — [Phulkari Heritage Drapes](https://revakalp.com/heritage/punjab)
+- Haryana — [Bagh & Handspun Cottons](https://revakalp.com/heritage/haryana)
+- Himachal Pradesh — [Kullu & Kinnauri Motifs](https://revakalp.com/heritage/himachal-pradesh)
+- Uttarakhand — [Aipan & Panchachuli Weaves](https://revakalp.com/heritage/uttarakhand)
+- Goa — [Kunbi Heritage Weave](https://revakalp.com/heritage/goa)
+- Manipur — [Moiraangphee Handloom](https://revakalp.com/heritage/manipur)
+- Meghalaya — [Eri Peace Silk & Jainsem](https://revakalp.com/heritage/meghalaya)
+- Mizoram — [Puanchei Ceremonial Weave](https://revakalp.com/heritage/mizoram)
+- Nagaland — [Naga Geometric Loin-Loom](https://revakalp.com/heritage/nagaland)
+- Tripura — [Rignai & Pachra](https://revakalp.com/heritage/tripura)
+- Arunachal Pradesh — [Apatani & Mishmi Looms](https://revakalp.com/heritage/arunachal-pradesh)
+- Sikkim — [Lepcha & Bhutia Handloom](https://revakalp.com/heritage/sikkim)

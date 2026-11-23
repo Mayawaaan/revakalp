@@ -1,6 +1,6 @@
 import { apiFetch } from "../../hooks/useApiHelper";
 
-export const createTypeSlice = (set, get) => ({
+export const createTypeSlice = (set) => ({
   /* =========================
      STATE
   ========================= */

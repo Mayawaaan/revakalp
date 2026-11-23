@@ -1,6 +1,6 @@
 import { apiFetch } from "../../hooks/useApiHelper";
 
-export const createAdminTypeSlice = (set, get) => ({
+export const createAdminTypeSlice = (set) => ({
   /* =========================
      STATE
   ========================= */

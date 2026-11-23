@@ -153,3 +153,36 @@ export const adminGetGrievances = async (req, res) => {
     return res.status(500).json({ message: "Unable to fetch grievances" });
   }
 };
+
+export const adminUpdateGrievance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, adminNote } = req.body || {};
+    const validStatuses = new Set(["open", "acknowledged", "in_progress", "resolved"]);
+
+    const grievance = await Grievance.findById(id);
+    if (!grievance) {
+      return res.status(404).json({ message: "Grievance not found" });
+    }
+
+    if (status !== undefined) {
+      if (!validStatuses.has(status)) {
+        return res.status(400).json({ message: "Invalid grievance status" });
+      }
+      grievance.status = status;
+      if (status === "resolved" && !grievance.resolvedAt) {
+        grievance.resolvedAt = new Date();
+      }
+    }
+
+    if (adminNote !== undefined) {
+      grievance.adminNote = String(adminNote).trim().slice(0, 1000);
+    }
+
+    await grievance.save();
+    return res.status(200).json(grievance);
+  } catch (error) {
+    console.error("adminUpdateGrievance error:", error.message);
+    return res.status(500).json({ message: "Unable to update grievance" });
+  }
+};

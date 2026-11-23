@@ -2,23 +2,37 @@ import Coupon from "../../models/coupon.model.js";
 
 export const createCoupon = async (req, res) => {
   try {
-    const { code, discountPercentage, description, expiryDate, maxUses } = req.body;
-
-    if (!code || !discountPercentage) {
-      return res.status(400).json({ message: "Code and discount percentage are required" });
-    }
-
-    const newCoupon = new Coupon({
+    const {
       code,
       discountPercentage,
       description,
+      isActive,
       expiryDate,
       maxUses,
+    } = req.body;
+
+    if (!code || discountPercentage === undefined || discountPercentage === "") {
+      return res
+        .status(400)
+        .json({ message: "Code and discount percentage are required" });
+    }
+
+    const newCoupon = new Coupon({
+      code: String(code).trim().toUpperCase(),
+      discountPercentage: Number(discountPercentage),
+      description: description || "",
+      isActive: isActive !== undefined ? Boolean(isActive) : true,
+      expiryDate: expiryDate || undefined,
+      maxUses: maxUses ? Number(maxUses) : undefined,
     });
-    console.log("Creating coupon:", newCoupon);
     await newCoupon.save();
     res.status(201).json(newCoupon);
   } catch (error) {
+    if (error?.code === 11000) {
+      return res
+        .status(409)
+        .json({ message: "A coupon with this code already exists" });
+    }
     console.error("Error in createCoupon:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -27,13 +41,29 @@ export const createCoupon = async (req, res) => {
 export const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const { code, discountPercentage, description, isActive, expiryDate, maxUses } = req.body;
+    const {
+      code,
+      discountPercentage,
+      description,
+      isActive,
+      expiryDate,
+      maxUses,
+    } = req.body;
 
-    const updatedCoupon = await Coupon.findByIdAndUpdate(
-      id,
-      { code, discountPercentage, description, isActive, expiryDate, maxUses },
-      { new: true, runValidators: true }
-    );
+    const updates = {};
+    if (code !== undefined) updates.code = String(code).trim().toUpperCase();
+    if (discountPercentage !== undefined && discountPercentage !== "") {
+      updates.discountPercentage = Number(discountPercentage);
+    }
+    if (description !== undefined) updates.description = description;
+    if (isActive !== undefined) updates.isActive = Boolean(isActive);
+    if (expiryDate !== undefined) updates.expiryDate = expiryDate || null;
+    if (maxUses !== undefined) updates.maxUses = maxUses ? Number(maxUses) : null;
+
+    const updatedCoupon = await Coupon.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedCoupon) {
       return res.status(404).json({ message: "Coupon not found" });
@@ -41,6 +71,11 @@ export const updateCoupon = async (req, res) => {
 
     res.status(200).json(updatedCoupon);
   } catch (error) {
+    if (error?.code === 11000) {
+      return res
+        .status(409)
+        .json({ message: "A coupon with this code already exists" });
+    }
     console.error("Error in updateCoupon:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -63,11 +98,11 @@ export const deleteCoupon = async (req, res) => {
 };
 
 export const getAllCoupons = async (req, res) => {
-    try {
-      const coupons = await Coupon.find({});
-      res.status(200).json(coupons);
-    } catch (error) {
-      console.error("Error in getAllCoupons:", error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  };
+  try {
+    const coupons = await Coupon.find({}).sort({ createdAt: -1 });
+    res.status(200).json(coupons);
+  } catch (error) {
+    console.error("Error in getAllCoupons:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

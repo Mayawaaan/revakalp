@@ -1,7 +1,14 @@
 import React from "react";
 import EditorialButton from "../components/ui/EditorialButton";
+import { useSeoMeta } from "../utils/seo";
 
 const NotFound = () => {
+  useSeoMeta({
+    title: "Page Not Found",
+    description: "The requested page could not be found at Revakalp.",
+    noindex: true,
+  });
+
   return (
     <div className="min-h-[75vh] bg-[#F7F1E5] flex flex-col items-center justify-center px-4 py-16 text-center">
       <div className="rk-surface-card p-10 sm:p-14 max-w-md w-full space-y-4">

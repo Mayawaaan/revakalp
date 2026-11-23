@@ -1,16 +1,25 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import PageHero from "../../components/globalComponents/PageHero";
 import EditorialButton from "../../components/ui/EditorialButton";
+import { buildFaqSchema, useSeoMeta } from "../../utils/seo";
 
 const FAQS = [
   {
     q: "How are Revakalp garments checked before shipping?",
-    a: "Every piece is looked over by hand in our Indore store for fabric condition, finish, and stitching before it is packed and listed.",
+    a: "Every piece is looked over by hand in our Indore store for fabric condition, finish, weave integrity, and stitching before it is packed and listed.",
   },
   {
     q: "Do you carry regional Indian sarees like Maheshwari or Banarasi?",
-    a: "Yes. We keep a changing mix of regional styles — such as Chanderi, Maheshwari, and Banarasi drapes — alongside lighter everyday sarees. Check the Fabric & Care section on each page for specifics.",
+    a: "Yes. We keep a changing mix of regional styles — such as Chanderi, Maheshwari, Banarasi, Kanjivaram, Paithani, and Pashmina drapes — alongside lighter everyday sarees. Check the Fabric & Care section on each page or our 29-State Textile Guide for specifics.",
+  },
+  {
+    q: "How do I know fabric weight, drape, and care instructions before buying?",
+    a: "Every saree and ethnic piece includes dedicated Fabric, Weave, Length, Blouse Inclusion, and Care metadata on its product page, along with our interactive 3D textile weave study across 29 Indian states.",
+  },
+  {
+    q: "Can I visit Revakalp in person in Indore?",
+    a: "Yes. Visit our Rajendra Nagar store (231-231, Shop No. 2, Dhanwantri Nagar, Indore 452012) Monday–Saturday, 10:30 AM – 8:30 PM, to compare weaves in daylight and try on stitched silhouettes.",
   },
   {
     q: "How long does delivery usually take?",
@@ -26,7 +35,7 @@ const FAQS = [
   },
   {
     q: "Can I pay Cash on Delivery?",
-    a: "When Cash on Delivery is active for your order, you'll see it available as a choice right at checkout.",
+    a: "When Cash on Delivery is active for your order, you'll see it available as a choice right at checkout alongside Razorpay UPI, cards, and netbanking.",
   },
   {
     q: "How do sizes work across sarees and stitched pieces?",
@@ -40,6 +49,15 @@ const FAQS = [
 
 const FAQ = () => {
   const [open, setOpen] = useState(null);
+  const faqSchema = useMemo(() => buildFaqSchema(FAQS), []);
+
+  useSeoMeta({
+    title: "Frequently Asked Questions",
+    description:
+      "Answers about Revakalp saree weaves, handloom checks, Indore boutique hours, 3–5 day shipping, 7-day returns, and COD payments.",
+    canonicalPath: "/faq",
+    jsonLd: faqSchema,
+  });
 
   return (
     <div className="bg-[#F7F1E5] text-[#1A1718]">
