@@ -57,7 +57,7 @@ const CategoryPage = () => {
             className="mb-8"
           />
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
             {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => {
               const matching = (products || []).filter(
                 (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
@@ -96,20 +96,25 @@ const CategoryPage = () => {
           </div>
         </section>
 
-        {/* Men's Section — Empty / Coming Soon */}
+        {/* Men's Section — Printed Tees & Upcoming Menswear */}
         <section aria-label="Men's Section">
           <SectionHeading
             eyebrow="Men's Section"
-            title="Menswear"
-            accentWord="Coming Soon"
-            subtitle="Our Suits, Kurta Pajama, and Jodhpuri shelves are currently empty as we prepare upcoming menswear pieces."
+            title="Menswear &"
+            accentWord="Printed Tees"
+            subtitle="Browse our men's Printed Tees, plus upcoming Suits, Kurta Pajama, and Jodhpuri collections."
             align="left"
             className="mb-8"
           />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
             {MENS_STOREFRONT_CATEGORIES.map((cat) => {
               const tileSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
+              const matching = !cat.emptySection
+                ? (products || []).filter(
+                    (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
+                  )
+                : [];
               return (
                 <Link
                   key={cat.id}
@@ -119,9 +124,11 @@ const CategoryPage = () => {
                   {tileSrc && (
                     <img
                       src={tileSrc}
-                      alt={`${cat.label} coming soon tile`}
+                      alt={`${cat.label} category tile`}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-contain opacity-80 transition-transform duration-700 group-hover:scale-[1.02]"
+                      className={`absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02] ${
+                        cat.emptySection ? "opacity-80" : ""
+                      }`}
                     />
                   )}
                   <div
@@ -131,7 +138,11 @@ const CategoryPage = () => {
                   <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2">
                     <div className="min-w-0">
                       <span className="block text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#F1D889] font-medium mb-1">
-                        Coming Soon
+                        {cat.emptySection
+                          ? "Coming Soon"
+                          : matching.length > 0
+                          ? `${matching.length} available`
+                          : "Men's Section"}
                       </span>
                       <h3 className="font-serif text-xl sm:text-3xl leading-tight">{cat.label}</h3>
                       <p className="text-xs text-[#F7F1E5]/70 mt-1 hidden sm:block">{cat.subtitle}</p>

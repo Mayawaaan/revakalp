@@ -135,34 +135,64 @@ export default function MegaMenu({
                     Men&apos;s Section
                   </p>
                   <h3 className="font-serif text-3xl text-[#38131E] mb-2">
-                    Coming Soon
+                    Menswear &amp; Tees
                   </h3>
                   <p className="text-sm text-[#1A1718]/75 leading-relaxed mb-6">
-                    Suits, Kurta Pajama, and Jodhpuri — coming soon.
+                    Shop relaxed Printed Tees now, with tailored Suits, Kurta Pajama, and Jodhpuri arriving soon.
                   </p>
                   <Link
-                    to="/shop/indo-western/all"
+                    to="/shop/printed-tees/all"
                     onClick={onClose}
                     className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-[#38131E] border-b border-[#D4AF63] pb-1"
                   >
-                    Explore Indo-Western <ArrowRight className="w-3.5 h-3.5" />
+                    Shop Printed Tees <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
-                <div className="col-span-8 grid grid-cols-3 gap-6">
+                <div className="col-span-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { title: "Suits", to: "/shop/suit/all", desc: "Men's tailored suits" },
-                    { title: "Kurta Pajama", to: "/shop/kurta/all", desc: "Classic festive kurtas" },
-                    { title: "Jodhpuri", to: "/shop/jodhpuri/all", desc: "Structured bandhgala styles" },
+                    {
+                      title: "Printed Tees",
+                      to: "/shop/printed-tees/all",
+                      desc: "Men's relaxed graphic tees",
+                      badge: "Shop Now",
+                      active: true,
+                    },
+                    {
+                      title: "Suits",
+                      to: "/shop/suit/all",
+                      desc: "Men's tailored suits",
+                      badge: "Coming Soon",
+                    },
+                    {
+                      title: "Kurta Pajama",
+                      to: "/shop/kurta/all",
+                      desc: "Classic festive kurtas",
+                      badge: "Coming Soon",
+                    },
+                    {
+                      title: "Jodhpuri",
+                      to: "/shop/jodhpuri/all",
+                      desc: "Structured bandhgala styles",
+                      badge: "Coming Soon",
+                    },
                   ].map((item) => (
                     <Link
                       key={item.to}
                       to={item.to}
                       onClick={onClose}
-                      className="group p-5 rounded-[2px] bg-[#FBF7EE] border border-[#38131E]/12 hover:border-[#D4AF63] transition-colors flex flex-col justify-between gap-4"
+                      className={`group p-5 rounded-[2px] bg-[#FBF7EE] border transition-colors flex flex-col justify-between gap-4 ${
+                        item.active
+                          ? "border-[#D4AF63]/65 hover:border-[#D4AF63]"
+                          : "border-[#38131E]/12 hover:border-[#D4AF63]"
+                      }`}
                     >
-                      <span className="text-[10px] uppercase tracking-[0.22em] text-[#38131E]/60 font-semibold">
-                        Coming Soon
+                      <span
+                        className={`text-[10px] uppercase tracking-[0.22em] font-semibold ${
+                          item.active ? "text-[#38131E]" : "text-[#38131E]/60"
+                        }`}
+                      >
+                        {item.badge}
                       </span>
                       <div>
                         <p className="font-serif text-xl text-[#38131E] group-hover:underline">
@@ -262,8 +292,8 @@ export default function MegaMenu({
                           { label: "Sarees", to: "/shop/saree" },
                           { label: "Lehengas", to: "/shop/lehenga/all" },
                           { label: "Indo-Western", to: "/shop/indo-western/all" },
-                          { label: "Printed Tees", to: "/shop/printed-tees/all" },
-                          { label: "Men's Section (Coming Soon)", to: "/shop/kurta/all" },
+                          { label: "Men's Printed Tees", to: "/shop/printed-tees/all" },
+                          { label: "Men's Ethnic (Coming Soon)", to: "/shop/kurta/all" },
                           { label: "Everything", to: "/shop/all/all" },
                         ]
                     ).map((item) => (

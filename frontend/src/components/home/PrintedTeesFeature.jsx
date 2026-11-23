@@ -22,7 +22,7 @@ export default function PrintedTeesFeature() {
           {/* Copy Column */}
           <div className="lg:col-span-6 space-y-5" data-reveal="card">
             <p className="uppercase tracking-[0.3em] text-[10px] sm:text-[11px] font-medium text-[#F1D889]">
-              Printed Tees
+              Men&apos;s Section · Printed Tees
             </p>
 
             <h2
@@ -36,7 +36,7 @@ export default function PrintedTeesFeature() {
             </h2>
 
             <p className="text-sm sm:text-base text-[#F7F1E5]/80 max-w-lg leading-relaxed">
-              Relaxed printed T-shirts for everyday comfort.
+              Relaxed men&apos;s printed T-shirts for everyday comfort.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-3">

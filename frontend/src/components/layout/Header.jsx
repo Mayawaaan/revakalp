@@ -187,23 +187,19 @@ export default function Header({ tone }) {
                   setActiveMegaMenu((prev) => (prev === "men" ? null : "men"))
                 }
                 onFocus={() => setActiveMegaMenu("men")}
-                className={`inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b border-transparent hover:border-[#D4AF63]/60 transition-colors uppercase tracking-[0.1em] xl:tracking-[0.15em] whitespace-nowrap cursor-pointer ${navTextCls}`}
+                className={`inline-flex items-center gap-0.5 xl:gap-1 py-2 border-b transition-colors uppercase tracking-[0.1em] xl:tracking-[0.15em] whitespace-nowrap cursor-pointer ${
+                  location.pathname.startsWith("/shop/printed-tees") ||
+                  location.pathname.startsWith("/shop/suit") ||
+                  location.pathname.startsWith("/shop/kurta") ||
+                  location.pathname.startsWith("/shop/jodhpuri")
+                    ? "border-[#D4AF63]"
+                    : "border-transparent hover:border-[#D4AF63]/60"
+                } ${navTextCls}`}
               >
                 <span>Men</span>
                 <ChevronDown className="w-3 h-3 xl:w-3.5 xl:h-3.5 opacity-70 shrink-0" />
               </button>
             </div>
-
-            <NavLink
-              to="/shop/printed-tees/all"
-              className={({ isActive }) =>
-                `py-2 border-b transition-colors whitespace-nowrap ${
-                  isActive ? "border-[#D4AF63]" : "border-transparent hover:border-[#D4AF63]/60"
-                } ${navTextCls}`
-              }
-            >
-              Printed Tees
-            </NavLink>
 
             <div className="relative" onMouseEnter={() => setActiveMegaMenu("heritage")}>
               <NavLink
@@ -445,11 +441,17 @@ export default function Header({ tone }) {
               to="/shop/printed-tees/all"
               className={({ isActive }) =>
                 `py-1 border-b transition-colors ${
-                  isActive ? "border-[#D4AF63]" : "border-transparent"
+                  isActive ||
+                  location.pathname.startsWith("/shop/printed-tees") ||
+                  location.pathname.startsWith("/shop/suit") ||
+                  location.pathname.startsWith("/shop/kurta") ||
+                  location.pathname.startsWith("/shop/jodhpuri")
+                    ? "border-[#D4AF63]"
+                    : "border-transparent"
                 } ${navTextCls}`
               }
             >
-              Printed Tees
+              Men
             </NavLink>
             <NavLink
               to="/heritage"

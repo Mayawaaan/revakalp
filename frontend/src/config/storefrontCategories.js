@@ -50,7 +50,7 @@ export const STOREFRONT_CATEGORIES = [
   {
     id: "printed-tees",
     label: "Printed Tees",
-    subtitle: "Relaxed graphic tees for everyday wear",
+    subtitle: "Men's relaxed graphic tees for everyday wear",
     route: "/shop/printed-tees/all",
     allRoute: "/shop/printed-tees/all",
     aliases: [
@@ -62,9 +62,11 @@ export const STOREFRONT_CATEGORIES = [
       "t-shirt",
       "tshirt",
       "t-shirts",
+      "mens tee",
+      "mens tees",
     ],
     fallbackArt: "/category-tiles/printed-t-shirts.png",
-    section: "featured",
+    section: "men",
     emptySection: false,
   },
   {
@@ -103,7 +105,7 @@ export const STOREFRONT_CATEGORIES = [
 ];
 
 export const ACTIVE_STOREFRONT_CATEGORIES = STOREFRONT_CATEGORIES.filter(
-  (c) => !c.emptySection
+  (c) => c.section === "featured" && !c.emptySection
 );
 
 export const MENS_STOREFRONT_CATEGORIES = STOREFRONT_CATEGORIES.filter(

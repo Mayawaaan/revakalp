@@ -222,6 +222,7 @@ export default function MobileNav({
               {expanded === "men" && (
                 <div className="pl-5 pr-2 pb-3 space-y-1">
                   {[
+                    { label: "Printed Tees", to: "/shop/printed-tees/all", active: true },
                     { label: "Suits", to: "/shop/suit/all" },
                     { label: "Kurta Pajama", to: "/shop/kurta/all" },
                     { label: "Jodhpuri", to: "/shop/jodhpuri/all" },
@@ -232,23 +233,23 @@ export default function MobileNav({
                       onClick={() => onNavigate(item.to)}
                       className="w-full min-h-[40px] flex items-center justify-between text-left px-3 py-1.5 text-sm text-[#1A1718]/80"
                     >
-                      <span>{item.label}</span>
-                      <span className="text-[10px] uppercase tracking-wider text-[#38131E]/55">
-                        Coming Soon
+                      <span className={item.active ? "font-medium text-[#38131E]" : ""}>
+                        {item.label}
+                      </span>
+                      <span
+                        className={`text-[10px] uppercase tracking-wider ${
+                          item.active
+                            ? "text-[#38131E] font-semibold"
+                            : "text-[#38131E]/55"
+                        }`}
+                      >
+                        {item.active ? "Shop" : "Coming Soon"}
                       </span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigate("/shop/printed-tees/all")}
-              className="w-full min-h-[46px] text-left px-2 py-2.5 text-base font-serif text-[#38131E]"
-            >
-              Printed Tees
-            </button>
 
             <button
               type="button"

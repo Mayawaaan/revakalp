@@ -88,21 +88,26 @@ export default function CategoryExpressions() {
           </Link>
         </div>
 
-        {/* 9:16 Category Tiles: Sarees, Lehengas, Indo-Western, Printed Tees */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+        {/* 9:16 Category Tiles: Sarees, Lehengas, Indo-Western */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
           {ACTIVE_STOREFRONT_CATEGORIES.map((cat) => renderCategoryTile(cat))}
         </div>
 
-        {/* Empty Men's Section Strip: Suits, Kurta Pajama, Jodhpuri */}
+        {/* Men's Section Strip: Printed Tees, Suits, Kurta Pajama, Jodhpuri */}
         <div className="pt-4 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <p className="text-[11px] uppercase tracking-[0.26em] font-semibold text-[#38131E]/75">
-              Men&apos;s Section · Coming Soon
+              Men&apos;s Section · Printed Tees &amp; Menswear
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
             {MENS_STOREFRONT_CATEGORIES.map((cat) => {
               const tileSrc = cat.fallbackArt || getCategoryTileArt(cat.id);
+              const matching = !cat.emptySection
+                ? (products || []).filter(
+                    (p) => getAvailableStock(p) > 0 && matchesCategory(p, cat.id)
+                  )
+                : [];
               return (
                 <Link
                   key={cat.id}
@@ -113,10 +118,12 @@ export default function CategoryExpressions() {
                   {tileSrc && (
                     <img
                       src={tileSrc}
-                      alt={`${cat.label} coming soon tile`}
+                      alt={`${cat.label} category tile`}
                       loading="lazy"
                       decoding="async"
-                      className="absolute inset-0 w-full h-full object-contain opacity-80 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                      className={`absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02] ${
+                        cat.emptySection ? "opacity-80" : ""
+                      }`}
                     />
                   )}
                   <div
@@ -126,7 +133,13 @@ export default function CategoryExpressions() {
                   <div className="relative z-10 w-full p-3.5 sm:p-6 flex items-end justify-between gap-2 sm:gap-4">
                     <div className="space-y-1 min-w-0">
                       <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F1D889]">
-                        Men&apos;s Section · Coming Soon
+                        {cat.emptySection
+                          ? "Men's Section · Coming Soon"
+                          : matching.length > 0
+                          ? `Men's Section · ${matching.length} ${
+                              matching.length === 1 ? "piece" : "pieces"
+                            }`
+                          : "Men's Section · Explore"}
                       </p>
                       <h3 className="font-serif text-xl sm:text-2xl text-[#F7F1E5] leading-tight">
                         {cat.label}
