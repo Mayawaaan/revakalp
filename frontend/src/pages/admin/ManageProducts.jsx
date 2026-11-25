@@ -9,11 +9,15 @@ import {
   Search,
   Upload,
   Loader2,
+  Palette,
+  Link2,
 } from "lucide-react";
 import useStore from "../../store/store";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminPagination from "../../components/admin/AdminPagination";
+import LinkColorVariantsModal from "../../components/admin/LinkColorVariantsModal";
 import { prepareImagesForUpload } from "../../utils/imageUpload";
+import { PRESET_PRODUCT_COLORS, resolveColorHex } from "../../utils/colorSwatches";
 
 const EMPTY_FORM = {
   name: "",
@@ -30,6 +34,9 @@ const EMPTY_FORM = {
   stock: "",
   bestseller: false,
   print: "",
+  color: "",
+  colorHex: "",
+  variantGroup: "",
   exclusivity: false,
   specsFabric: "",
   specsWeave: "",
@@ -61,6 +68,8 @@ const ManageProducts = () => {
   const [saving, setSaving] = useState(false);
   const [optimizingImages, setOptimizingImages] = useState(false);
   const [activeProduct, setActiveProduct] = useState(null);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkInitialProduct, setLinkInitialProduct] = useState(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -98,6 +107,14 @@ const ManageProducts = () => {
         : (adminProducts || []).map((p) => p.category).filter(Boolean);
     return ["All", ...Array.from(new Set(base)).sort()];
   }, [adminProductCategories, adminProducts]);
+
+  const existingVariantGroups = useMemo(
+    () =>
+      Array.from(
+        new Set((adminProducts || []).map((p) => p.variantGroup).filter(Boolean))
+      ).sort(),
+    [adminProducts]
+  );
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -145,6 +162,16 @@ const ManageProducts = () => {
     setModalOpen(true);
   };
 
+  const openLinkColors = (product = null) => {
+    setLinkInitialProduct(product);
+    setLinkModalOpen(true);
+  };
+
+  const closeLinkColors = () => {
+    setLinkModalOpen(false);
+    setLinkInitialProduct(null);
+  };
+
   const openEdit = (p) => {
     setEditing(true);
     setActiveProduct(p);
@@ -163,6 +190,9 @@ const ManageProducts = () => {
       stock: p.stock ?? "",
       bestseller: Boolean(p.bestseller),
       print: p.print || "",
+      color: p.color || "",
+      colorHex: p.colorHex || "",
+      variantGroup: p.variantGroup || "",
       exclusivity: Boolean(p.exclusivity),
       specsFabric: p.specs?.fabric || "",
       specsWeave: p.specs?.weave || "",
@@ -222,6 +252,9 @@ const ManageProducts = () => {
         : [],
       bestseller: String(form.bestseller),
       print: form.print.trim(),
+      color: form.color.trim(),
+      colorHex: form.colorHex.trim(),
+      variantGroup: form.variantGroup.trim(),
       exclusivity: String(form.exclusivity),
       specs: JSON.stringify(specs),
       images,
@@ -301,6 +334,13 @@ const ManageProducts = () => {
             className="rk-admin-btn flex items-center gap-2 bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-5 py-2.5 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm cursor-pointer"
           >
             <Plus size={15} /> Add Product
+          </button>
+          <button
+            type="button"
+            onClick={() => openLinkColors(null)}
+            className="rk-admin-btn flex items-center gap-2 bg-[#FBF7EE] hover:bg-[#EFE6D5] text-[#38131E] px-4 py-2.5 rounded-full text-sm font-medium border border-[#38131E]/25 shadow-sm cursor-pointer"
+          >
+            <Link2 size={15} /> Link Colors
           </button>
           <button
             type="button"
@@ -398,6 +438,29 @@ const ManageProducts = () => {
                           {p.code ? `${p.code} · ` : ""}
                           {p.type} · {p.gender}
                         </p>
+                        {(p.color || p.variantGroup) && (
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            {p.color && (
+                              <span className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-full bg-[#F7F1E5] border border-[#38131E]/15 text-[#38131E]">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full border border-[#38131E]/25 shrink-0"
+                                  style={{
+                                    backgroundColor: resolveColorHex(
+                                      p.color,
+                                      p.colorHex
+                                    ),
+                                  }}
+                                />
+                                {p.color}
+                              </span>
+                            )}
+                            {p.variantGroup && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#38131E]/6 text-[#5C4E52]">
+                                Grp: {p.variantGroup}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </td>
 
@@ -449,7 +512,16 @@ const ManageProducts = () => {
                       </div>
                     </td>
 
-                    <td className="p-4 text-right space-x-3">
+                    <td className="p-4 text-right space-x-3 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => openLinkColors(p)}
+                        className="text-[#38131E]/80 hover:text-[#9A7A3A] transition cursor-pointer"
+                        title="Link colors with other existing products"
+                        aria-label={`Link color variants for ${p.name}`}
+                      >
+                        <Palette size={14} />
+                      </button>
                       <button
                         type="button"
                         onClick={() => openEdit(p)}
@@ -511,6 +583,17 @@ const ManageProducts = () => {
                   <p className="text-xs text-[#7A6A6E]">
                     {p.type} · {p.gender} · Stock: {p.stock}
                   </p>
+                  {p.color && (
+                    <span className="inline-flex items-center gap-1.5 mt-1 text-[11px] px-2 py-0.5 rounded-full bg-[#F7F1E5] border border-[#38131E]/15 text-[#38131E]">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-[#38131E]/25 shrink-0"
+                        style={{
+                          backgroundColor: resolveColorHex(p.color, p.colorHex),
+                        }}
+                      />
+                      {p.color}
+                    </span>
+                  )}
                   <div className="mt-2">
                     {Math.round(p.discountedPrice) ? (
                       <div>
@@ -527,6 +610,15 @@ const ManageProducts = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openLinkColors(p)}
+                    className="text-[#38131E]/80 hover:text-[#9A7A3A] transition"
+                    title="Link colors with other products"
+                    aria-label={`Link color variants for ${p.name}`}
+                  >
+                    <Palette size={16} />
+                  </button>
                   <button
                     type="button"
                     onClick={() => openEdit(p)}
@@ -671,6 +763,118 @@ const ManageProducts = () => {
                 onChange={(e) => setForm({ ...form, print: e.target.value })}
                 className={inputCls}
               />
+
+              {/* Color & Same-Product Variant Grouping */}
+              <div className="md:col-span-2 space-y-3 p-3.5 rounded-xl bg-[#FBF7EE] border border-[#38131E]/12">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[#38131E]/75 font-semibold">
+                    Color &amp; Same-Product Grouping (Optional)
+                  </p>
+                  {form.color && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#38131E]">
+                      <span
+                        className="w-3 h-3 rounded-full border border-[#38131E]/25"
+                        style={{
+                          backgroundColor: resolveColorHex(form.color, form.colorHex),
+                        }}
+                      />
+                      {form.color}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <input
+                    placeholder="Color Name (e.g. Royal Maroon)"
+                    value={form.color}
+                    onChange={(e) => setForm({ ...form, color: e.target.value })}
+                    className={inputCls}
+                  />
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      aria-label="Pick color swatch"
+                      value={resolveColorHex(form.color, form.colorHex)}
+                      onChange={(e) =>
+                        setForm({ ...form, colorHex: e.target.value })
+                      }
+                      className="w-10 h-10 p-0.5 rounded-lg border border-[#38131E]/20 bg-white cursor-pointer shrink-0"
+                    />
+                    <input
+                      placeholder="#Hex (optional)"
+                      value={form.colorHex}
+                      onChange={(e) =>
+                        setForm({ ...form, colorHex: e.target.value })
+                      }
+                      className={`flex-1 min-w-0 font-mono ${inputCls}`}
+                    />
+                    {form.colorHex && (
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, colorHex: "" })}
+                        aria-label="Clear custom hex color"
+                        className="text-xs text-[#7A6A6E] hover:text-[#38131E] px-1.5 cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div>
+                    <input
+                      list="rk-variant-groups"
+                      placeholder="Color Group / Style ID"
+                      value={form.variantGroup}
+                      onChange={(e) =>
+                        setForm({ ...form, variantGroup: e.target.value })
+                      }
+                      className={`w-full ${inputCls}`}
+                    />
+                    <datalist id="rk-variant-groups">
+                      {existingVariantGroups.map((grp) => (
+                        <option key={grp} value={grp} />
+                      ))}
+                    </datalist>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {PRESET_PRODUCT_COLORS.map((preset) => {
+                    const selected =
+                      form.color.trim().toLowerCase() === preset.name.toLowerCase();
+                    return (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() =>
+                          setForm({
+                            ...form,
+                            color: preset.name,
+                            colorHex: preset.hex,
+                          })
+                        }
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition cursor-pointer ${
+                          selected
+                            ? "bg-[#38131E] text-[#F1D889] border-[#38131E]"
+                            : "bg-white text-[#1A1718]/85 border-[#38131E]/18 hover:border-[#38131E]"
+                        }`}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                          style={{ backgroundColor: preset.hex }}
+                        />
+                        {preset.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <p className="text-[11px] text-[#5C4E52] leading-relaxed">
+                  Products sharing the same Color Group ID automatically appear as
+                  clickable <strong>Color Tabs</strong> on the storefront product page.
+                </p>
+              </div>
 
               {/* Fabric & Care Specs */}
               <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-[#FBF7EE] border border-[#38131E]/12">
@@ -892,6 +1096,16 @@ const ManageProducts = () => {
               </div>
             </form>
       </AdminModal>
+
+      <LinkColorVariantsModal
+        isOpen={linkModalOpen}
+        onClose={closeLinkColors}
+        initialProduct={linkInitialProduct}
+        onSaved={() => {
+          loadProducts();
+          fetchProducts?.();
+        }}
+      />
     </div>
   );
 };

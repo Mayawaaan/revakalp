@@ -10,6 +10,12 @@ import mongoose from "mongoose";
 
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const sanitizeHexColor = (val) => {
+    if (!val) return "";
+    const trimmed = String(val).trim();
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(trimmed) ? trimmed : "";
+};
+
 const cleanupTempUploads = async (files) => {
     if (!Array.isArray(files) || files.length === 0) return;
     await Promise.all(
@@ -76,6 +82,10 @@ export const createProduct = async (req, res) => {
             bestseller,
             print,
             exclusivity,
+            color,
+            colorHex,
+            variantGroup,
+            linkWithProductId,
         } = req.body;
 
         const hasSizes = hasSizesRaw === 'true' || hasSizesRaw === true;
@@ -115,6 +125,19 @@ export const createProduct = async (req, res) => {
             return res.status(400).json({ message: "Product images are required" });
         }
 
+        let sourceProduct = null;
+        let finalVariantGroup = variantGroup ? String(variantGroup).trim() : "";
+
+        if (linkWithProductId && mongoose.Types.ObjectId.isValid(linkWithProductId)) {
+            sourceProduct = await Product.findById(linkWithProductId);
+            if (sourceProduct) {
+                finalVariantGroup =
+                    finalVariantGroup ||
+                    (sourceProduct.variantGroup ? sourceProduct.variantGroup.trim() : "") ||
+                    sourceProduct.code;
+            }
+        }
+
         for (const file of req.files) {
             const imageUrl = await uploadImageToCloudinary(file);
             imageUrls.push(imageUrl);
@@ -146,12 +169,21 @@ export const createProduct = async (req, res) => {
             date: Date.now(),
             bestseller: bestseller === "true" || bestseller === true,
             print,
+            color: color ? String(color).trim() : "",
+            colorHex: sanitizeHexColor(colorHex),
+            variantGroup: finalVariantGroup,
             exclusivity: exclusivity === "true" || exclusivity === true,
             ...(parsedSpecs && { specs: parsedSpecs }),
         }); 
         // console.log("Creating product with data:", newProduct);
 
         await newProduct.save();
+
+        if (sourceProduct && finalVariantGroup && !sourceProduct.variantGroup) {
+            sourceProduct.variantGroup = finalVariantGroup;
+            await sourceProduct.save();
+        }
+
         res.status(201).json(newProduct);
 
     } catch (error) {
@@ -198,6 +230,8 @@ export const getAllProductsAdmin = async (req, res) => {
                 { subCategory: regex },
                 { type: regex },
                 { state: regex },
+                { color: regex },
+                { variantGroup: regex },
             ];
         }
 
@@ -289,6 +323,9 @@ export const updateProduct = async (req, res) => {
             bestseller,
             print,
             exclusivity,
+            color,
+            colorHex,
+            variantGroup,
             existingImages,
         } = req.body;
 
@@ -312,6 +349,9 @@ export const updateProduct = async (req, res) => {
             ...(bestseller !== undefined && { bestseller }),
             ...(print !== undefined && { print }),
             ...(exclusivity !== undefined && { exclusivity }),
+            ...(color !== undefined && { color: String(color).trim() }),
+            ...(colorHex !== undefined && { colorHex: sanitizeHexColor(colorHex) }),
+            ...(variantGroup !== undefined && { variantGroup: String(variantGroup).trim() }),
         };
 
         if (discount !== undefined) {
@@ -386,6 +426,106 @@ export const updateProduct = async (req, res) => {
         res.status(status).json({
             message: status !== 500 ? error.message : error?.message || "Internal Server Error",
         });
+    }
+};
+
+/* ===================== LINK COLOR VARIANTS ===================== */
+
+export const linkProductColors = async (req, res) => {
+    try {
+        const { groupId, items = [], unlinkProductIds = [] } = req.body || {};
+
+        const dedupedItemsMap = new Map();
+        for (const rawItem of Array.isArray(items) ? items : []) {
+            const productId = String(rawItem?.productId || "").trim();
+            if (!mongoose.Types.ObjectId.isValid(productId)) continue;
+            dedupedItemsMap.set(productId, {
+                productId,
+                color: rawItem?.color !== undefined ? String(rawItem.color).trim() : "",
+                colorHex: sanitizeHexColor(rawItem?.colorHex),
+            });
+        }
+        const cleanItems = Array.from(dedupedItemsMap.values());
+
+        const cleanUnlinkIds = Array.from(
+            new Set(
+                (Array.isArray(unlinkProductIds) ? unlinkProductIds : [])
+                    .map((id) => String(id || "").trim())
+                    .filter((id) => mongoose.Types.ObjectId.isValid(id) && !dedupedItemsMap.has(id))
+            )
+        );
+
+        if (cleanItems.length === 0 && cleanUnlinkIds.length === 0) {
+            return res.status(400).json({ message: "Select at least one valid product to update" });
+        }
+
+        const itemIds = cleanItems.map((i) => i.productId);
+        const existingProducts = itemIds.length
+            ? await Product.find({ _id: { $in: itemIds } })
+                .select("_id code variantGroup")
+                .lean()
+            : [];
+
+        if (cleanItems.length > 0 && existingProducts.length === 0) {
+            return res.status(404).json({ message: "Selected products not found" });
+        }
+
+        const existingGroup = existingProducts.find(
+            (p) => p.variantGroup && String(p.variantGroup).trim()
+        )?.variantGroup;
+        const firstCode = existingProducts[0]?.code;
+        const fallbackGroup = firstCode
+            ? String(firstCode).trim()
+            : itemIds[0]
+            ? `GRP-${itemIds[0].slice(-6).toUpperCase()}`
+            : "";
+
+        const resolvedGroup =
+            cleanItems.length >= 2
+                ? String(groupId || existingGroup || fallbackGroup).trim()
+                : "";
+
+        const ops = cleanItems.map((item) => ({
+            updateOne: {
+                filter: { _id: item.productId },
+                update: {
+                    $set: {
+                        color: item.color,
+                        colorHex: item.colorHex,
+                        variantGroup: resolvedGroup,
+                    },
+                },
+            },
+        }));
+
+        for (const unlinkId of cleanUnlinkIds) {
+            ops.push({
+                updateOne: {
+                    filter: { _id: unlinkId },
+                    update: {
+                        $set: { variantGroup: "" },
+                    },
+                },
+            });
+        }
+
+        const bulkResult = ops.length > 0 ? await Product.bulkWrite(ops) : { modifiedCount: 0 };
+
+        const allAffectedIds = [...itemIds, ...cleanUnlinkIds];
+        const updatedProducts = allAffectedIds.length
+            ? await Product.find({ _id: { $in: allAffectedIds } })
+                .select("_id code name category color colorHex variantGroup image")
+                .lean()
+            : [];
+
+        return res.status(200).json({
+            variantGroup: resolvedGroup,
+            updatedCount: bulkResult?.modifiedCount ?? cleanItems.length + cleanUnlinkIds.length,
+            products: updatedProducts,
+        });
+    } catch (error) {
+        console.error("Error in linkProductColors:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 

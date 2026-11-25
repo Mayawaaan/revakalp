@@ -14,7 +14,7 @@ import {
   getDeepAnalytics,
 } from "../controllers/adminControllers/admin.analytics.controller.js";
 import { getSettings, updateSettings } from "../controllers/adminControllers/admin.settings.controller.js";
-import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin, getAdminProductById, deleteAllProducts } from "../controllers/adminControllers/admin.product.controller.js";
+import { createProduct, updateProduct, deleteProduct, getAllProductsAdmin, getAdminProductById, deleteAllProducts, linkProductColors } from "../controllers/adminControllers/admin.product.controller.js";
 import { getAllOrders, getOrderById, updateOrderStatus, recordReturnDecision } from "../controllers/adminControllers/admin.order.controller.js";
 import { createCoupon, updateCoupon, deleteCoupon, getAllCoupons } from "../controllers/adminControllers/admin.coupon.controller.js";
 import { getInventorySnapshot, recordPosSale, adjustStock, uploadAdminMedia } from "../controllers/adminControllers/admin.inventory.controller.js";
@@ -60,6 +60,7 @@ router.put("/settings", protectRoute, protectAdminRoute, updateSettings);
 
 // Admin product management routes
 router.get("/products/", protectRoute, protectAdminRoute, getAllProductsAdmin);
+router.put("/products/link-colors", protectRoute, protectAdminRoute, linkProductColors);
 router.get("/products/:id", protectRoute, protectAdminRoute, getAdminProductById);
 router.post("/products", protectRoute, protectAdminRoute, upload.array("images", 10), createProduct);
 router.put("/products/:id", protectRoute, protectAdminRoute, upload.array("images", 10), updateProduct);

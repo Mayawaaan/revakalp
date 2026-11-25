@@ -41,6 +41,10 @@ const productSchema = new mongoose.Schema(
     bestseller: { type: Boolean, default: false },
     print: { type: String },
 
+    color: { type: String, trim: true, default: "" },
+    colorHex: { type: String, trim: true, default: "" },
+    variantGroup: { type: String, trim: true, index: true, default: "" },
+
     exclusivity: { type: String },
 
     // Category-specific garment intelligence metadata

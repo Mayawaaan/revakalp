@@ -23,6 +23,10 @@ import { buildBreadcrumbSchema, useSeoMeta } from "../../utils/seo";
 import { trackEvent } from "../../utils/analytics";
 import { getEffectivePrice } from "../../config/storefrontCategories";
 import { findTraditionForProduct } from "../../data/heritageTraditions";
+import {
+  getProductColorVariants,
+  resolveColorHex,
+} from "../../utils/colorSwatches";
 
 const ProductDetailsPage = () => {
   const { productId } = useParams();
@@ -58,6 +62,11 @@ const ProductDetailsPage = () => {
     [products, productId]
   );
   const product = productFromStore || fetchedProduct;
+
+  const colorVariants = useMemo(
+    () => getProductColorVariants(product, products),
+    [product, products]
+  );
 
   // Deep-link fallback fetch if product isn't already in store
   useEffect(() => {
@@ -578,6 +587,102 @@ const ProductDetailsPage = () => {
                 Inclusive of applicable taxes
               </p>
             </div>
+
+            {/* Color Tabs (same product in multiple colors) */}
+            {(colorVariants.length > 1 || Boolean(product?.color)) && (
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#38131E]">
+                    Color
+                    {product?.color && (
+                      <span className="ml-2 font-medium normal-case tracking-normal text-[#1A1718]/75">
+                        · {product.color}
+                      </span>
+                    )}
+                  </p>
+                  {colorVariants.length > 1 && (
+                    <span className="text-[11px] text-[#38131E]/65">
+                      {colorVariants.length} colors
+                    </span>
+                  )}
+                </div>
+                <div
+                  role="tablist"
+                  aria-label="Product color options"
+                  className="flex flex-wrap gap-2.5"
+                >
+                  {(colorVariants.length > 0 ? colorVariants : [product]).map(
+                    (variant, idx) => {
+                      const vid = String(variant._id || variant.id || "");
+                      const isCurrent = vid === String(resolvedId);
+                      const vStock = Math.max(
+                        0,
+                        (Number(variant.stock) || 0) - (Number(variant.reserved) || 0)
+                      );
+                      const vOutOfStock = vStock <= 0;
+                      const swatchHex = resolveColorHex(
+                        variant.color,
+                        variant.colorHex
+                      );
+                      const thumb = Array.isArray(variant.image)
+                        ? variant.image[0]
+                        : "";
+                      const label =
+                        variant.color || variant.code || `Option ${idx + 1}`;
+
+                      return (
+                        <button
+                          key={vid || idx}
+                          type="button"
+                          role="tab"
+                          aria-selected={isCurrent}
+                          aria-label={`Select color ${label}${
+                            vOutOfStock ? " (Out of Stock)" : ""
+                          }`}
+                          onClick={() => {
+                            if (!isCurrent && vid) {
+                              navigate(`/product/${vid}`);
+                            }
+                          }}
+                          className={`inline-flex items-center gap-2 min-h-[40px] px-3.5 py-2 rounded-[2px] border text-xs font-medium transition-all cursor-pointer ${
+                            isCurrent
+                              ? "bg-[#38131E] text-[#F1D889] border-[#38131E] ring-1 ring-[#D4AF63]"
+                              : vOutOfStock
+                              ? "bg-[#F7F1E5]/45 border-[#38131E]/18 text-[#1A1718]/50 hover:border-[#38131E]/45"
+                              : "bg-[#F7F1E5]/75 border-[#38131E]/22 text-[#38131E] hover:border-[#38131E] hover:bg-[#F7F1E5]"
+                          }`}
+                        >
+                          {variant.color || variant.colorHex ? (
+                            <span
+                              aria-hidden="true"
+                              className={`w-4 h-4 rounded-full border shrink-0 ${
+                                isCurrent
+                                  ? "border-[#F1D889]/80"
+                                  : "border-[#38131E]/25"
+                              }`}
+                              style={{ backgroundColor: swatchHex }}
+                            />
+                          ) : thumb ? (
+                            <img
+                              src={thumb}
+                              alt=""
+                              aria-hidden="true"
+                              className="w-4 h-4 rounded-full object-cover border border-[#38131E]/25 shrink-0"
+                            />
+                          ) : null}
+                          <span>{label}</span>
+                          {vOutOfStock && (
+                            <span className="text-[10px] opacity-75">
+                              (Sold Out)
+                            </span>
+                          )}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Sizes (only when hasSizes is true) */}
             {hasSizes && sizes?.length > 0 && (

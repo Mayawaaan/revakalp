@@ -3,6 +3,8 @@ import Product from "../models/product.model.js";
 import { uploadImageToCloudinary } from "../lib/utils.js";
 import fs from "fs";
 
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const getAllProducts = async (req, res) => {
   try {
     const {
@@ -14,6 +16,8 @@ export const getAllProducts = async (req, res) => {
       state,
       print,
       exclusivity,
+      color,
+      variantGroup,
       _id,
       stock,
     } = req.query;
@@ -29,6 +33,8 @@ export const getAllProducts = async (req, res) => {
     if (state) filter.state = state;
     if (print) filter.print = print;
     if (exclusivity) filter.exclusivity = exclusivity;
+    if (color) filter.color = color;
+    if (variantGroup) filter.variantGroup = variantGroup;
 
     if (stock) {
       if (stock === "in") {
@@ -57,7 +63,33 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json(product);
+    let colorVariants = [];
+    const trimmedGroup = product.variantGroup ? String(product.variantGroup).trim() : "";
+    const trimmedColor = product.color ? String(product.color).trim() : "";
+
+    let siblingQuery = null;
+    if (trimmedGroup) {
+      siblingQuery = {
+        status: { $ne: "archived" },
+        variantGroup: new RegExp(`^${escapeRegex(trimmedGroup)}$`, "i"),
+      };
+    } else if (trimmedColor && product.name && product.category) {
+      siblingQuery = {
+        status: { $ne: "archived" },
+        name: new RegExp(`^${escapeRegex(String(product.name).trim())}$`, "i"),
+        category: new RegExp(`^${escapeRegex(String(product.category).trim())}$`, "i"),
+      };
+    }
+
+    if (siblingQuery) {
+      colorVariants = await Product.find(siblingQuery)
+        .select(
+          "_id name code color colorHex variantGroup image price discountedPrice discount stock reserved status"
+        )
+        .lean();
+    }
+
+    res.status(200).json({ ...product.toObject(), colorVariants });
   } catch (error) {
     res.status(500).json({ message: "Error fetching product" });
   }

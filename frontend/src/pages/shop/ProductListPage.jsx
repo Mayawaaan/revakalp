@@ -21,6 +21,7 @@ import {
 } from "../../config/storefrontCategories";
 import { useSeoMeta } from "../../utils/seo";
 import { trackEvent } from "../../utils/analytics";
+import { resolveColorHex } from "../../utils/colorSwatches";
 
 const ProductListPage = () => {
   const { category = "all", type = "all" } = useParams();
@@ -29,6 +30,34 @@ const ProductListPage = () => {
 
   const { products, loading, currency, search, setSearch } = useStore();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [headerOffset, setHeaderOffset] = useState(0);
+
+  useEffect(() => {
+    const headerEl = document.querySelector("[data-site-header]");
+    if (!headerEl) {
+      setHeaderOffset(0);
+      return undefined;
+    }
+
+    const updateOffset = () => {
+      const nextHeight = Math.round(headerEl.getBoundingClientRect().height);
+      setHeaderOffset((prev) => (prev === nextHeight ? prev : nextHeight));
+    };
+
+    updateOffset();
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(updateOffset);
+      resizeObserver.observe(headerEl);
+    }
+    window.addEventListener("resize", updateOffset, { passive: true });
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateOffset);
+    };
+  }, []);
 
   // Read filter & sort state from URL searchParams
   const urlQuery = searchParams.get("q") || "";
@@ -44,6 +73,11 @@ const ProductListPage = () => {
 
   const selectedStates = useMemo(() => {
     const raw = searchParams.get("state") || "";
+    return raw ? raw.split(",").filter(Boolean) : [];
+  }, [searchParams]);
+
+  const selectedColors = useMemo(() => {
+    const raw = searchParams.get("color") || "";
     return raw ? raw.split(",").filter(Boolean) : [];
   }, [searchParams]);
 
@@ -67,24 +101,39 @@ const ProductListPage = () => {
   }, [products, category, type]);
 
   // Dynamic facet values derived strictly from real products
-  const { availableSubCategories, availableStates, priceCeiling } = useMemo(() => {
-    const subs = new Set();
-    const states = new Set();
-    let maxP = 0;
+  const { availableSubCategories, availableStates, availableColors, priceCeiling } =
+    useMemo(() => {
+      const subs = new Set();
+      const states = new Set();
+      const colorMap = new Map();
+      let maxP = 0;
 
-    for (const p of products || []) {
-      if (p?.subCategory) subs.add(p.subCategory.trim());
-      if (p?.state) states.add(p.state.trim());
-      const ep = getEffectivePrice(p);
-      if (ep > maxP) maxP = ep;
-    }
-    const roundedCeiling = Math.max(5000, Math.ceil(maxP / 1000) * 1000);
-    return {
-      availableSubCategories: Array.from(subs).sort(),
-      availableStates: Array.from(states).sort(),
-      priceCeiling: roundedCeiling,
-    };
-  }, [products]);
+      for (const p of products || []) {
+        if (p?.subCategory) subs.add(p.subCategory.trim());
+        if (p?.state) states.add(p.state.trim());
+        if (p?.color && p.color.trim()) {
+          const clean = p.color.trim();
+          const key = clean.toLowerCase();
+          if (!colorMap.has(key)) {
+            colorMap.set(key, {
+              name: clean,
+              hex: resolveColorHex(clean, p.colorHex),
+            });
+          }
+        }
+        const ep = getEffectivePrice(p);
+        if (ep > maxP) maxP = ep;
+      }
+      const roundedCeiling = Math.max(5000, Math.ceil(maxP / 1000) * 1000);
+      return {
+        availableSubCategories: Array.from(subs).sort(),
+        availableStates: Array.from(states).sort(),
+        availableColors: Array.from(colorMap.values()).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        ),
+        priceCeiling: roundedCeiling,
+      };
+    }, [products]);
 
   const filteredProducts = useMemo(() => {
     const q = activeQuery.toLowerCase();
@@ -100,6 +149,7 @@ const ProductListPage = () => {
           p?.subCategory,
           p?.type,
           p?.print,
+          p?.color,
           p?.state,
         ]
           .filter(Boolean)
@@ -121,6 +171,15 @@ const ProductListPage = () => {
         selectedStates.length > 0 &&
         !selectedStates.some(
           (st) => st.toLowerCase() === (p?.state || "").trim().toLowerCase()
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        selectedColors.length > 0 &&
+        !selectedColors.some(
+          (col) => col.toLowerCase() === (p?.color || "").trim().toLowerCase()
         )
       ) {
         return false;
@@ -161,6 +220,7 @@ const ProductListPage = () => {
     activeQuery,
     selectedSubCategories,
     selectedStates,
+    selectedColors,
     maxPrice,
     sortBy,
   ]);
@@ -208,6 +268,13 @@ const ProductListPage = () => {
     updateParam("state", next);
   };
 
+  const toggleColor = (val) => {
+    const next = selectedColors.includes(val)
+      ? selectedColors.filter((v) => v !== val)
+      : [...selectedColors, val];
+    updateParam("color", next);
+  };
+
   const clearAllFilters = () => {
     setSearch("");
     setSearchParams({}, { replace: true });
@@ -241,6 +308,7 @@ const ProductListPage = () => {
     Boolean(activeQuery) ||
     selectedSubCategories.length > 0 ||
     selectedStates.length > 0 ||
+    selectedColors.length > 0 ||
     maxPrice > 0 ||
     !inStockOnly;
 
@@ -248,17 +316,20 @@ const ProductListPage = () => {
     categories: categoryOptions,
     subCategories: availableSubCategories,
     states: availableStates,
+    colors: availableColors,
     selectedCategory:
       categoryOptions.find((c) => c.id === normalizedCategorySlug)?.id ||
       (normalizedCategorySlug === "lehengas" ? "lehenga" : "all"),
     selectedSubCategories,
     selectedStates,
+    selectedColors,
     maxPrice,
     priceCeiling,
     inStockOnly,
     onCategoryChange: handleCategorySwitch,
     onToggleSubCategory: toggleSubCategory,
     onToggleState: toggleState,
+    onToggleColor: toggleColor,
     onMaxPriceChange: (val) => updateParam("maxPrice", val > 0 ? val : ""),
     onInStockChange: (val) => updateParam("inStock", val ? "" : "false"),
     onClearAll: clearAllFilters,
@@ -266,7 +337,10 @@ const ProductListPage = () => {
   };
 
   return (
-    <div className="bg-[#F7F1E5] min-h-screen">
+    <div
+      style={{ "--shop-sticky-top": `${headerOffset}px` }}
+      className="bg-[#F7F1E5] min-h-screen"
+    >
       <PageHero
         label={category !== "all" ? decodeURIComponent(category).replace(/-/g, " ") : "Shop"}
         title={pageTitle}
@@ -279,7 +353,7 @@ const ProductListPage = () => {
         <Breadcrums />
 
         {/* Sticky Mobile & Desktop Filter/Sort Toolbar */}
-        <div className="sticky top-[128px] sm:top-[144px] z-20 bg-[#F7F1E5]/96 backdrop-blur-md py-2.5 sm:py-3 -mx-4 px-4 sm:mx-0 sm:px-0 lg:static lg:bg-transparent mt-4 mb-5 sm:mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4 border-b border-[#38131E]/14">
+        <div className="sticky top-[var(--shop-sticky-top,0px)] z-20 bg-[#F7F1E5]/96 backdrop-blur-md py-2.5 sm:py-3 -mx-4 px-4 sm:mx-0 sm:px-0 lg:static lg:bg-transparent mt-4 mb-5 sm:mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4 border-b border-[#38131E]/14">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -303,7 +377,7 @@ const ProductListPage = () => {
 
         {/* Active Filter Chips */}
         {hasActiveChips && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
+          <div className="flex flex-wrap items-center gap-2.5 mb-6">
             {activeQuery && (
               <button
                 type="button"
@@ -336,6 +410,17 @@ const ProductListPage = () => {
                 className="rk-chip rk-chip-active"
               >
                 <span>{st}</span>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            ))}
+            {selectedColors.map((col) => (
+              <button
+                key={col}
+                type="button"
+                onClick={() => toggleColor(col)}
+                className="rk-chip rk-chip-active"
+              >
+                <span>Color: {col}</span>
                 <X className="w-3.5 h-3.5" />
               </button>
             ))}
@@ -373,8 +458,13 @@ const ProductListPage = () => {
         )}
 
         {/* Main Layout: Desktop Hairline Filter Rail + Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8 items-start">
-          <aside className="hidden lg:block sticky top-28 lg:border-r lg:border-[#38131E]/14 lg:pr-6 py-1">
+        <div className="grid grid-cols-1 lg:grid-cols-[288px_1fr] gap-8 lg:gap-10 items-start">
+          <aside
+            data-lenis-prevent=""
+            data-lenis-prevent-wheel=""
+            data-lenis-prevent-touch=""
+            className="hidden lg:block sticky top-[calc(var(--shop-sticky-top,0px)_+_1.25rem)] max-h-[calc(100dvh_-_var(--shop-sticky-top,0px)_-_2.5rem)] overflow-y-auto overscroll-contain rk-filter-scroll bg-[#FBF7EE]/90 border border-[#38131E]/12 rounded-[2px] p-5"
+          >
             <FilterPanel {...filterPanelProps} />
           </aside>
 

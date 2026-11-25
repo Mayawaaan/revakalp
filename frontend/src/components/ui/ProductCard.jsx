@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Eye, ArrowUpRight } from "lucide-react";
 import useStore from "../../store/store";
 import Price from "./Price";
 import ImageWithFallback from "./ImageWithFallback";
+import {
+  getProductColorVariants,
+  resolveColorHex,
+} from "../../utils/colorSwatches";
 
 export default function ProductCard({
   id,
@@ -20,15 +24,27 @@ export default function ProductCard({
   subCategory,
   type,
   state,
+  color,
+  colorHex,
+  variantGroup,
   bestseller,
   exclusivity,
   onQuickView,
   hideOutOfStock = true,
 }) {
   const productId = id || _id;
-  const { user, wishlist, addToWishlist, removeFromWishlist, showToast } =
+  const { user, products, wishlist, addToWishlist, removeFromWishlist, showToast } =
     useStore();
   const navigate = useNavigate();
+  const [previewImage, setPreviewImage] = useState(null);
+
+  const colorVariants = useMemo(() => {
+    if (!variantGroup && !color) return [];
+    return getProductColorVariants(
+      { _id: productId, id: productId, name, category, color, colorHex, variantGroup, image, stock, reserved },
+      products
+    );
+  }, [variantGroup, color, colorHex, productId, name, category, image, stock, reserved, products]);
 
   const hasNumericStock = stock !== undefined && stock !== null && Number.isFinite(Number(stock));
   const availableStock = hasNumericStock
@@ -50,8 +66,8 @@ export default function ProductCard({
     : image
     ? [image]
     : [];
-  const primaryImage = imageList[0] || "";
-  const hoverImage = imageList[1] || primaryImage;
+  const primaryImage = previewImage || imageList[0] || "";
+  const hoverImage = previewImage ? primaryImage : imageList[1] || primaryImage;
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
@@ -184,6 +200,50 @@ export default function ProductCard({
             </span>
           )}
         </div>
+
+        {colorVariants.length > 1 && (
+          <div
+            className="pt-1 flex items-center gap-1.5"
+            onMouseLeave={() => setPreviewImage(null)}
+          >
+            {colorVariants.slice(0, 5).map((variant) => {
+              const vid = String(variant._id || variant.id || "");
+              const isCurrent = vid === String(productId);
+              const vThumb = Array.isArray(variant.image) ? variant.image[0] : "";
+              return (
+                <button
+                  key={vid}
+                  type="button"
+                  title={variant.color || variant.code || "Color option"}
+                  aria-label={`View ${name} in ${variant.color || variant.code || "alternate color"}`}
+                  onMouseEnter={() => {
+                    if (vThumb) setPreviewImage(vThumb);
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!isCurrent && vid) {
+                      navigate(`/product/${vid}`);
+                    }
+                  }}
+                  className={`w-4 h-4 rounded-full border transition-transform cursor-pointer ${
+                    isCurrent
+                      ? "border-[#38131E] ring-1 ring-[#D4AF63] ring-offset-1 scale-110"
+                      : "border-[#38131E]/30 hover:scale-110"
+                  }`}
+                  style={{
+                    backgroundColor: resolveColorHex(variant.color, variant.colorHex),
+                  }}
+                />
+              );
+            })}
+            {colorVariants.length > 5 && (
+              <span className="text-[10px] text-[#38131E]/65 font-medium pl-0.5">
+                +{colorVariants.length - 5}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
