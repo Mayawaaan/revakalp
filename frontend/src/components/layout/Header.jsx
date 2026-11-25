@@ -113,7 +113,7 @@ export default function Header({ tone }) {
     : "bg-[#38131E] text-[#F1D889] border-[#D4AF63]/60";
 
   return (
-    <div ref={headerRef} className="sticky top-0 z-40">
+    <div ref={headerRef} data-site-header="" className="sticky top-0 z-40">
       <AnnouncementBar />
 
       <header

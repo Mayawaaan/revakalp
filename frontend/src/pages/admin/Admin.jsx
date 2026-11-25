@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -47,15 +47,46 @@ const Admin = () => {
   const settings = useStore((state) => state.settings);
   const { handleLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [headerOffset, setHeaderOffset] = useState(0);
   const location = useLocation();
   const reducedMotion = useReducedMotion();
 
   useBodyScrollLock(sidebarOpen);
 
+  useEffect(() => {
+    const headerEl = document.querySelector("[data-site-header]");
+    if (!headerEl) {
+      setHeaderOffset(0);
+      return;
+    }
+
+    const updateOffset = () => {
+      const nextHeight = Math.round(headerEl.getBoundingClientRect().height);
+      setHeaderOffset((prev) => (prev === nextHeight ? prev : nextHeight));
+    };
+
+    updateOffset();
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(updateOffset);
+      resizeObserver.observe(headerEl);
+    }
+    window.addEventListener("resize", updateOffset, { passive: true });
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateOffset);
+    };
+  }, []);
+
   const storeName = settings?.storeName || "Revakalp";
 
   return (
-    <div className="flex min-h-screen bg-[#F7F1E5] text-[#1A1718]">
+    <div
+      style={{ "--admin-sticky-top": `${headerOffset}px` }}
+      className="flex min-h-[calc(100dvh_-_var(--admin-sticky-top,0px))] bg-[#F7F1E5] text-[#1A1718]"
+    >
       <AnimatePresence>
         {sidebarOpen && (
           <MotionDiv
@@ -64,7 +95,7 @@ const Admin = () => {
             animate={{ opacity: 1 }}
             exit={reducedMotion ? undefined : { opacity: 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.18 }}
-            className="fixed inset-0 z-40 bg-[#1A1718]/50 backdrop-blur-xs md:hidden"
+            className="fixed inset-0 z-[45] bg-[#1A1718]/50 backdrop-blur-xs md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -72,11 +103,11 @@ const Admin = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#2B0E17] text-[#F7F1E5] border-r border-[#D4AF63]/25 shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`fixed top-0 bottom-0 left-0 z-50 h-dvh w-64 shrink-0 flex flex-col bg-[#2B0E17] text-[#F7F1E5] border-r border-[#D4AF63]/25 shadow-2xl transform transition-transform duration-300 ease-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:relative md:translate-x-0 md:z-auto`}
+        } md:sticky md:top-[var(--admin-sticky-top,0px)] md:bottom-auto md:h-[calc(100dvh_-_var(--admin-sticky-top,0px))] md:self-start md:translate-x-0 md:transform-none md:z-20`}
       >
-        <div className="flex items-center justify-between px-5 pt-6 pb-5 border-b border-[#D4AF63]/20">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#D4AF63]/20 shrink-0">
           <div className="space-y-1.5">
             <p className="text-[10px] uppercase tracking-[0.26em] text-[#F1D889] font-semibold">
               Admin Command Center
@@ -95,7 +126,9 @@ const Admin = () => {
 
         <nav
           data-lenis-prevent=""
-          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overscroll-contain scrollbar-hide"
+          data-lenis-prevent-wheel=""
+          data-lenis-prevent-touch=""
+          className="flex-1 min-h-0 px-3 py-3 space-y-0.5 overflow-y-auto overscroll-contain scrollbar-hide"
           aria-label="Admin navigation"
         >
           {navLinks.map((item) => {
@@ -107,7 +140,7 @@ const Admin = () => {
                 end={item.end}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  `relative flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? "text-[#F1D889]"
                       : "text-[#F7F1E5]/80 hover:bg-white/10 hover:text-[#F7F1E5] hover:translate-x-0.5"
@@ -136,7 +169,7 @@ const Admin = () => {
           })}
         </nav>
 
-        <div className="px-3 pb-6 pt-4 border-t border-[#D4AF63]/20">
+        <div className="px-3 py-3.5 border-t border-[#D4AF63]/20 shrink-0">
           <button
             type="button"
             onClick={handleLogout}
@@ -145,7 +178,7 @@ const Admin = () => {
             <LogOut size={16} />
             Logout
           </button>
-          <p className="text-[10px] text-[#F7F1E5]/45 text-center mt-4">
+          <p className="text-[10px] text-[#F7F1E5]/45 text-center mt-2.5">
             © {new Date().getFullYear()} {storeName}
           </p>
         </div>
@@ -153,7 +186,7 @@ const Admin = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="relative sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8 gap-2">
+        <header className="sticky top-[var(--admin-sticky-top,0px)] z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8 gap-2">
           <MotionDiv
             key={`admin-sweep-${location.pathname}`}
             aria-hidden="true"
@@ -202,7 +235,7 @@ const Admin = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8 min-w-0">
           <AnimatePresence mode="wait" initial={false}>
             <MotionDiv
               key={location.pathname}
