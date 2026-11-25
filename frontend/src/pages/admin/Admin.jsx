@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   LayoutDashboard,
   Package,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 import useStore from "../../store/store";
 import useAuth from "../../hooks/useAuth";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
+import useReducedMotion from "../../components/motion/useReducedMotion";
 import BrandMark from "../../components/brand/BrandMark";
 import ThemeSwitcher from "../../components/theme/ThemeSwitcher";
 
@@ -38,25 +41,38 @@ const navLinks = [
   { to: "/admin/settings", icon: Settings, label: "Settings & Theme" },
 ];
 
+const MotionDiv = motion.div;
+
 const Admin = () => {
   const settings = useStore((state) => state.settings);
   const { handleLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const reducedMotion = useReducedMotion();
+
+  useBodyScrollLock(sidebarOpen);
 
   const storeName = settings?.storeName || "Revakalp";
 
   return (
     <div className="flex min-h-screen bg-[#F7F1E5] text-[#1A1718]">
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-[#1A1718]/50 backdrop-blur-xs md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <MotionDiv
+            key="admin-mobile-backdrop"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18 }}
+            className="fixed inset-0 z-40 bg-[#1A1718]/50 backdrop-blur-xs md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#2B0E17] text-[#F7F1E5] border-r border-[#D4AF63]/25 shadow-2xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#2B0E17] text-[#F7F1E5] border-r border-[#D4AF63]/25 shadow-2xl transform transition-transform duration-300 ease-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:relative md:translate-x-0 md:z-auto`}
       >
@@ -71,14 +87,15 @@ const Admin = () => {
             type="button"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close admin sidebar"
-            className="md:hidden text-[#F7F1E5]/75 hover:text-[#F1D889] p-1 cursor-pointer"
+            className="md:hidden text-[#F7F1E5]/75 hover:text-[#F1D889] p-1 cursor-pointer transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
         <nav
-          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-hide"
+          data-lenis-prevent=""
+          className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overscroll-contain scrollbar-hide"
           aria-label="Admin navigation"
         >
           {navLinks.map((item) => {
@@ -90,15 +107,30 @@ const Admin = () => {
                 end={item.end}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  `relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-[#38131E] text-[#F1D889] border border-[#D4AF63]/50 shadow-sm"
-                      : "text-[#F7F1E5]/80 hover:bg-white/10 hover:text-[#F7F1E5]"
+                      ? "text-[#F1D889]"
+                      : "text-[#F7F1E5]/80 hover:bg-white/10 hover:text-[#F7F1E5] hover:translate-x-0.5"
                   }`
                 }
               >
-                <Icon size={16} />
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <MotionDiv
+                        layoutId={reducedMotion ? undefined : "admin-sidebar-active-pill"}
+                        transition={{
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 32,
+                        }}
+                        className="absolute inset-0 rounded-xl bg-[#38131E] border border-[#D4AF63]/50 shadow-sm"
+                      />
+                    )}
+                    <Icon size={16} className="relative z-10 shrink-0" />
+                    <span className="relative z-10">{item.label}</span>
+                  </>
+                )}
               </NavLink>
             );
           })}
@@ -108,7 +140,7 @@ const Admin = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[#F7F1E5]/85 hover:bg-white/10 hover:text-[#F1D889] transition-colors cursor-pointer"
+            className="rk-admin-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[#F7F1E5]/85 hover:bg-white/10 hover:text-[#F1D889] cursor-pointer"
           >
             <LogOut size={16} />
             Logout
@@ -121,7 +153,18 @@ const Admin = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8 gap-2">
+        <header className="relative sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#38131E]/12 flex items-center justify-between px-4 md:px-8 gap-2">
+          <MotionDiv
+            key={`admin-sweep-${location.pathname}`}
+            aria-hidden="true"
+            initial={reducedMotion ? false : { scaleX: 0, opacity: 0.9 }}
+            animate={{ scaleX: [0, 0.78, 1], opacity: [0.9, 0.9, 0] }}
+            transition={{
+              duration: reducedMotion ? 0 : 0.42,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-[#D4AF63] origin-left"
+          />
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -160,7 +203,20 @@ const Admin = () => {
         </header>
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-          <Outlet />
+          <AnimatePresence mode="wait" initial={false}>
+            <MotionDiv
+              key={location.pathname}
+              initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
+              transition={{
+                duration: reducedMotion ? 0 : 0.18,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <Outlet />
+            </MotionDiv>
+          </AnimatePresence>
         </main>
       </div>
     </div>

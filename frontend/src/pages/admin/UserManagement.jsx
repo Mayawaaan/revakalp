@@ -1,28 +1,71 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { User, Trash2, Users, Loader2 } from "lucide-react";
+import { User, Trash2, Users, Loader2, Search } from "lucide-react";
 import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
+import AdminPagination from "../../components/admin/AdminPagination";
 
 const UserManagement = () => {
   const { showToast } = useStore();
   const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/admin/users");
-      setUsers(res.data);
+      const params = { page, limit };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (roleFilter !== "All") params.role = roleFilter;
+
+      const res = await axios.get("/api/admin/users", { params });
+      if (Array.isArray(res.data)) {
+        setUsers(res.data);
+        setTotal(res.data.length);
+        setTotalPages(res.data.length > 0 ? 1 : 0);
+      } else {
+        setUsers(res.data?.users || []);
+        setTotal(Number(res.data?.total) || 0);
+        setPage(Number(res.data?.page) || 1);
+        setTotalPages(Number(res.data?.totalPages) || 0);
+      }
     } catch (error) {
       showToast(error.response?.data?.message || "Failed to fetch users", "error");
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [page, limit, debouncedSearch, roleFilter, showToast]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const handleLimitChange = (nextLimit) => {
+    setLimit(nextLimit);
+    setPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
+  const handleRoleFilterChange = (e) => {
+    setRoleFilter(e.target.value);
+    setPage(1);
+  };
 
   const handleRoleChange = async (userId, role) => {
     try {
@@ -60,8 +103,34 @@ const UserManagement = () => {
 
         <div className="flex items-center gap-2 bg-[#38131E] text-[#F1D889] px-5 py-2.5 rounded-full text-sm border border-[#D4AF63]/40">
           <Users size={15} />
-          {users.length} Users
+          {total} Users
         </div>
+      </div>
+
+      {/* SEARCH & ROLE FILTER */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search
+            size={15}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A6A6E]"
+          />
+          <input
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search users by name or email…"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#38131E]/20 rounded-xl text-sm text-[#1A1718] bg-white focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+          />
+        </div>
+        <select
+          value={roleFilter}
+          onChange={handleRoleFilterChange}
+          aria-label="Filter users by role"
+          className="border border-[#38131E]/20 rounded-xl px-3.5 py-2.5 text-sm bg-white text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
+        >
+          <option value="All">All Roles</option>
+          <option value="user">Users</option>
+          <option value="admin">Admins</option>
+        </select>
       </div>
 
       <div className="bg-white border border-[#38131E]/12 rounded-2xl overflow-hidden shadow-xs">
@@ -82,9 +151,12 @@ const UserManagement = () => {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#38131E]/8">
+            <tbody
+              key={`${page}-${limit}-${roleFilter}`}
+              className="rk-admin-enter divide-y divide-[#38131E]/8"
+            >
               {users.map((user) => (
-                <tr key={user._id} className="hover:bg-[#F7F1E5]/40 transition-colors">
+                <tr key={user._id} className="rk-admin-row hover:bg-[#F7F1E5]/40">
                   <td className="px-6 py-4 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-[#38131E]/10 flex items-center justify-center">
                       <User size={15} className="text-[#38131E]" />
@@ -172,6 +244,17 @@ const UserManagement = () => {
             <Loader2 size={18} className="animate-spin" /> Loading users…
           </div>
         )}
+
+        <AdminPagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          limit={limit}
+          loading={loading}
+          onPageChange={setPage}
+          onLimitChange={handleLimitChange}
+          itemLabel="users"
+        />
       </div>
     </div>
   );

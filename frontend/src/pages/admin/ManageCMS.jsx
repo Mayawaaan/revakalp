@@ -3,7 +3,6 @@ import {
   Plus,
   Trash2,
   Sparkles,
-  X,
   Upload,
   Eye,
   MousePointerClick,
@@ -14,6 +13,8 @@ import {
 } from "lucide-react";
 import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
+import AdminModal from "../../components/admin/AdminModal";
+import { prepareImageForUpload } from "../../utils/imageUpload";
 
 const SLOT_OPTIONS = [
   { value: "announcement_bar", label: "Top Announcement Bar (Sitewide)" },
@@ -109,9 +110,10 @@ export default function ManageCMS() {
   const handleCreativeUpload = async (field, file) => {
     if (!file) return;
     setUploadingField(field);
-    const fd = new FormData();
-    fd.append("image", file);
     try {
+      const { file: prepared } = await prepareImageForUpload(file);
+      const fd = new FormData();
+      fd.append("image", prepared);
       const res = await axios.post("/api/admin/media/upload", fd);
       const url = res.data?.secure_url || "";
       if (url) {
@@ -123,7 +125,7 @@ export default function ManageCMS() {
         showToast("Ad creative uploaded", "success");
       }
     } catch (err) {
-      showToast(err?.response?.data?.message || "Image upload failed", "error");
+      showToast(err?.response?.data?.message || err?.message || "Image upload failed", "error");
     } finally {
       setUploadingField("");
     }
@@ -431,22 +433,14 @@ export default function ManageCMS() {
       </div>
 
       {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl border border-[#38131E]/15 relative max-h-[92vh] overflow-y-auto"
-          >
-            <button
-              type="button"
-              onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-[#7A6A6E] hover:text-[#38131E] cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-            <h2 className="font-serif text-xl text-[#38131E]">
-              {editing ? "Edit Campaign / Ad Slot" : "Create Campaign / Ad Slot"}
-            </h2>
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Edit Campaign / Ad Slot" : "Create Campaign / Ad Slot"}
+        subtitle="Supported image creatives: JPG, PNG, WEBP, AVIF · max 15 MB"
+        maxWidth="max-w-2xl"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
@@ -696,14 +690,13 @@ export default function ManageCMS() {
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-[#38131E] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 cursor-pointer disabled:opacity-50"
+                className="rk-admin-btn bg-[#38131E] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 cursor-pointer disabled:opacity-50"
               >
                 {saving ? "Saving…" : editing ? "Update Campaign" : "Launch Campaign"}
               </button>
             </div>
           </form>
-        </div>
-      )}
+      </AdminModal>
     </div>
   );
 }

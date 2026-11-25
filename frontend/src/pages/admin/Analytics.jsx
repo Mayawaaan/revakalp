@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   IndianRupee,
   ShoppingBag,
@@ -49,6 +50,14 @@ import {
 } from "../../utils/analyticsFormatters";
 import WaterfallChart from "../../components/analytics/WaterfallChart";
 import FunnelWaterfall from "../../components/analytics/FunnelWaterfall";
+import {
+  AdminStaggerGrid,
+  AdminStaggerItem,
+  AdminTabPanel,
+} from "../../components/admin/AdminMotion";
+import useReducedMotion from "../../components/motion/useReducedMotion";
+
+const MotionSpan = motion.span;
 
 const RANGE_OPTIONS = [
   { id: "7d", label: "7D" },
@@ -112,7 +121,7 @@ const ExecutiveKpiCard = ({
   const Icon = icon;
   return (
     <div
-      className={`rounded-2xl p-4 sm:p-5 border transition-colors ${
+      className={`rk-admin-card rounded-2xl p-4 sm:p-5 border hover:shadow-md ${
         accent
           ? "bg-[#38131E] text-[#F7F1E5] border-[#D4AF63]/35"
           : "bg-white text-[#1A1718] border-[#38131E]/12 shadow-xs"
@@ -177,6 +186,7 @@ const SectionCard = ({ title, subtitle, rightSlot, children }) => (
 const Analytics = () => {
   const { showToast } = useStore();
   const { scheme, isDarkMode } = useTheme();
+  const reducedMotion = useReducedMotion();
   const palette = useMemo(
     () => getAnalyticsChartPalette(scheme, isDarkMode),
     [scheme, isDarkMode]
@@ -434,45 +444,65 @@ const Analytics = () => {
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Range Pills */}
           <div className="inline-flex flex-wrap items-center rounded-full bg-white border border-[#38131E]/15 p-1 gap-0.5">
-            {RANGE_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setRange(opt.id)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition cursor-pointer ${
-                  range === opt.id
-                    ? "bg-[#38131E] text-[#F1D889]"
-                    : "text-[#38131E] hover:bg-[#F7F1E5]"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            {RANGE_OPTIONS.map((opt) => {
+              const isSelected = range === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setRange(opt.id)}
+                  className={`relative px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                    isSelected
+                      ? "text-[#F1D889]"
+                      : "text-[#38131E] hover:bg-[#F7F1E5]"
+                  }`}
+                >
+                  {isSelected && (
+                    <MotionSpan
+                      layoutId={reducedMotion ? undefined : "analytics-range-pill"}
+                      transition={{ type: "spring", stiffness: 450, damping: 34 }}
+                      className="absolute inset-0 rounded-full bg-[#38131E]"
+                    />
+                  )}
+                  <span className="relative z-10">{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Channel Filter */}
           <div className="inline-flex items-center rounded-full bg-white border border-[#38131E]/15 p-1 gap-0.5">
-            {CHANNEL_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setChannel(opt.id)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition cursor-pointer ${
-                  channel === opt.id
-                    ? "bg-[#38131E] text-[#F1D889]"
-                    : "text-[#38131E] hover:bg-[#F7F1E5]"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            {CHANNEL_OPTIONS.map((opt) => {
+              const isSelected = channel === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setChannel(opt.id)}
+                  className={`relative px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                    isSelected
+                      ? "text-[#F1D889]"
+                      : "text-[#38131E] hover:bg-[#F7F1E5]"
+                  }`}
+                >
+                  {isSelected && (
+                    <MotionSpan
+                      layoutId={reducedMotion ? undefined : "analytics-channel-pill"}
+                      transition={{ type: "spring", stiffness: 450, damping: 34 }}
+                      className="absolute inset-0 rounded-full bg-[#38131E]"
+                    />
+                  )}
+                  <span className="relative z-10">{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           <button
             type="button"
             onClick={handleRefreshAll}
             disabled={deepLoading || loadingSentiment}
-            className="inline-flex items-center gap-1.5 text-xs bg-white text-[#38131E] hover:bg-[#F7F1E5] border border-[#38131E]/20 px-3.5 py-2 rounded-full font-medium cursor-pointer disabled:opacity-45"
+            className="rk-admin-btn inline-flex items-center gap-1.5 text-xs bg-white text-[#38131E] hover:bg-[#F7F1E5] border border-[#38131E]/20 px-3.5 py-2 rounded-full font-medium cursor-pointer disabled:opacity-45"
           >
             <RefreshCw size={13} className={deepLoading ? "animate-spin" : ""} />
             Refresh
@@ -482,7 +512,7 @@ const Analytics = () => {
             type="button"
             onClick={() => exportDeepAnalyticsCsv(deepData, { range, channel })}
             disabled={deepLoading || !deepData}
-            className="inline-flex items-center gap-1.5 text-xs bg-[#38131E] text-[#F1D889] hover:bg-[#2B0E17] px-4 py-2 rounded-full font-medium cursor-pointer disabled:opacity-45"
+            className="rk-admin-btn inline-flex items-center gap-1.5 text-xs bg-[#38131E] text-[#F1D889] hover:bg-[#2B0E17] px-4 py-2 rounded-full font-medium cursor-pointer disabled:opacity-45"
           >
             <Download size={13} />
             Export CSV
@@ -491,16 +521,17 @@ const Analytics = () => {
       </div>
 
       {/* 8 Executive KPI Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <AdminStaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map((card) => (
-          <ExecutiveKpiCard
-            key={card.title}
-            {...card}
-            loading={deepLoading}
-            palette={palette}
-          />
+          <AdminStaggerItem key={card.title}>
+            <ExecutiveKpiCard
+              {...card}
+              loading={deepLoading}
+              palette={palette}
+            />
+          </AdminStaggerItem>
         ))}
-      </div>
+      </AdminStaggerGrid>
 
       {/* Section Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-[#38131E]/12 pb-3">
@@ -512,19 +543,27 @@ const Analytics = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition cursor-pointer border ${
+              className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-colors cursor-pointer border ${
                 active
-                  ? "bg-[#38131E] text-[#F1D889] border-[#38131E]"
+                  ? "text-[#F1D889] border-[#38131E]"
                   : "bg-white text-[#38131E] border-[#38131E]/15 hover:bg-[#F7F1E5]"
               }`}
             >
-              <Icon size={14} />
-              {tab.label}
+              {active && (
+                <MotionSpan
+                  layoutId={reducedMotion ? undefined : "analytics-active-tab"}
+                  transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                  className="absolute inset-0 rounded-full bg-[#38131E]"
+                />
+              )}
+              <Icon size={14} className="relative z-10" />
+              <span className="relative z-10">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
+      <AdminTabPanel activeKey={activeTab}>
       {/* TAB 1: WATERFALLS & REVENUE */}
       {activeTab === "waterfalls" && (
         <div className="space-y-6">
@@ -1564,6 +1603,7 @@ const Analytics = () => {
           </form>
         </section>
       )}
+      </AdminTabPanel>
     </div>
   );
 };

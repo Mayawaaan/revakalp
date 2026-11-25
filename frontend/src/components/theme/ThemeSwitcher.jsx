@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2, Moon, Palette, Sun } from "lucide-react";
 import { useTheme } from "../../context/themeConfig";
 import useStore from "../../store/store";
+import useReducedMotion from "../motion/useReducedMotion";
+
+const MotionDiv = motion.div;
 
 /**
  * Admin-only global storefront Theme & Color Grading controller.
@@ -13,6 +17,7 @@ export default function ThemeSwitcher() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const panelRef = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!open) return undefined;
@@ -91,12 +96,21 @@ export default function ThemeSwitcher() {
         </span>
       </button>
 
-      {open && (
-        <div
-          role="dialog"
-          aria-label="Global storefront theme selector"
-          className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#FBF7EE] border border-[#D4AF63]/50 rounded-xl shadow-2xl p-4 z-50 text-[#1A1718] space-y-4"
-        >
+      <AnimatePresence>
+        {open && (
+          <MotionDiv
+            key="theme-switcher-popover"
+            initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reducedMotion ? undefined : { opacity: 0, y: -4, scale: 0.97 }}
+            transition={{
+              duration: reducedMotion ? 0 : 0.16,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            role="dialog"
+            aria-label="Global storefront theme selector"
+            className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#FBF7EE] border border-[#D4AF63]/50 rounded-xl shadow-2xl p-4 z-50 text-[#1A1718] space-y-4 origin-top-right"
+          >
           <div className="flex items-center justify-between border-b border-[#38131E]/12 pb-2.5">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#38131E]/65 font-semibold">
@@ -201,8 +215,9 @@ export default function ThemeSwitcher() {
               })}
             </div>
           </div>
-        </div>
-      )}
+        </MotionDiv>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

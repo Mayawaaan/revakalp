@@ -1,30 +1,6 @@
-import { getToken, setToken, clearToken } from "../utils/token";
+import { getToken, clearToken } from "../utils/token";
 import { API_BASE } from "../utils/apiBase";
-
-/* ─────────────────────────────────────────────
-   REFRESH HELPER (singleton promise to avoid double-refresh)
-───────────────────────────────────────────── */
-let refreshPromise = null;
-
-const refreshAccessToken = async () => {
-  if (refreshPromise) return refreshPromise;
-
-  refreshPromise = fetch(`${API_BASE}/api/auth/refresh`, {
-    method: "POST",
-    credentials: "include",      // 🍪 send httpOnly cookie
-  })
-    .then(async (res) => {
-      if (!res.ok) throw new Error("Refresh failed");
-      const data = await res.json();
-      setToken(data.token);
-      return data.token;
-    })
-    .finally(() => {
-      refreshPromise = null;
-    });
-
-  return refreshPromise;
-};
+import { cancelProactiveRefresh, refreshSessionToken } from "../utils/authRefresh";
 
 /* ─────────────────────────────────────────────
    MAIN FETCH WRAPPER
@@ -58,18 +34,23 @@ export const apiFetch = async (endpoint, options = {}, _isRetry = false) => {
     // Don't attempt refresh on auth endpoints themselves
     if (endpoint.includes("/api/auth/login") || endpoint.includes("/api/auth/refresh")) {
       clearToken();
+      cancelProactiveRefresh();
       window.location.href = "/login";
       throw new Error("Unauthorized");
     }
 
     try {
-      await refreshAccessToken();
+      await refreshSessionToken();
       // Retry original request with new token
       return apiFetch(endpoint, options, true);
-    } catch {
-      clearToken();
-      window.location.href = "/login";
-      throw new Error("Session expired. Please log in again.");
+    } catch (refreshError) {
+      if (refreshError?.isAuthFailure) {
+        clearToken();
+        cancelProactiveRefresh();
+        window.location.href = "/login";
+        throw new Error("Session expired. Please log in again.");
+      }
+      throw new Error(refreshError?.message || "Temporary connection error. Please retry.");
     }
   }
 

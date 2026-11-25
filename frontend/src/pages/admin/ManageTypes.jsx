@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, X, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import axios from "../../utils/axiosInstance";
 import useStore from "../../store/store";
+import AdminModal from "../../components/admin/AdminModal";
+import { prepareImageForUpload } from "../../utils/imageUpload";
 
 const inputCls = "w-full border border-[#38131E]/20 rounded-xl px-3 py-2.5 text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60 bg-white";
 
@@ -45,6 +47,18 @@ const ManageTypes = () => {
   };
 
   const closeModal = () => { setModalOpen(false); setActiveType(null); setImage(null); setExistingImage(""); };
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const { file: prepared } = await prepareImageForUpload(file);
+      setImage(prepared);
+    } catch (err) {
+      showToast(err?.message || "Invalid image file", "error");
+    }
+  };
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -158,45 +172,46 @@ const ManageTypes = () => {
       </div>
 
       {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <form
-            onSubmit={submitForm}
-            className="bg-white rounded-2xl w-full max-w-xl p-6 space-y-4 shadow-2xl border border-[#38131E]/15 relative"
-          >
-            <button type="button" onClick={closeModal} className="absolute top-4 right-4 text-[#7A6A6E] hover:text-[#38131E] transition">
-              <X size={18} />
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit Type" : "Add Type"}
+        subtitle="Supported formats: JPG, PNG, WEBP, AVIF · max 15 MB"
+        maxWidth="max-w-xl"
+      >
+        <form onSubmit={submitForm} className="space-y-4">
+          <input required placeholder="Type name" value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
+          <input required placeholder="Slug (e.g. banarasi-saree)" value={form.slug}
+            onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputCls} />
+          <input required placeholder="Category" value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputCls} />
+
+          <input
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+            onChange={handleImageSelect}
+            className="text-sm text-[#38131E]"
+          />
+
+          {(image || existingImage) && (
+            <img
+              src={image ? URL.createObjectURL(image) : existingImage}
+              className="h-20 w-20 rounded-xl object-cover shadow-sm"
+              alt="Preview"
+            />
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={closeModal} className="text-sm text-[#5C4E52] hover:text-[#38131E] transition px-4 py-2 cursor-pointer">
+              Cancel
             </button>
-            <h2 className="font-serif text-xl text-[#38131E]">{editing ? "Edit Type" : "Add Type"}</h2>
-
-            <input required placeholder="Type name" value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
-            <input required placeholder="Slug (e.g. banarasi-saree)" value={form.slug}
-              onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputCls} />
-            <input required placeholder="Category" value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputCls} />
-
-            <input type="file" onChange={(e) => setImage(e.target.files[0])} className="text-sm text-[#38131E]" />
-
-            {(image || existingImage) && (
-              <img
-                src={image ? URL.createObjectURL(image) : existingImage}
-                className="h-20 w-20 rounded-xl object-cover shadow-sm"
-                alt="Preview"
-              />
-            )}
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={closeModal} className="text-sm text-[#5C4E52] hover:text-[#38131E] transition px-4 py-2">
-                Cancel
-              </button>
-              <button type="submit" className="bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200">
-                {editing ? "Update" : "Create"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+            <button type="submit" className="rk-admin-btn bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm cursor-pointer">
+              {editing ? "Update" : "Create"}
+            </button>
+          </div>
+        </form>
+      </AdminModal>
     </div>
   );
 };

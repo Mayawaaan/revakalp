@@ -1,17 +1,9 @@
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import useStore from "../store/store";
 import axios from "../utils/axiosInstance";
 
 const useAuth = () => {
   const { user, login, logout, showToast, updateProfile } = useStore();
-
-  // =========================
-  // ✅ CHECK AUTH ON MOUNT (uses initAuth for silent refresh support)
-  // =========================
-  useEffect(() => {
-    const { initAuth } = useStore.getState();
-    initAuth(axios);
-  }, []);
 
   // =========================
   // ✅ LOGIN (FIXED)

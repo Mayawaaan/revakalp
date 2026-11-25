@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
-import { Plus, Edit2, Trash2, X, Percent, Ticket } from "lucide-react";
+import { Plus, Edit2, Trash2, Percent, Ticket } from "lucide-react";
 import useStore from "../../store/store";
+import AdminModal from "../../components/admin/AdminModal";
 
 const inputCls = "w-full border border-[#38131E]/20 rounded-xl px-3 py-2.5 text-sm text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63] placeholder-[#7A6A6E]/60 bg-white";
 
@@ -181,35 +182,34 @@ const ManageCoupons = () => {
       </div>
 
       {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-xl p-6 relative shadow-2xl border border-[#38131E]/15">
-            <button onClick={closeModal} className="absolute top-4 right-4 text-[#7A6A6E] hover:text-[#38131E] transition"><X size={18} /></button>
-            <h2 className="font-serif text-xl text-[#38131E] mb-5">{editing ? "Edit Coupon" : "Create Coupon"}</h2>
-            <form onSubmit={submitForm} className="space-y-4">
-              <input required placeholder="Coupon Code (e.g. DIWALI10)" className={inputCls}
-                value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
-              <input required type="number" placeholder="Discount Percentage" className={inputCls}
-                value={form.discountPercentage} onChange={(e) => setForm({ ...form, discountPercentage: e.target.value })} />
-              <textarea rows={2} placeholder="Optional description" className={inputCls}
-                value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <div className="grid grid-cols-2 gap-4">
-                <input type="date" className={inputCls} value={form.expiryDate}
-                  onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
-                <input type="number" placeholder="Usage limit" className={inputCls}
-                  value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: e.target.value })} />
-              </div>
-              <Toggle checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} label="Coupon is active" />
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="text-sm text-[#5C4E52] hover:text-[#38131E] transition px-4 py-2">Cancel</button>
-                <button type="submit" className="bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200">
-                  {editing ? "Update" : "Create"}
-                </button>
-              </div>
-            </form>
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit Coupon" : "Create Coupon"}
+        maxWidth="max-w-xl"
+      >
+        <form onSubmit={submitForm} className="space-y-4">
+          <input required placeholder="Coupon Code (e.g. DIWALI10)" className={inputCls}
+            value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
+          <input required type="number" placeholder="Discount Percentage" className={inputCls}
+            value={form.discountPercentage} onChange={(e) => setForm({ ...form, discountPercentage: e.target.value })} />
+          <textarea rows={2} placeholder="Optional description" className={inputCls}
+            value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div className="grid grid-cols-2 gap-4">
+            <input type="date" className={inputCls} value={form.expiryDate}
+              onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
+            <input type="number" placeholder="Usage limit" className={inputCls}
+              value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: e.target.value })} />
           </div>
-        </div>
-      )}
+          <Toggle checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} label="Coupon is active" />
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={closeModal} className="text-sm text-[#5C4E52] hover:text-[#38131E] transition px-4 py-2 cursor-pointer">Cancel</button>
+            <button type="submit" className="rk-admin-btn bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm cursor-pointer">
+              {editing ? "Update" : "Create"}
+            </button>
+          </div>
+        </form>
+      </AdminModal>
     </div>
   );
 };

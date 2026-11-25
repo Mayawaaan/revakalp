@@ -108,7 +108,7 @@ export default function InventoryPOS() {
           type="button"
           onClick={fetchSnapshot}
           disabled={loading}
-          className="inline-flex items-center gap-2 border border-[#38131E]/20 bg-white px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold text-[#38131E] hover:bg-[#F7F1E5] cursor-pointer"
+          className="rk-admin-btn inline-flex items-center gap-2 border border-[#38131E]/20 bg-white px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold text-[#38131E] hover:bg-[#F7F1E5] cursor-pointer"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           Refresh Ledger

@@ -1,109 +1,140 @@
 import { setToken, clearToken, getToken } from "../../utils/token";
-import { API_BASE } from "../../utils/apiBase";
+import {
+  cancelProactiveRefresh,
+  isTokenExpired,
+  refreshSessionToken,
+  registerTokenListener,
+  scheduleProactiveRefresh,
+} from "../../utils/authRefresh";
 
-export const createAuthSlice = (set) => ({
-  user: null,
-  token: getToken(),
-  authReady: false,
+let initAuthPromise = null;
+let tokenListenerRegistered = false;
 
-  // ✅ mark app ready
-  setAuthReady: (val) => set({ authReady: val }),
-
-  // =========================
-  // ✅ LOGIN
-  // =========================
-  login: ({ user, token }) => {
-    if (token) {
-      setToken(token);
-    }
-
-    set({
-      user,
-      token: token || null,
-      authReady: true,
+export const createAuthSlice = (set) => {
+  if (!tokenListenerRegistered) {
+    tokenListenerRegistered = true;
+    registerTokenListener((newToken) => {
+      if (newToken) {
+        set({ token: newToken });
+      }
     });
-  },
+  }
 
-  // =========================
-  // ✅ LOGOUT
-  // =========================
-  logout: () => {
-    clearToken();
+  return {
+    user: null,
+    token: getToken(),
+    authReady: false,
 
-    set({
-      user: null,
-      token: null,
-      authReady: true,
-    });
-  },
+    // ✅ mark app ready
+    setAuthReady: (val) => set({ authReady: val }),
 
-  // =========================
-  // ✅ UPDATE PROFILE
-  // =========================
-  updateProfile: (data) =>
-    set((state) => ({
-      user: state.user ? { ...state.user, ...data } : data,
-    })),
-
-  // =========================
-  // ✅ SYNC TOKEN
-  // =========================
-  syncToken: () => {
-    const token = getToken();
-    set({ token: token || null });
-  },
-
-  // =========================
-  // ✅ INIT AUTH
-  // On app load:
-  //   1. If we have an access token → verify it
-  //   2. If no access token but cookie might exist → attempt silent refresh
-  //   3. If both fail → logged out
-  // =========================
-  initAuth: async (axiosInstance) => {
-    try {
-      const token = getToken();
-
+    // =========================
+    // ✅ LOGIN
+    // =========================
+    login: ({ user, token }) => {
       if (token) {
-        // Try to verify existing access token
-        try {
-          const res = await axiosInstance.get("/api/auth/check");
-          set({ user: res.data, token, authReady: true });
-          return;
-        } catch (err) {
-          // Access token invalid/expired — fall through to refresh
-          if (err.response?.status !== 401) throw err;
-        }
+        setToken(token);
+        scheduleProactiveRefresh(token);
       }
 
-      // No valid access token — try silent refresh via httpOnly cookie
-      try {
-        const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, {
-          method: "POST",
-          credentials: "include",    // 🍪 send cookie
-        });
+      set({
+        user,
+        token: token || null,
+        authReady: true,
+      });
+    },
 
-        if (!refreshRes.ok) throw new Error("No session");
-
-        const { token: newToken } = await refreshRes.json();
-        setToken(newToken);
-
-        // Now get user profile
-        const userRes = await axiosInstance.get("/api/auth/check", {
-          headers: { Authorization: `Bearer ${newToken}` },
-        });
-
-        set({ user: userRes.data, token: newToken, authReady: true });
-
-      } catch {
-        // Truly no session (cookie expired after 4 days, or never existed)
-        clearToken();
-        set({ user: null, token: null, authReady: true });
-      }
-
-    } catch {
+    // =========================
+    // ✅ LOGOUT
+    // =========================
+    logout: () => {
       clearToken();
-      set({ user: null, token: null, authReady: true });
-    }
-  },
-});
+      cancelProactiveRefresh();
+
+      set({
+        user: null,
+        token: null,
+        authReady: true,
+      });
+    },
+
+    // =========================
+    // ✅ UPDATE PROFILE
+    // =========================
+    updateProfile: (data) =>
+      set((state) => ({
+        user: state.user ? { ...state.user, ...data } : data,
+      })),
+
+    // =========================
+    // ✅ SYNC TOKEN
+    // =========================
+    syncToken: () => {
+      const token = getToken();
+      set({ token: token || null });
+    },
+
+    // =========================
+    // ✅ INIT AUTH (deduplicated + proactive silent refresh)
+    // =========================
+    initAuth: async (axiosInstance) => {
+      if (initAuthPromise) return initAuthPromise;
+
+      initAuthPromise = (async () => {
+        try {
+          const token = getToken();
+
+          if (token) {
+            try {
+              const res = await axiosInstance.get("/api/auth/check");
+              scheduleProactiveRefresh(getToken() || token);
+              set({ user: res.data, token: getToken() || token, authReady: true });
+              return;
+            } catch (err) {
+              const status = err.response?.status;
+              if (status && status !== 401) {
+                // Non-401 HTTP/transient server error — keep current non-expired session intact
+                if (!isTokenExpired(token)) {
+                  scheduleProactiveRefresh(token);
+                }
+                set({ authReady: true });
+                return;
+              }
+              if (!status) {
+                // Network offline — do not wipe valid local session on temporary disconnect
+                set({ authReady: true });
+                return;
+              }
+            }
+          }
+
+          // No valid access token or 401 — attempt unified silent refresh
+          try {
+            const newToken = await refreshSessionToken();
+            const userRes = await axiosInstance.get("/api/auth/check", {
+              headers: { Authorization: `Bearer ${newToken}` },
+            });
+            set({ user: userRes.data, token: newToken, authReady: true });
+          } catch (refreshError) {
+            if (refreshError?.isAuthFailure !== false) {
+              clearToken();
+              cancelProactiveRefresh();
+              set({ user: null, token: null, authReady: true });
+            } else {
+              // Transient network error — keep state without forced logout
+              set({ authReady: true });
+            }
+          }
+        } catch {
+          clearToken();
+          cancelProactiveRefresh();
+          set({ user: null, token: null, authReady: true });
+        } finally {
+          initAuthPromise = null;
+        }
+      })();
+
+      return initAuthPromise;
+    },
+  };
+};

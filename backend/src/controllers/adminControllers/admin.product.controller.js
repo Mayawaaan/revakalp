@@ -8,7 +8,16 @@ import {
 import fs from "fs/promises";
 import mongoose from "mongoose";
 
-/* ===================== HELPERS ===================== */
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const cleanupTempUploads = async (files) => {
+    if (!Array.isArray(files) || files.length === 0) return;
+    await Promise.all(
+        files.map((file) =>
+            file?.path ? fs.unlink(file.path).catch(() => {}) : Promise.resolve()
+        )
+    );
+};
 
 const normalizeSizes = (sizes) => {
     if (!sizes) return undefined;
@@ -146,12 +155,19 @@ export const createProduct = async (req, res) => {
         res.status(201).json(newProduct);
 
     } catch (error) {
+        await cleanupTempUploads(req.files);
         for (const imageUrl of imageUrls) {
             const publicId = getPublicIdFromUrl(imageUrl);
-            if (publicId) await deleteImageFromCloudinary(publicId);
+            if (publicId) await deleteImageFromCloudinary(publicId).catch(() => {});
         }
         console.error("Error in createProduct:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        const status =
+            error?.statusCode === 400 || error?.statusCode === 413
+                ? error.statusCode
+                : 500;
+        res.status(status).json({
+            message: status !== 500 ? error.message : error?.message || "Internal Server Error",
+        });
     }
 };
 
@@ -159,7 +175,7 @@ export const createProduct = async (req, res) => {
 
 export const getAllProductsAdmin = async (req, res) => {
     try {
-        const { id } = req.query;
+        const { id, page, limit, search, category } = req.query;
         const filter = {};
 
         if (id) {
@@ -169,11 +185,61 @@ export const getAllProductsAdmin = async (req, res) => {
             filter._id = new mongoose.Types.ObjectId(id);
         }
 
-        const products = await Product.find(filter).lean();
-        res.status(200).json(products);
+        if (category && category !== "All") {
+            filter.category = category;
+        }
+
+        if (search && String(search).trim()) {
+            const regex = new RegExp(escapeRegex(String(search).trim()), "i");
+            filter.$or = [
+                { name: regex },
+                { code: regex },
+                { category: regex },
+                { subCategory: regex },
+                { type: regex },
+                { state: regex },
+            ];
+        }
+
+        const wantsPagination = page !== undefined || limit !== undefined;
+        if (!wantsPagination) {
+            const products = await Product.find(filter)
+                .sort({ date: -1, createdAt: -1 })
+                .lean();
+            return res.status(200).json(products);
+        }
+
+        const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+        const requestedPage = Math.max(1, Number(page) || 1);
+
+        const [total, rawCategories] = await Promise.all([
+            Product.countDocuments(filter),
+            Product.distinct("category"),
+        ]);
+
+        const totalPages = total > 0 ? Math.ceil(total / safeLimit) : 0;
+        const safePage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+        const skip = (safePage - 1) * safeLimit;
+
+        const products = await Product.find(filter)
+            .sort({ date: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(safeLimit)
+            .lean();
+
+        const categories = (rawCategories || []).filter(Boolean).sort();
+
+        return res.status(200).json({
+            products,
+            total,
+            page: safePage,
+            limit: safeLimit,
+            totalPages,
+            categories,
+        });
     } catch (error) {
         console.error("Error in getAllProductsAdmin:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
@@ -311,8 +377,15 @@ export const updateProduct = async (req, res) => {
         res.status(200).json(updatedProduct);
 
     } catch (error) {
+        await cleanupTempUploads(req.files);
         console.error("Error in updateProduct:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        const status =
+            error?.statusCode === 400 || error?.statusCode === 413
+                ? error.statusCode
+                : 500;
+        res.status(status).json({
+            message: status !== 500 ? error.message : error?.message || "Internal Server Error",
+        });
     }
 };
 

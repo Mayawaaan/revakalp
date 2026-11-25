@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Edit2,
@@ -8,8 +8,12 @@ import {
   Image as ImageIcon,
   Search,
   Upload,
+  Loader2,
 } from "lucide-react";
 import useStore from "../../store/store";
+import AdminModal from "../../components/admin/AdminModal";
+import AdminPagination from "../../components/admin/AdminPagination";
+import { prepareImagesForUpload } from "../../utils/imageUpload";
 
 const EMPTY_FORM = {
   name: "",
@@ -37,6 +41,12 @@ const EMPTY_FORM = {
 const ManageProducts = () => {
   const {
     adminProducts,
+    adminProductsTotal,
+    adminProductsPage,
+    adminProductsLimit,
+    adminProductsTotalPages,
+    adminProductCategories,
+    adminProductLoading,
     fetchAdminProducts,
     fetchProducts,
     addAdminProduct,
@@ -49,39 +59,82 @@ const ManageProducts = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [optimizingImages, setOptimizingImages] = useState(false);
   const [activeProduct, setActiveProduct] = useState(null);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
 
   useEffect(() => {
-    fetchAdminProducts();
-  }, [fetchAdminProducts]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const loadProducts = useCallback(() => {
+    fetchAdminProducts({
+      page,
+      limit,
+      search: debouncedSearch,
+      category: categoryFilter,
+    });
+  }, [fetchAdminProducts, page, limit, debouncedSearch, categoryFilter]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const categories = useMemo(() => {
-    const set = new Set(
-      (adminProducts || []).map((p) => p.category).filter(Boolean)
-    );
-    return ["All", ...Array.from(set).sort()];
-  }, [adminProducts]);
+    const base =
+      Array.isArray(adminProductCategories) && adminProductCategories.length > 0
+        ? adminProductCategories
+        : (adminProducts || []).map((p) => p.category).filter(Boolean);
+    return ["All", ...Array.from(new Set(base)).sort()];
+  }, [adminProductCategories, adminProducts]);
 
-  const filteredProducts = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return (adminProducts || []).filter((p) => {
-      if (categoryFilter !== "All" && p.category !== categoryFilter) return false;
-      if (!q) return true;
-      return (
-        (p.name || "").toLowerCase().includes(q) ||
-        (p.code || "").toLowerCase().includes(q) ||
-        (p.category || "").toLowerCase().includes(q) ||
-        (p.type || "").toLowerCase().includes(q) ||
-        (p.state || "").toLowerCase().includes(q)
-      );
-    });
-  }, [adminProducts, categoryFilter, search]);
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
+  const handleCategoryChange = (e) => {
+    setCategoryFilter(e.target.value);
+    setPage(1);
+  };
+
+  const handleLimitChange = (nextLimit) => {
+    setLimit(nextLimit);
+    setPage(1);
+  };
+
+  const handleImagePick = async (e) => {
+    const picked = e.target.files;
+    if (!picked || picked.length === 0) return;
+
+    setOptimizingImages(true);
+    try {
+      const { files, optimizedCount } = await prepareImagesForUpload(picked, 10);
+      setImages(files);
+      if (optimizedCount > 0) {
+        showToast(
+          `Prepared ${files.length} image(s) (${optimizedCount} high-res image(s) optimized for fast upload)`,
+          "success"
+        );
+      }
+    } catch (err) {
+      showToast(err?.message || "Invalid image upload", "error");
+    } finally {
+      setOptimizingImages(false);
+      e.target.value = "";
+    }
+  };
 
   const openCreate = () => {
     setEditing(false);
@@ -185,6 +238,7 @@ const ManageProducts = () => {
         showToast("Product created", "success");
       }
       closeModal();
+      loadProducts();
       fetchProducts?.();
     } catch (err) {
       showToast(err?.message || "Failed to save product", "error");
@@ -198,6 +252,7 @@ const ManageProducts = () => {
     try {
       await deleteAdminProduct(id);
       showToast("Product deleted", "success");
+      loadProducts();
       fetchProducts?.();
     } catch (err) {
       showToast(err?.message || "Failed to delete product", "error");
@@ -213,6 +268,8 @@ const ManageProducts = () => {
       try {
         await deleteAllAdminProducts();
         showToast("All products deleted", "success");
+        setPage(1);
+        loadProducts();
         fetchProducts?.();
       } catch (err) {
         showToast(err?.message || "Failed to delete all products", "error");
@@ -233,7 +290,7 @@ const ManageProducts = () => {
           </p>
           <h1 className="text-3xl font-serif text-[#38131E]">Products</h1>
           <p className="text-[#5C4E52] text-sm mt-1">
-            Create, edit, upload imagery, and manage product inventory ({adminProducts.length} items)
+            Create, edit, upload imagery, and manage product inventory ({adminProductsTotal} items)
           </p>
         </div>
 
@@ -241,14 +298,14 @@ const ManageProducts = () => {
           <button
             type="button"
             onClick={openCreate}
-            className="flex items-center gap-2 bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-5 py-2.5 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200 cursor-pointer"
+            className="rk-admin-btn flex items-center gap-2 bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-5 py-2.5 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm cursor-pointer"
           >
             <Plus size={15} /> Add Product
           </button>
           <button
             type="button"
             onClick={deleteAllProducts}
-            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer"
+            className="rk-admin-btn flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-5 py-2.5 rounded-full text-sm font-medium cursor-pointer"
           >
             <Trash2 size={15} /> Delete All
           </button>
@@ -264,14 +321,14 @@ const ManageProducts = () => {
           />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Search by product name, SKU code, weave, or state…"
             className="w-full pl-10 pr-4 py-2.5 border border-[#38131E]/20 rounded-xl text-sm text-[#1A1718] bg-white focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
           />
         </div>
         <select
           value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
+          onChange={handleCategoryChange}
           className="border border-[#38131E]/20 rounded-xl px-3.5 py-2.5 text-sm bg-white text-[#1A1718] focus:outline-none focus:ring-2 focus:ring-[#D4AF63]"
         >
           {categories.map((c) => (
@@ -283,8 +340,8 @@ const ManageProducts = () => {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl overflow-x-auto shadow-sm">
-        <div className="hidden md:block">
+      <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl overflow-hidden shadow-sm">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[#F7F1E5]/70 border-b border-[#38131E]/12">
               <tr>
@@ -309,8 +366,11 @@ const ManageProducts = () => {
               </tr>
             </thead>
 
-            <tbody>
-              {filteredProducts.map((p) => {
+            <tbody
+              key={`${adminProductsPage}-${adminProductsLimit}-${categoryFilter}`}
+              className="rk-admin-enter"
+            >
+              {adminProducts.map((p) => {
                 const avail = Math.max(
                   0,
                   (Number(p.stock) || 0) - (Number(p.reserved) || 0)
@@ -318,7 +378,7 @@ const ManageProducts = () => {
                 return (
                   <tr
                     key={p._id}
-                    className="border-t border-[#38131E]/10 hover:bg-[#F7F1E5]/40 transition-colors"
+                    className="rk-admin-row border-t border-[#38131E]/10 hover:bg-[#F7F1E5]/40"
                   >
                     <td className="p-4 flex gap-3">
                       {p.image?.[0] ? (
@@ -410,10 +470,19 @@ const ManageProducts = () => {
                   </tr>
                 );
               })}
-              {filteredProducts.length === 0 && (
+              {!adminProductLoading && adminProducts.length === 0 && (
                 <tr>
                   <td colSpan="6" className="text-center py-12 text-[#7A6A6E]">
                     No products match your search.
+                  </td>
+                </tr>
+              )}
+              {adminProductLoading && adminProducts.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center py-12 text-[#38131E]">
+                    <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wider">
+                      <Loader2 size={15} className="animate-spin" /> Loading products…
+                    </span>
                   </td>
                 </tr>
               )}
@@ -423,7 +492,7 @@ const ManageProducts = () => {
 
         {/* Mobile */}
         <div className="md:hidden">
-          {filteredProducts.map((p) => (
+          {adminProducts.map((p) => (
             <div key={p._id} className="border-t border-[#38131E]/10 p-4">
               <div className="flex gap-4">
                 {p.image?.[0] ? (
@@ -476,29 +545,37 @@ const ManageProducts = () => {
               </div>
             </div>
           ))}
+          {!adminProductLoading && adminProducts.length === 0 && (
+            <p className="text-center py-10 text-sm text-[#7A6A6E]">
+              No products match your search.
+            </p>
+          )}
         </div>
+
+        <AdminPagination
+          page={adminProductsPage}
+          totalPages={adminProductsTotalPages}
+          total={adminProductsTotal}
+          limit={adminProductsLimit}
+          loading={adminProductLoading}
+          onPageChange={setPage}
+          onLimitChange={handleLimitChange}
+          itemLabel="products"
+        />
       </div>
 
       {/* MODAL */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto p-6 relative shadow-2xl border border-[#38131E]/15">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-[#7A6A6E] hover:text-[#38131E] transition cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-
-            <h2 className="font-serif text-xl text-[#38131E] mb-5">
-              {editing ? "Edit Product" : "Add Product"}
-            </h2>
-
-            <form
-              onSubmit={submitForm}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        title={editing ? "Edit Product" : "Add Product"}
+        subtitle="Up to 10 images · up to 15 MB per image (high-res photos are automatically optimized)"
+        maxWidth="max-w-3xl"
+      >
+        <form
+          onSubmit={submitForm}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
               <input
                 required
                 placeholder="Product Name *"
@@ -778,19 +855,20 @@ const ManageProducts = () => {
                 )}
 
                 <label className="flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-[#38131E]/22 rounded-xl cursor-pointer hover:border-[#D4AF63] text-xs font-medium text-[#38131E] transition">
-                  <Upload size={14} />
+                  {optimizingImages ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                   <span>
-                    {images.length > 0
-                      ? `${images.length} new image(s) selected — click to add/replace`
-                      : "Upload Product Images (up to 10 files)"}
+                    {optimizingImages
+                      ? "Validating & optimizing selected images…"
+                      : images.length > 0
+                      ? `${images.length} new image(s) ready — click to replace`
+                      : "Upload Product Images (up to 10 files · max 15 MB each)"}
                   </span>
                   <input
                     type="file"
                     multiple
-                    accept="image/*"
-                    onChange={(e) =>
-                      setImages(Array.from(e.target.files || []))
-                    }
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                    disabled={optimizingImages}
+                    onChange={handleImagePick}
                     className="hidden"
                   />
                 </label>
@@ -806,16 +884,14 @@ const ManageProducts = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
+                  disabled={saving || optimizingImages}
+                  className="rk-admin-btn bg-[#38131E] hover:bg-[#2B0E17] text-[#F7F1E5] px-6 py-2 rounded-full text-sm font-medium border border-[#D4AF63]/40 shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   {saving ? "Saving…" : editing ? "Update Product" : "Create Product"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </AdminModal>
     </div>
   );
 };

@@ -1,24 +1,55 @@
 import { apiFetch } from "../../hooks/useApiHelper";
 
-export const createAdminProductSlice = (set) => ({
+export const createAdminProductSlice = (set, get) => ({
   adminProducts: [],
+  adminProductsTotal: 0,
+  adminProductsPage: 1,
+  adminProductsLimit: 10,
+  adminProductsTotalPages: 0,
+  adminProductCategories: [],
   adminProductLoading: false,
   adminProductError: null,
 
-  // ✅ FETCH PRODUCTS
-  fetchAdminProducts: async () => {
+  // ✅ FETCH PRODUCTS (supports paginated & filtered Admin table queries)
+  fetchAdminProducts: async (options = {}) => {
     set({ adminProductLoading: true, adminProductError: null });
 
     try {
-      const data = await apiFetch("/api/admin/products");
+      const params = new URLSearchParams();
+      if (options.page !== undefined) params.set("page", String(options.page));
+      if (options.limit !== undefined) params.set("limit", String(options.limit));
+      if (options.search && String(options.search).trim()) {
+        params.set("search", String(options.search).trim());
+      }
+      if (options.category && options.category !== "All") {
+        params.set("category", options.category);
+      }
 
-      set({
-        adminProducts: Array.isArray(data)
-          ? data
-          : data.products || [],
-        adminProductLoading: false,
-      });
+      const qs = params.toString();
+      const data = await apiFetch(`/api/admin/products${qs ? `?${qs}` : ""}`);
 
+      if (Array.isArray(data)) {
+        set({
+          adminProducts: data,
+          adminProductsTotal: data.length,
+          adminProductsPage: 1,
+          adminProductsLimit: data.length || 10,
+          adminProductsTotalPages: data.length > 0 ? 1 : 0,
+          adminProductLoading: false,
+        });
+      } else {
+        set({
+          adminProducts: data.products || [],
+          adminProductsTotal: Number(data.total) || 0,
+          adminProductsPage: Number(data.page) || 1,
+          adminProductsLimit: Number(data.limit) || Number(options.limit) || 10,
+          adminProductsTotalPages: Number(data.totalPages) || 0,
+          adminProductCategories: Array.isArray(data.categories)
+            ? data.categories
+            : get().adminProductCategories,
+          adminProductLoading: false,
+        });
+      }
     } catch (error) {
       set({
         adminProductError: error.message,

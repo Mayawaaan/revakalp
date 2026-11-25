@@ -35,13 +35,27 @@ const isCrossSiteHttps = (res) =>
   res?.req?.secure === true ||
   res?.req?.headers?.["x-forwarded-proto"] === "https";
 
+// 15-second in-memory grace window so simultaneous concurrent requests using an
+// about-to-rotate refresh cookie don't trigger false reuse wipeouts.
+const ROTATION_GRACE_MS = 15 * 1000;
+const recentlyRotatedTokens = new Map();
+
+const pruneRotatedCache = () => {
+  const now = Date.now();
+  for (const [key, entry] of recentlyRotatedTokens.entries()) {
+    if (entry.expiresAt <= now) {
+      recentlyRotatedTokens.delete(key);
+    }
+  }
+};
+
 const getCookieOpts = (res) => {
   const secure = isCrossSiteHttps(res);
   return {
     httpOnly: true,
     secure,
     sameSite: secure ? "none" : "lax",
-    maxAge: 4 * 24 * 60 * 60 * 1000,
+    maxAge: 14 * 24 * 60 * 60 * 1000,
   };
 };
 
@@ -189,9 +203,38 @@ export const login = async (req, res) => {
 // =========================
 export const refreshAccessToken = async (req, res) => {
   try {
+    pruneRotatedCache();
     const incomingRefreshToken = req.cookies?.refreshToken;
 
     if (!incomingRefreshToken) {
+      // Cross-site fallback (e.g. third-party cookies blocked between Vercel & Render):
+      // Allow sliding renewal if the client presents a valid active access token AND
+      // the user still holds an active session in MongoDB (not logged out).
+      const authHeader = req.headers.authorization;
+      const bearerToken =
+        authHeader && authHeader.startsWith("Bearer ")
+          ? authHeader.split(" ")[1]
+          : null;
+
+      if (bearerToken && bearerToken !== "undefined") {
+        try {
+          const accessDecoded = jwt.verify(bearerToken, process.env.JWT_SECRET);
+          if (accessDecoded?.userId) {
+            const activeUser = await User.findById(accessDecoded.userId);
+            if (
+              activeUser &&
+              Array.isArray(activeUser.refreshTokens) &&
+              activeUser.refreshTokens.length > 0
+            ) {
+              const freshAccessToken = generateAccessToken(activeUser._id);
+              return res.status(200).json({ token: freshAccessToken });
+            }
+          }
+        } catch {
+          // Invalid or expired access token without cookie — fall through to 401
+        }
+      }
+
       return res.status(401).json({ message: "No refresh token" });
     }
 
@@ -211,6 +254,16 @@ export const refreshAccessToken = async (req, res) => {
 
     const tokenIndex = user.refreshTokens.indexOf(hashedIncoming);
     if (tokenIndex === -1) {
+      const graceEntry = recentlyRotatedTokens.get(hashedIncoming);
+      if (
+        graceEntry &&
+        graceEntry.userId === String(user._id) &&
+        graceEntry.expiresAt > Date.now()
+      ) {
+        res.cookie("refreshToken", graceEntry.newRefreshToken, getCookieOpts(res));
+        return res.status(200).json({ token: graceEntry.newAccessToken });
+      }
+
       user.refreshTokens = [];
       await user.save({ validateBeforeSave: false });
       res.clearCookie("refreshToken", getClearCookieOpts(res));
@@ -227,6 +280,13 @@ export const refreshAccessToken = async (req, res) => {
 
     user.refreshTokens = [...user.refreshTokens, hashedNew].slice(-5);
     await user.save({ validateBeforeSave: false });
+
+    recentlyRotatedTokens.set(hashedIncoming, {
+      userId: String(user._id),
+      newAccessToken,
+      newRefreshToken,
+      expiresAt: Date.now() + ROTATION_GRACE_MS,
+    });
 
     res.cookie("refreshToken", newRefreshToken, getCookieOpts(res));
 
@@ -255,6 +315,16 @@ export const logout = async (req, res) => {
         }
       } catch {
         // Ignore invalid/expired token while clearing cookie
+      }
+    } else if (req.headers.authorization?.startsWith("Bearer ")) {
+      try {
+        const bearerToken = req.headers.authorization.split(" ")[1];
+        const decoded = jwt.verify(bearerToken, process.env.JWT_SECRET);
+        if (decoded?.userId) {
+          await User.findByIdAndUpdate(decoded.userId, { $set: { refreshTokens: [] } });
+        }
+      } catch {
+        // Ignore invalid token on logout
       }
     }
 

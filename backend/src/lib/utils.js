@@ -10,15 +10,32 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const uploadImageToCloudinary = async (file) => {
+export const uploadImageToCloudinary = async (file, folder = "Revakalp") => {
   try {
     const result = await cloudinary.uploader.upload(file.path, {
-      folder: "Revakalp",
+      folder,
+      resource_type: "image",
+      quality: "auto:good",
+      fetch_format: "auto",
+      timeout: 120000,
     });
     return result.secure_url;
   } catch (error) {
     console.error("Error uploading image to Cloudinary:", error);
-    throw new Error("Error uploading image to Cloudinary");
+    const httpCode = error?.http_code || error?.error?.http_code;
+    const rawMsg = error?.message || error?.error?.message || "";
+    if (httpCode === 413 || /file size too large|too large/i.test(rawMsg)) {
+      const sizeErr = new Error(
+        "Image exceeds the cloud storage upload limit. Please upload an image under 10 MB after optimization or upgrade your Cloudinary plan."
+      );
+      sizeErr.statusCode = 413;
+      throw sizeErr;
+    }
+    const uploadErr = new Error(
+      rawMsg ? `Image upload failed: ${rawMsg}` : "Error uploading image to Cloudinary"
+    );
+    uploadErr.statusCode = httpCode && httpCode >= 400 && httpCode < 500 ? httpCode : 502;
+    throw uploadErr;
   }
 };
 
@@ -43,17 +60,17 @@ export const getPublicIdFromUrl = (url) => {
 };
 
 
-// Short-lived: 15 minutes — used in Authorization header
+// Sliding session access token (default 2h) — refreshed silently in background
 export const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "15m",
+    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "2h",
   });
 };
 
-// Long-lived: 4 days — stored in DB + sent as httpOnly cookie
+// Long-lived: 14 days — stored in DB + sent as httpOnly cookie
 export const generateRefreshToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: "4d",
+    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "14d",
   });
 };
 

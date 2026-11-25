@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import axios from "../../utils/axiosInstance";
 import {
   Package, User, Eye, Loader2, X, MapPin, CreditCard,
@@ -6,6 +7,10 @@ import {
   Truck, RefreshCw, XCircle, RotateCcw, Info,
 } from "lucide-react";
 import useStore from "../../store/store";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
+import useReducedMotion from "../../components/motion/useReducedMotion";
+
+const MotionDiv = motion.div;
 
 /* ─── Constants ──────────────────────────────────────────── */
 const STATUS_OPTIONS = [
@@ -49,6 +54,9 @@ const OrderDrawer = ({
   const [statusNote, setStatusNote] = useState("");
   const [returnReason, setReturnReason] = useState("");
   const [processingReturn, setProcessingReturn] = useState(false);
+  const reducedMotion = useReducedMotion();
+
+  useBodyScrollLock(Boolean(order));
 
   useEffect(() => {
     setCarrier(order?.carrier || "");
@@ -57,9 +65,17 @@ const OrderDrawer = ({
     setReturnReason("");
   }, [order?._id, order?.carrier, order?.trackingNumber]);
 
-  if (!order) return null;
-  const style = statusStyle(order.status);
-  const StatusIcon = style.icon;
+  useEffect(() => {
+    if (!order) return undefined;
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [order, onClose]);
+
+  const style = order ? statusStyle(order.status) : null;
+  const StatusIcon = style?.icon;
 
   const handleSaveTracking = (e) => {
     e.preventDefault();
@@ -80,15 +96,35 @@ const OrderDrawer = ({
   };
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm z-40"
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {order && (
+        <>
+          {/* Backdrop */}
+          <MotionDiv
+            key="order-drawer-backdrop"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18 }}
+            className="fixed inset-0 bg-[#1A1718]/50 backdrop-blur-sm z-40 overscroll-contain"
+            onClick={onClose}
+          />
 
-      {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg flex flex-col bg-white shadow-2xl border-l border-[#38131E]/15 overflow-y-auto">
+          {/* Drawer */}
+          <MotionDiv
+            key="order-drawer-panel"
+            initial={reducedMotion ? false : { x: "100%" }}
+            animate={{ x: 0 }}
+            exit={reducedMotion ? undefined : { x: "100%" }}
+            transition={{
+              duration: reducedMotion ? 0 : 0.24,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            data-lenis-prevent=""
+            data-lenis-prevent-wheel=""
+            data-lenis-prevent-touch=""
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-lg flex flex-col bg-white shadow-2xl border-l border-[#38131E]/15 overflow-y-auto overscroll-contain"
+          >
 
         {/* Header */}
         <div className="sticky top-0 bg-[#38131E] border-b border-[#D4AF63]/30 px-6 py-5 flex items-start justify-between">
@@ -373,8 +409,10 @@ const OrderDrawer = ({
           </div>
 
         </div>
-      </div>
-    </>
+          </MotionDiv>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -600,7 +638,7 @@ const ViewOrders = () => {
                     const s = style(order.status);
                     const StatusIcon = s.icon;
                     return (
-                      <tr key={order._id} className="hover:bg-[#F7F1E5]/40 transition-colors group">
+                      <tr key={order._id} className="rk-admin-row hover:bg-[#F7F1E5]/40 group">
 
                         {/* Order # */}
                         <td className="px-5 py-4">
@@ -750,16 +788,14 @@ const ViewOrders = () => {
       </div>
 
       {/* Order Detail Drawer */}
-      {selectedOrder && (
-        <OrderDrawer
-          order={selectedOrder}
-          loading={drawerLoading}
-          onClose={() => setSelectedOrder(null)}
-          onStatusChange={handleStatusChange}
-          onReturnDecision={handleReturnDecision}
-          updatingId={updatingId}
-        />
-      )}
+      <OrderDrawer
+        order={selectedOrder}
+        loading={drawerLoading}
+        onClose={() => setSelectedOrder(null)}
+        onStatusChange={handleStatusChange}
+        onReturnDecision={handleReturnDecision}
+        updatingId={updatingId}
+      />
 
     </section>
   );

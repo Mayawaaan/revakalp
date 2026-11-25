@@ -98,13 +98,13 @@ export default function ManageGrievances() {
               ? grievances.length
               : grievances.filter((g) => g.status === s).length;
           return (
-            <button
+              <button
               key={s}
               type="button"
               onClick={() => setStatusFilter(s)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer capitalize ${
+              className={`rk-admin-pill px-3.5 py-1.5 rounded-full text-xs font-medium border cursor-pointer capitalize ${
                 active
-                  ? "bg-[#38131E] text-[#F1D889] border-[#38131E]"
+                  ? "bg-[#38131E] text-[#F1D889] border-[#38131E] shadow-xs"
                   : "bg-white text-[#38131E] border-[#38131E]/18 hover:border-[#D4AF63]"
               }`}
             >
@@ -115,7 +115,7 @@ export default function ManageGrievances() {
       </div>
 
       {/* Tickets List */}
-      <div className="space-y-4">
+      <div key={statusFilter} className="rk-admin-enter space-y-4">
         {!loading && filtered.length === 0 && (
           <div className="bg-white/95 border border-[#38131E]/15 rounded-2xl p-10 text-center text-[#7A6A6E]">
             <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-[#D4AF63]" />

@@ -1,6 +1,9 @@
 import multer from "multer";
 import path from "path";
 
+export const MAX_IMAGE_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB per image
+export const MAX_IMAGE_FILES = 10;
+
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -27,7 +30,11 @@ const fileFilter = (req, file, cb) => {
   if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Unsupported image format. Upload JPG, PNG, WEBP, or AVIF."), false);
+    const err = new Error(
+      "Unsupported image format. Upload JPG, PNG, WEBP, or AVIF."
+    );
+    err.statusCode = 400;
+    cb(err, false);
   }
 };
 
@@ -35,8 +42,9 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB max per image
-    files: 10,
+    fileSize: MAX_IMAGE_FILE_SIZE_BYTES,
+    fieldSize: 2 * 1024 * 1024,
+    files: MAX_IMAGE_FILES,
   },
 });
 
