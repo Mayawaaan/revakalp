@@ -39,6 +39,7 @@ export const updateSettings = async (req, res) => {
       "stripeEnabled",
       "razorpayEnabled",
       "upiEnabled",
+      "demoPaymentMode",
       "stripeKey",
       "razorpayKey",
       "emailNotifications",

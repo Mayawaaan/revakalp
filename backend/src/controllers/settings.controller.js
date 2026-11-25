@@ -28,6 +28,7 @@ export const getPublicSettings = async (req, res) => {
       stripeEnabled: settings.stripeEnabled,
       razorpayEnabled: settings.razorpayEnabled,
       upiEnabled: settings.upiEnabled,
+      demoPaymentMode: settings.demoPaymentMode !== false,
       emailNotifications: settings.emailNotifications,
       stripeKey: settings.stripeKey,
       razorpayKey: settings.razorpayKey,

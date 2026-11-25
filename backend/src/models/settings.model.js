@@ -56,7 +56,15 @@ const settingsSchema = new mongoose.Schema(
     },
     razorpayEnabled: {
       type: Boolean,
-      default: false,
+      default: true,
+    },
+    upiEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    demoPaymentMode: {
+      type: Boolean,
+      default: true,
     },
     razorpayKey: {
       type: String,

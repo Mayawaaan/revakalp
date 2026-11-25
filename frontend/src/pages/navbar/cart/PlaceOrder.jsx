@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader2, Banknote } from "lucide-react";
 import useStore from "../../../store/store";
 import CartTotal from "../../../components/cart/CartTotal";
+import DemoPaymentModal from "../../../components/cart/DemoPaymentModal";
 import PageHero from "../../../components/globalComponents/PageHero";
 import EditorialButton from "../../../components/ui/EditorialButton";
 import { trackEvent } from "../../../utils/analytics";
@@ -37,6 +38,7 @@ const PlaceOrder = () => {
     couponCode,
     createRazorpayOrder,
     verifyRazorpayPayment,
+    cancelPendingPayment,
   } = useStore();
 
   const [formData, setFormData] = useState({
@@ -55,6 +57,9 @@ const PlaceOrder = () => {
   const [productError, setProductError] = useState(null);
   const [couponInput, setCouponInput] = useState("");
   const [acceptedPolicies, setAcceptedPolicies] = useState(false);
+  const [demoSession, setDemoSession] = useState(null);
+
+  const isDemoPayment = settings?.demoPaymentMode !== false;
 
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
@@ -85,11 +90,13 @@ const PlaceOrder = () => {
   };
 
   useEffect(() => {
-    loadRazorpayScript();
+    if (!isDemoPayment) {
+      loadRazorpayScript();
+    }
     if (cart?.length > 0) {
       trackEvent("begin_checkout", { itemCount: cart.length });
     }
-  }, [cart?.length]);
+  }, [cart?.length, isDemoPayment]);
 
   const onSubmitHandler = async (e) => {
     e?.preventDefault();
@@ -163,25 +170,38 @@ const PlaceOrder = () => {
         setPlacing(false);
       }
     } else if (method === "razorpay" || method === "upi") {
-      if (!settings?.razorpayEnabled) {
+      if (!isDemoPayment && !settings?.razorpayEnabled) {
         showToast("Online payment is currently disabled", "error");
         setPlacing(false);
         return;
       }
       try {
-        const res = await loadRazorpayScript();
-        if (!res) {
-          showToast("Razorpay SDK failed to load. Are you online?", "error");
-          setPlacing(false);
-          return;
-        }
-
         // Server calculates authoritative price, reserves stock, and creates internal pending order
         const checkoutSession = await createRazorpayOrder({
           shippingAddress,
           paymentMethod: method,
           notes: orderDetails.notes,
         });
+
+        if (checkoutSession?.demoMode || String(checkoutSession?.order?.id || "").startsWith("demo_order_")) {
+          setDemoSession({
+            ...checkoutSession,
+            paymentMethod: method,
+          });
+          setPlacing(false);
+          return;
+        }
+
+        const res = await loadRazorpayScript();
+        if (!res) {
+          await cancelPendingPayment?.({
+            internalOrderId: checkoutSession?.internalOrderId,
+            gatewayOrderId: checkoutSession?.order?.id,
+          }).catch(() => {});
+          showToast("Razorpay SDK failed to load. Are you online?", "error");
+          setPlacing(false);
+          return;
+        }
 
         const gatewayOrder = checkoutSession.order;
         const internalOrderId = checkoutSession.internalOrderId;
@@ -245,6 +265,56 @@ const PlaceOrder = () => {
         );
         setPlacing(false);
       }
+    }
+  };
+
+  const handleDemoPaymentSuccess = async (response) => {
+    setPlacing(true);
+    try {
+      const data = await verifyRazorpayPayment(response);
+      if (!data.success) {
+        showToast(data.message || "Demo payment verification failed", "error");
+        return;
+      }
+      setDemoSession(null);
+      await Promise.all([fetchCart?.(), fetchOrders?.()]);
+      showToast("Demo payment completed and order confirmed!", "success");
+      navigate("/order-success", { state: { order: data.order } });
+    } catch (err) {
+      showToast(err?.message || "Failed to verify demo payment", "error");
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  const handleDemoPaymentFailure = async (response) => {
+    setPlacing(true);
+    try {
+      const data = await verifyRazorpayPayment(response);
+      setDemoSession(null);
+      showToast(
+        data?.message || "Demo payment failed (simulated). Reserved stock released.",
+        "error"
+      );
+    } catch (err) {
+      showToast(err?.message || "Demo payment simulation failed", "error");
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  const handleDemoPaymentCancel = async () => {
+    const active = demoSession;
+    setDemoSession(null);
+    if (!active) return;
+    try {
+      await cancelPendingPayment?.({
+        internalOrderId: active.internalOrderId,
+        gatewayOrderId: active.order?.id,
+      });
+      showToast("Payment cancelled and reserved stock released", "info");
+    } catch {
+      // Non-fatal cleanup
     }
   };
 
@@ -453,6 +523,11 @@ const PlaceOrder = () => {
               <h2 className="font-serif text-xl sm:text-2xl text-[#38131E]">
                 How would you like to pay?
               </h2>
+              {isDemoPayment && (
+                <p className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] bg-[#D4AF63]/20 border border-[#D4AF63]/50 text-[11px] font-medium text-[#38131E]">
+                  Demo Payment Mode active — Card &amp; UPI payments are simulated with no real charge.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-2 sm:gap-3" role="radiogroup" aria-label="Payment method">
@@ -508,7 +583,10 @@ const PlaceOrder = () => {
                 <Link to="/privacy-policy" className="text-[#38131E] font-semibold underline">
                   Privacy Policy
                 </Link>
-                . Online payments are processed securely via Razorpay.
+                .{" "}
+                {isDemoPayment
+                  ? "Online payments currently run in Demo Payment Mode (no real charge)."
+                  : "Online payments are processed securely via Razorpay."}
               </span>
             </label>
 
@@ -534,6 +612,21 @@ const PlaceOrder = () => {
           </div>
         </div>
       </form>
+
+      <DemoPaymentModal
+        isOpen={Boolean(demoSession)}
+        session={demoSession}
+        storeName={settings?.storeName || "REVAKALP"}
+        currencySymbol={settings?.currencySymbol || "₹"}
+        customer={{
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          phone: formData.phone,
+        }}
+        onSuccess={handleDemoPaymentSuccess}
+        onFailure={handleDemoPaymentFailure}
+        onCancel={handleDemoPaymentCancel}
+      />
     </div>
   );
 };

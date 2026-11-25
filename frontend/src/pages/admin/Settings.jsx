@@ -93,8 +93,9 @@ const Settings = () => {
     freeShippingThreshold: 500,
     deliveryFee: 50,
     codEnabled: true,
-    razorpayEnabled: false,
-    upiEnabled: false,
+    razorpayEnabled: true,
+    upiEnabled: true,
+    demoPaymentMode: true,
     emailNotifications: true,
     admin2FA: false,
     maintenanceMode: false,
@@ -131,8 +132,10 @@ const Settings = () => {
         deliveryFee: settings.deliveryFee || 50,
         codEnabled: settings.codEnabled !== undefined ? settings.codEnabled : true,
         razorpayEnabled:
-          settings.razorpayEnabled !== undefined ? settings.razorpayEnabled : false,
-        upiEnabled: settings.upiEnabled !== undefined ? settings.upiEnabled : false,
+          settings.razorpayEnabled !== undefined ? settings.razorpayEnabled : true,
+        upiEnabled: settings.upiEnabled !== undefined ? settings.upiEnabled : true,
+        demoPaymentMode:
+          settings.demoPaymentMode !== undefined ? settings.demoPaymentMode : true,
         emailNotifications:
           settings.emailNotifications !== undefined ? settings.emailNotifications : true,
         admin2FA: settings.admin2FA !== undefined ? settings.admin2FA : false,
@@ -475,6 +478,18 @@ const Settings = () => {
         </SectionCard>
 
         <SectionCard icon={CreditCard} title="Payments">
+          <Toggle
+            name="demoPaymentMode"
+            checked={formData.demoPaymentMode}
+            onChange={handleChange}
+            disabled={settingsLoading}
+            label="Demo Payment Mode (Simulated Online Checkout)"
+          />
+          <p className="text-xs text-[#1A1718]/60 -mt-2 pl-13">
+            When enabled, Razorpay &amp; UPI use a simulated checkout modal (no real money
+            charged) while still testing real orders and inventory reservation. Turn off when
+            live Razorpay keys are configured.
+          </p>
           <Toggle
             name="codEnabled"
             checked={formData.codEnabled}

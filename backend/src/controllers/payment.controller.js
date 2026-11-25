@@ -39,6 +39,14 @@ export function verifyWebhookSignature({ rawBody, signature, secret }) {
   return crypto.timingSafeEqual(expectedBuf, receivedBuf);
 }
 
+export function isDemoPaymentActive(settings) {
+  return Boolean(
+    settings?.demoPaymentMode !== false ||
+      process.env.DEMO_PAYMENT_MODE === "true" ||
+      !razorpay
+  );
+}
+
 async function finalizePaidOrder(order, paymentId) {
   if (!order) return null;
 
@@ -86,7 +94,10 @@ export const createOrder = async (req, res) => {
   let createdOrder = null;
 
   try {
-    if (!razorpay) {
+    const settings = await Settings.getSettings();
+    const demoMode = isDemoPaymentActive(settings);
+
+    if (!demoMode && !razorpay) {
       return res.status(503).json({
         success: false,
         message: "Payment gateway is not configured on the server",
@@ -112,7 +123,6 @@ export const createOrder = async (req, res) => {
     const products = await Product.find({ _id: { $in: productIds } });
     const productMap = new Map(products.map((p) => [p._id.toString(), p]));
 
-    const settings = await Settings.getSettings();
     const totals = calculateOrderTotals({
       cartItems: cart.items,
       productMap,
@@ -146,6 +156,11 @@ export const createOrder = async (req, res) => {
     const estimatedDelivery = new Date();
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 7);
     const orderNumber = `ORD-${Date.now()}-${crypto.randomBytes(3).toString("hex")}`;
+    const resolvedNotes = demoMode
+      ? notes
+        ? `${notes}\n[DEMO PAYMENT]`
+        : "[DEMO PAYMENT]"
+      : notes;
 
     createdOrder = await Order.create({
       orderNumber,
@@ -165,26 +180,39 @@ export const createOrder = async (req, res) => {
       total: totals.total,
       status: "PendingPayment",
       estimatedDelivery,
-      notes,
+      notes: resolvedNotes,
     });
 
-    const rzpOrder = await razorpay.orders.create({
-      amount: totals.expectedAmountPaise,
-      currency: "INR",
-      receipt: orderNumber,
-      payment_capture: 1,
-      notes: {
-        internalOrderId: createdOrder._id.toString(),
-        orderNumber,
-      },
-    });
+    let gatewayOrder;
+    if (demoMode) {
+      gatewayOrder = {
+        id: `demo_order_${crypto.randomBytes(8).toString("hex")}`,
+        entity: "order",
+        amount: totals.expectedAmountPaise,
+        currency: "INR",
+        receipt: orderNumber,
+        status: "created",
+      };
+    } else {
+      gatewayOrder = await razorpay.orders.create({
+        amount: totals.expectedAmountPaise,
+        currency: "INR",
+        receipt: orderNumber,
+        payment_capture: 1,
+        notes: {
+          internalOrderId: createdOrder._id.toString(),
+          orderNumber,
+        },
+      });
+    }
 
-    createdOrder.gatewayOrderId = rzpOrder.id;
+    createdOrder.gatewayOrderId = gatewayOrder.id;
     await createdOrder.save();
 
     return res.status(200).json({
       success: true,
-      order: rzpOrder,
+      demoMode,
+      order: gatewayOrder,
       internalOrderId: createdOrder._id,
       orderNumber,
       expectedTotal: totals.total,
@@ -216,9 +244,79 @@ export const verifyPayment = async (req, res) => {
       razorpay_payment_id,
       razorpay_signature,
       internalOrderId,
+      demoOutcome,
     } = req.body;
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    if (!razorpay_order_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing payment verification fields",
+      });
+    }
+
+    const isDemoOrder = String(razorpay_order_id).startsWith("demo_order_");
+
+    if (isDemoOrder) {
+      const settings = await Settings.getSettings();
+      if (!isDemoPaymentActive(settings)) {
+        return res.status(403).json({
+          success: false,
+          message: "Demo payment mode is disabled",
+        });
+      }
+
+      const orderQuery = { userId: req.user._id };
+      if (internalOrderId) orderQuery._id = internalOrderId;
+      else orderQuery.gatewayOrderId = razorpay_order_id;
+
+      const order = await Order.findOne(orderQuery);
+      if (!order || order.gatewayOrderId !== razorpay_order_id) {
+        return res.status(404).json({
+          success: false,
+          message: "Matching pending order not found",
+        });
+      }
+
+      if (demoOutcome === "failed") {
+        if (order.paymentStatus !== "verified_success") {
+          for (const token of order.reservationIds || []) {
+            await releaseReservationById(
+              token,
+              "released",
+              "Demo payment simulated failure"
+            );
+          }
+          order.paymentStatus = "verified_failure";
+          order.status = "Cancelled";
+          order.statusHistory.push({
+            status: "Cancelled",
+            timestamp: new Date(),
+            note: "Demo payment failed (simulated)",
+            actor: "gateway",
+          });
+          await order.save();
+        }
+        return res.status(200).json({
+          success: false,
+          cancelled: true,
+          message: "Demo payment failed (simulated). Reserved stock has been released.",
+          order,
+        });
+      }
+
+      const demoPaymentId =
+        razorpay_payment_id || `demo_pay_${crypto.randomBytes(8).toString("hex")}`;
+      const confirmedOrder = await finalizePaidOrder(order, demoPaymentId);
+
+      return res.status(200).json({
+        success: true,
+        demoMode: true,
+        message: "Demo payment verified and order confirmed",
+        order: confirmedOrder,
+      });
+    }
+
+    if (!razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({
         success: false,
         message: "Missing payment verification fields",
@@ -280,6 +378,61 @@ export const verifyPayment = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Payment verification failed",
+    });
+  }
+};
+
+export const cancelPendingPayment = async (req, res) => {
+  try {
+    const { internalOrderId, gatewayOrderId } = req.body || {};
+    const query = { userId: req.user._id, status: "PendingPayment" };
+    if (internalOrderId) {
+      query._id = internalOrderId;
+    } else if (gatewayOrderId) {
+      query.gatewayOrderId = gatewayOrderId;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Order identifier is required",
+      });
+    }
+
+    const order = await Order.findOne(query);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Pending order not found",
+      });
+    }
+
+    if (order.paymentStatus !== "verified_success") {
+      for (const token of order.reservationIds || []) {
+        await releaseReservationById(
+          token,
+          "released",
+          "Checkout cancelled by user"
+        );
+      }
+      order.paymentStatus = "verified_failure";
+      order.status = "Cancelled";
+      order.statusHistory.push({
+        status: "Cancelled",
+        timestamp: new Date(),
+        note: "Payment cancelled by customer",
+        actor: "user",
+      });
+      await order.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Pending payment cancelled and reserved stock released",
+    });
+  } catch (error) {
+    console.error("Error cancelling pending payment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel pending payment",
     });
   }
 };

@@ -45,4 +45,20 @@ export const createPaymentSlice = (set) => ({
       set({ paymentLoading: false });
     }
   },
+
+  cancelPendingPayment: async ({ internalOrderId, gatewayOrderId }) => {
+    try {
+      set({ paymentLoading: true, paymentError: null });
+
+      return await apiFetch("/api/payment/cancel-order", {
+        method: "POST",
+        body: JSON.stringify({ internalOrderId, gatewayOrderId }),
+      });
+    } catch (error) {
+      set({ paymentError: error.message });
+      throw error;
+    } finally {
+      set({ paymentLoading: false });
+    }
+  },
 });
